@@ -1,0 +1,4 @@
+This is the Stefans libs essentials package including 
+(1) stefans_libs::database::variable_table variable_table DB interface,
+(2) stefans_libs::flexible_data_structures::data_table table interface and
+(3) stefans_libs::Latex_Document LaTeX reporting interface

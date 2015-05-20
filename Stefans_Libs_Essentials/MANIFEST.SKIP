@@ -1,0 +1,9 @@
+.svn
+blib/
+old_version/
+output/
+.*.Rout
+.*tar.gz
+tdata/
+tmp/
+save.xls

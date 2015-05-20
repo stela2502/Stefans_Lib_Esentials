@@ -1,0 +1,446 @@
+#kegg_pathway.id	Gene_Symbol	pathway_name
+157	ABCA1	ABC transporters
+157	ABCA5	ABC transporters
+157	ABCB9	ABC transporters
+157	ABCC3	ABC transporters
+157	ABCG1	ABC transporters
+21	JUP	Acute myeloid leukemia
+21	KIT	Acute myeloid leukemia
+21	PIM1	Acute myeloid leukemia
+21	RUNX1	Acute myeloid leukemia
+21	RUNX1	Acute myeloid leukemia
+21	TCF7L1	Acute myeloid leukemia
+91	IQGAP1	Adherens junction
+91	IQGAP1	Adherens junction
+91	IQGAP1	Adherens junction
+91	IQGAP1	Adherens junction
+91	SNAI2	Adherens junction
+91	TCF7L1	Adherens junction
+91	WASL	Adherens junction
+91	WASL	Adherens junction
+91	YES1	Adherens junction
+40	CACNG6	Arrhythmogenic right ventricular cardiomyopathy (ARVC)
+40	DMD	Arrhythmogenic right ventricular cardiomyopathy (ARVC)
+40	ITGB4	Arrhythmogenic right ventricular cardiomyopathy (ARVC)
+40	JUP	Arrhythmogenic right ventricular cardiomyopathy (ARVC)
+40	JUP	Arrhythmogenic right ventricular cardiomyopathy (ARVC)
+40	JUP	Arrhythmogenic right ventricular cardiomyopathy (ARVC)
+40	TCF7L1	Arrhythmogenic right ventricular cardiomyopathy (ARVC)
+84	ABLIM2	Axon guidance
+84	EFNA1	Axon guidance
+84	EFNB3	Axon guidance
+84	EPHB6	Axon guidance
+84	GNAI1	Axon guidance
+84	GNAI1	Axon guidance
+84	NCK2	Axon guidance
+84	NRP1	Axon guidance
+84	NTN3	Axon guidance
+84	PLXNB1	Axon guidance
+84	PLXNC1	Axon guidance
+84	RASA1	Axon guidance
+84	RASA1	Axon guidance
+84	RGS3	Axon guidance
+84	SEMA3F	Axon guidance
+84	SEMA5B	Axon guidance
+84	SEMA6A	Axon guidance
+84	SEMA6B	Axon guidance
+84	UNC5A	Axon guidance
+84	UNC5B	Axon guidance
+104	FIGF	Bladder cancer
+104	MDM2	Bladder cancer
+104	MMP1	Bladder cancer
+104	RPS6KA5	Bladder cancer
+104	VEGFA	Bladder cancer
+104	VEGFC	Bladder cancer
+189	ADCY1	Calcium signaling pathway
+189	ADCY1	Calcium signaling pathway
+189	ATP2B4	Calcium signaling pathway
+189	CACNA1H	Calcium signaling pathway
+189	F2R	Calcium signaling pathway
+189	PDE1B	Calcium signaling pathway
+189	PDGFRB	Calcium signaling pathway
+189	PRKX	Calcium signaling pathway
+189	SLC8A2	Calcium signaling pathway
+189	SLC8A2	Calcium signaling pathway
+189	SPHK1	Calcium signaling pathway
+189	TNNC1	Calcium signaling pathway
+30	CD276	Cell adhesion molecules (CAMs)
+30	CLDN23	Cell adhesion molecules (CAMs)
+30	CLDN23	Cell adhesion molecules (CAMs)
+30	CLDN23	Cell adhesion molecules (CAMs)
+30	CLDN23	Cell adhesion molecules (CAMs)
+30	NCAM1	Cell adhesion molecules (CAMs)
+30	NCAM1	Cell adhesion molecules (CAMs)
+30	NCAM1	Cell adhesion molecules (CAMs)
+30	NCAM1	Cell adhesion molecules (CAMs)
+30	SDC2	Cell adhesion molecules (CAMs)
+30	SDC2	Cell adhesion molecules (CAMs)
+30	SDC3	Cell adhesion molecules (CAMs)
+30	SDC3	Cell adhesion molecules (CAMs)
+30	SELL	Cell adhesion molecules (CAMs)
+65	CDKN1B	Cell cycle
+65	MDM2	Cell cycle
+65	STAG2	Cell cycle
+65	TFDP2	Cell cycle
+65	TFDP2	Cell cycle
+65	TFDP2	Cell cycle
+65	TGFB2	Cell cycle
+110	ADCY1	Chemokine signaling pathway
+110	CX3CL1	Chemokine signaling pathway
+110	CXCL14	Chemokine signaling pathway
+110	CXCL16	Chemokine signaling pathway
+110	GNAI1	Chemokine signaling pathway
+110	GNG7	Chemokine signaling pathway
+110	PRKCZ	Chemokine signaling pathway
+110	PRKCZ	Chemokine signaling pathway
+110	PRKX	Chemokine signaling pathway
+110	TIAM2	Chemokine signaling pathway
+110	WASL	Chemokine signaling pathway
+105	BMPR2	Cytokine-cytokine receptor interaction
+105	CD70	Cytokine-cytokine receptor interaction
+105	CSF2RA	Cytokine-cytokine receptor interaction
+105	CX3CL1	Cytokine-cytokine receptor interaction
+105	CXCL14	Cytokine-cytokine receptor interaction
+105	CXCL16	Cytokine-cytokine receptor interaction
+105	FIGF	Cytokine-cytokine receptor interaction
+105	IL10RB	Cytokine-cytokine receptor interaction
+105	IL1A	Cytokine-cytokine receptor interaction
+105	IL1RAP	Cytokine-cytokine receptor interaction
+105	IL24	Cytokine-cytokine receptor interaction
+105	IL9	Cytokine-cytokine receptor interaction
+105	IL9R	Cytokine-cytokine receptor interaction
+105	KIT	Cytokine-cytokine receptor interaction
+105	LTB	Cytokine-cytokine receptor interaction
+105	PDGFB	Cytokine-cytokine receptor interaction
+105	PDGFRB	Cytokine-cytokine receptor interaction
+105	TGFB2	Cytokine-cytokine receptor interaction
+105	TNFRSF14	Cytokine-cytokine receptor interaction
+105	TNFRSF25	Cytokine-cytokine receptor interaction
+105	TNFSF4	Cytokine-cytokine receptor interaction
+105	VEGFA	Cytokine-cytokine receptor interaction
+105	VEGFC	Cytokine-cytokine receptor interaction
+155	ADCY1	Dilated cardiomyopathy
+155	CACNG6	Dilated cardiomyopathy
+155	DMD	Dilated cardiomyopathy
+155	ITGB4	Dilated cardiomyopathy
+155	PRKX	Dilated cardiomyopathy
+155	TGFB2	Dilated cardiomyopathy
+155	TNNC1	Dilated cardiomyopathy
+139	GSTA2	Drug metabolism - cytochrome P450
+139	GSTM1	Drug metabolism - cytochrome P450
+139	GSTM2	Drug metabolism - cytochrome P450
+139	GSTM4	Drug metabolism - cytochrome P450
+139	GSTZ1	Drug metabolism - cytochrome P450
+58	COL1A1	ECM-receptor interaction
+58	COL1A1	ECM-receptor interaction
+58	COL1A1	ECM-receptor interaction
+58	COL1A1	ECM-receptor interaction
+58	COL1A1	ECM-receptor interaction
+58	COL5A1	ECM-receptor interaction
+58	COL5A1	ECM-receptor interaction
+58	COL5A1	ECM-receptor interaction
+58	COL5A1	ECM-receptor interaction
+58	COL5A1	ECM-receptor interaction
+58	COL6A1	ECM-receptor interaction
+58	COL6A1	ECM-receptor interaction
+58	COL6A1	ECM-receptor interaction
+58	COL6A1	ECM-receptor interaction
+58	COL6A1	ECM-receptor interaction
+58	GP6	ECM-receptor interaction
+58	ITGB4	ECM-receptor interaction
+58	LAMA4	ECM-receptor interaction
+58	LAMA4	ECM-receptor interaction
+58	LAMA4	ECM-receptor interaction
+58	LAMA4	ECM-receptor interaction
+58	LAMA4	ECM-receptor interaction
+58	LAMB2	ECM-receptor interaction
+58	LAMB2	ECM-receptor interaction
+58	LAMB2	ECM-receptor interaction
+58	LAMB2	ECM-receptor interaction
+58	LAMB2	ECM-receptor interaction
+58	LAMB3	ECM-receptor interaction
+58	LAMB3	ECM-receptor interaction
+58	LAMB3	ECM-receptor interaction
+58	LAMB3	ECM-receptor interaction
+58	LAMB3	ECM-receptor interaction
+58	SDC2	ECM-receptor interaction
+58	SDC3	ECM-receptor interaction
+58	THBS4	ECM-receptor interaction
+58	THBS4	ECM-receptor interaction
+58	THBS4	ECM-receptor interaction
+58	THBS4	ECM-receptor interaction
+95	DNAJC6	Endocytosis
+95	F2R	Endocytosis
+95	KIT	Endocytosis
+95	MDM2	Endocytosis
+95	PRKCZ	Endocytosis
+95	PSD	Endocytosis
+95	PSD3	Endocytosis
+95	PSD4	Endocytosis
+140	COL1A1	Focal adhesion
+140	COL5A1	Focal adhesion
+140	COL6A1	Focal adhesion
+140	FIGF	Focal adhesion
+140	GRLF1	Focal adhesion
+140	ITGB4	Focal adhesion
+140	LAMA4	Focal adhesion
+140	LAMB2	Focal adhesion
+140	LAMB3	Focal adhesion
+140	MYL9	Focal adhesion
+140	PDGFB	Focal adhesion
+140	PDGFRB	Focal adhesion
+140	THBS4	Focal adhesion
+140	VEGFA	Focal adhesion
+140	VEGFC	Focal adhesion
+28	ADCY1	Gap junction
+28	GNAI1	Gap junction
+28	GNAI1	Gap junction
+28	MAP2K5	Gap junction
+28	PDGFB	Gap junction
+28	PDGFRB	Gap junction
+28	PRKX	Gap junction
+130	GGT1	Glutathione metabolism
+130	GGT1	Glutathione metabolism
+130	GGT1	Glutathione metabolism
+130	GSTA2	Glutathione metabolism
+130	GSTM1	Glutathione metabolism
+130	GSTM2	Glutathione metabolism
+130	GSTM4	Glutathione metabolism
+130	GSTZ1	Glutathione metabolism
+130	OPLAH	Glutathione metabolism
+148	CACNG6	Hypertrophic cardiomyopathy (HCM)
+148	DMD	Hypertrophic cardiomyopathy (HCM)
+148	ITGB4	Hypertrophic cardiomyopathy (HCM)
+148	TGFB2	Hypertrophic cardiomyopathy (HCM)
+148	TNNC1	Hypertrophic cardiomyopathy (HCM)
+127	MKNK1	Insulin signaling pathway
+127	PCK2	Insulin signaling pathway
+127	PRKCZ	Insulin signaling pathway
+127	PRKX	Insulin signaling pathway
+127	SOCS2	Insulin signaling pathway
+165	CSF2RA	Jak-STAT signaling pathway
+165	IL10RB	Jak-STAT signaling pathway
+165	IL13RA2	Jak-STAT signaling pathway
+165	IL24	Jak-STAT signaling pathway
+165	IL9	Jak-STAT signaling pathway
+165	IL9R	Jak-STAT signaling pathway
+165	PIM1	Jak-STAT signaling pathway
+165	SOCS2	Jak-STAT signaling pathway
+54	ABCB9	Lysosome
+54	AP4M1	Lysosome
+54	CD68	Lysosome
+54	CTSB	Lysosome
+54	CTSH	Lysosome
+54	CTSO	Lysosome
+54	CTSZ	Lysosome
+54	FUCA1	Lysosome
+54	GAA	Lysosome
+54	MANBA	Lysosome
+54	PSAP	Lysosome
+54	SORT1	Lysosome
+54	TPP1	Lysosome
+78	CACNA1H	MAPK signaling pathway
+78	CACNG6	MAPK signaling pathway
+78	DUSP8	MAPK signaling pathway
+78	DUSP8	MAPK signaling pathway
+78	IL1A	MAPK signaling pathway
+78	MAP2K5	MAPK signaling pathway
+78	MAP3K12	MAPK signaling pathway
+78	MAP4K1	MAPK signaling pathway
+78	MAPK8IP1	MAPK signaling pathway
+78	MKNK1	MAPK signaling pathway
+78	PDGFB	MAPK signaling pathway
+78	PDGFRB	MAPK signaling pathway
+78	PPM1B	MAPK signaling pathway
+78	PRKX	MAPK signaling pathway
+78	RASA1	MAPK signaling pathway
+78	RPS6KA5	MAPK signaling pathway
+78	RRAS	MAPK signaling pathway
+78	STMN1	MAPK signaling pathway
+78	TGFB2	MAPK signaling pathway
+191	ADCY1	Melanogenesis
+191	GNAI1	Melanogenesis
+191	GNAO1	Melanogenesis
+191	GNAO1	Melanogenesis
+191	KIT	Melanogenesis
+191	MC1R	Melanogenesis
+191	PRKX	Melanogenesis
+191	PRKX	Melanogenesis
+191	TCF7L1	Melanogenesis
+191	WNT6	Melanogenesis
+191	WNT8B	Melanogenesis
+192	GSTA2	Metabolism of xenobiotics by cytochrome P450
+192	GSTA2	Metabolism of xenobiotics by cytochrome P450
+192	GSTA2	Metabolism of xenobiotics by cytochrome P450
+192	GSTA2	Metabolism of xenobiotics by cytochrome P450
+192	GSTA2	Metabolism of xenobiotics by cytochrome P450
+192	GSTA2	Metabolism of xenobiotics by cytochrome P450
+192	GSTA2	Metabolism of xenobiotics by cytochrome P450
+192	GSTA2	Metabolism of xenobiotics by cytochrome P450
+192	GSTM1	Metabolism of xenobiotics by cytochrome P450
+192	GSTM1	Metabolism of xenobiotics by cytochrome P450
+192	GSTM1	Metabolism of xenobiotics by cytochrome P450
+192	GSTM1	Metabolism of xenobiotics by cytochrome P450
+192	GSTM1	Metabolism of xenobiotics by cytochrome P450
+192	GSTM1	Metabolism of xenobiotics by cytochrome P450
+192	GSTM1	Metabolism of xenobiotics by cytochrome P450
+192	GSTM1	Metabolism of xenobiotics by cytochrome P450
+192	GSTM2	Metabolism of xenobiotics by cytochrome P450
+192	GSTM2	Metabolism of xenobiotics by cytochrome P450
+192	GSTM2	Metabolism of xenobiotics by cytochrome P450
+192	GSTM2	Metabolism of xenobiotics by cytochrome P450
+192	GSTM2	Metabolism of xenobiotics by cytochrome P450
+192	GSTM2	Metabolism of xenobiotics by cytochrome P450
+192	GSTM2	Metabolism of xenobiotics by cytochrome P450
+192	GSTM2	Metabolism of xenobiotics by cytochrome P450
+192	GSTM4	Metabolism of xenobiotics by cytochrome P450
+192	GSTM4	Metabolism of xenobiotics by cytochrome P450
+192	GSTM4	Metabolism of xenobiotics by cytochrome P450
+192	GSTM4	Metabolism of xenobiotics by cytochrome P450
+192	GSTM4	Metabolism of xenobiotics by cytochrome P450
+192	GSTM4	Metabolism of xenobiotics by cytochrome P450
+192	GSTM4	Metabolism of xenobiotics by cytochrome P450
+192	GSTM4	Metabolism of xenobiotics by cytochrome P450
+192	GSTZ1	Metabolism of xenobiotics by cytochrome P450
+192	GSTZ1	Metabolism of xenobiotics by cytochrome P450
+192	GSTZ1	Metabolism of xenobiotics by cytochrome P450
+192	GSTZ1	Metabolism of xenobiotics by cytochrome P450
+192	GSTZ1	Metabolism of xenobiotics by cytochrome P450
+192	GSTZ1	Metabolism of xenobiotics by cytochrome P450
+192	GSTZ1	Metabolism of xenobiotics by cytochrome P450
+192	GSTZ1	Metabolism of xenobiotics by cytochrome P450
+13	F2R	Neuroactive ligand-receptor interaction
+13	GABRG2	Neuroactive ligand-receptor interaction
+13	GCGR	Neuroactive ligand-receptor interaction
+13	GZMA	Neuroactive ligand-receptor interaction
+13	MC1R	Neuroactive ligand-receptor interaction
+13	PRSS2	Neuroactive ligand-receptor interaction
+13	PRSS3	Neuroactive ligand-receptor interaction
+37	OR10T2	Olfactory transduction
+37	OR4F5	Olfactory transduction
+37	OR51G1	Olfactory transduction
+37	OR52I1	Olfactory transduction
+37	OR5F1	Olfactory transduction
+37	OR5R1	Olfactory transduction
+37	PRKX	Olfactory transduction
+188	ARHGEF6	Pancreatic cancer
+188	FIGF	Pancreatic cancer
+188	RALGDS	Pancreatic cancer
+188	TGFB2	Pancreatic cancer
+188	VEGFA	Pancreatic cancer
+188	VEGFC	Pancreatic cancer
+167	CDKN1B	Pathways in cancer
+167	CDKN1B	Pathways in cancer
+167	CSF2RA	Pathways in cancer
+167	FIGF	Pathways in cancer
+167	FIGF	Pathways in cancer
+167	FIGF	Pathways in cancer
+167	JUP	Pathways in cancer
+167	KIT	Pathways in cancer
+167	KLK3	Pathways in cancer
+167	LAMA4	Pathways in cancer
+167	LAMB2	Pathways in cancer
+167	LAMB3	Pathways in cancer
+167	MDM2	Pathways in cancer
+167	MDM2	Pathways in cancer
+167	MMP1	Pathways in cancer
+167	PDGFB	Pathways in cancer
+167	PDGFB	Pathways in cancer
+167	PDGFRB	Pathways in cancer
+167	RALGDS	Pathways in cancer
+167	RARB	Pathways in cancer
+167	RUNX1	Pathways in cancer
+167	RUNX1	Pathways in cancer
+167	RUNX1	Pathways in cancer
+167	TCF7L1	Pathways in cancer
+167	TCF7L1	Pathways in cancer
+167	TGFB2	Pathways in cancer
+167	TGFB2	Pathways in cancer
+167	VEGFA	Pathways in cancer
+167	VEGFA	Pathways in cancer
+167	VEGFA	Pathways in cancer
+167	VEGFC	Pathways in cancer
+167	VEGFC	Pathways in cancer
+167	VEGFC	Pathways in cancer
+167	WNT6	Pathways in cancer
+167	WNT6	Pathways in cancer
+167	WNT8B	Pathways in cancer
+167	WNT8B	Pathways in cancer
+137	CDKN1B	Prostate cancer
+137	CDKN1B	Prostate cancer
+137	INSRR	Prostate cancer
+137	KLK3	Prostate cancer
+137	MDM2	Prostate cancer
+137	PDGFB	Prostate cancer
+137	PDGFRB	Prostate cancer
+137	TCF7L1	Prostate cancer
+90	ADCY1	Purine metabolism
+90	ADCY1	Purine metabolism
+90	AK5	Purine metabolism
+90	AK5	Purine metabolism
+90	AMPD3	Purine metabolism
+90	PDE1B	Purine metabolism
+90	PDE1B	Purine metabolism
+90	PDE6A	Purine metabolism
+90	PDE7A	Purine metabolism
+90	PDE7A	Purine metabolism
+90	PDE9A	Purine metabolism
+90	PDE9A	Purine metabolism
+90	PNPT1	Purine metabolism
+90	PNPT1	Purine metabolism
+90	PRUNE	Purine metabolism
+3	ARHGEF6	Regulation of actin cytoskeleton
+3	ARHGEF6	Regulation of actin cytoskeleton
+3	CYFIP2	Regulation of actin cytoskeleton
+3	F2R	Regulation of actin cytoskeleton
+3	FGD1	Regulation of actin cytoskeleton
+3	GRLF1	Regulation of actin cytoskeleton
+3	GSN	Regulation of actin cytoskeleton
+3	INSRR	Regulation of actin cytoskeleton
+3	IQGAP1	Regulation of actin cytoskeleton
+3	ITGB4	Regulation of actin cytoskeleton
+3	MYL9	Regulation of actin cytoskeleton
+3	PDGFB	Regulation of actin cytoskeleton
+3	PDGFRB	Regulation of actin cytoskeleton
+3	RRAS	Regulation of actin cytoskeleton
+3	SSH1	Regulation of actin cytoskeleton
+3	SSH3	Regulation of actin cytoskeleton
+3	TIAM2	Regulation of actin cytoskeleton
+3	TMSB4X	Regulation of actin cytoskeleton
+3	WASL	Regulation of actin cytoskeleton
+74	FIGF	Renal cell carcinoma
+74	PDGFB	Renal cell carcinoma
+74	TGFB2	Renal cell carcinoma
+74	VEGFA	Renal cell carcinoma
+74	VEGFC	Renal cell carcinoma
+122	CDKN1B	Small cell lung cancer
+122	LAMA4	Small cell lung cancer
+122	LAMB2	Small cell lung cancer
+122	LAMB3	Small cell lung cancer
+122	RARB	Small cell lung cancer
+52	BMPR2	TGF-beta signaling pathway
+52	SMAD5	TGF-beta signaling pathway
+52	SMAD5	TGF-beta signaling pathway
+52	SMAD6	TGF-beta signaling pathway
+52	SMAD7	TGF-beta signaling pathway
+52	TGFB2	TGF-beta signaling pathway
+52	THBS4	TGF-beta signaling pathway
+116	CLDN23	Tight junction
+116	CLDN23	Tight junction
+116	EPB41	Tight junction
+116	GNAI1	Tight junction
+116	INADL	Tight junction
+116	MYL9	Tight junction
+116	PRKCZ	Tight junction
+116	RRAS	Tight junction
+116	TJP3	Tight junction
+116	YES1	Tight junction
+36	CXXC4	Wnt signaling pathway
+36	LRP5	Wnt signaling pathway
+36	MMP7	Wnt signaling pathway
+36	PRICKLE1	Wnt signaling pathway
+36	PRICKLE2	Wnt signaling pathway
+36	PRKX	Wnt signaling pathway
+36	TCF7L1	Wnt signaling pathway
+36	WNT6	Wnt signaling pathway
+36	WNT8B	Wnt signaling pathway               ;  ��	                         ����    ����        ��������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������R o o t   E n t r y                                               ������������                                    ����                                                                            ������������                                    ����                                                                            ������������                                    ����                                                                            ������������                                    ����        
