@@ -2184,9 +2184,9 @@ sub add_column {
 		$data_array = \@data_array;
 	}
 	if ( $col_id > 0 ) {
-		warn "The data is not of the same length as the rows!( "
+		Carp::cluck( "The data is not of the same length as the rows!( "
 		  . scalar(@$data_array) . " != "
-		  . $self->Rows() . ")\n"
+		  . $self->Rows() . ")\n" )
 		  unless ( scalar(@$data_array) == $self->Rows() );
 	}
 	elsif ( $self->Columns() == 1 ) {
