@@ -20,21 +20,45 @@ use warnings;
 
 sub new {
 
-	my ( $class, $im, $bgColor ) = @_;
-
+	my ( $class, $im, $bgColor, $rgb_array, $names ) = @_;
 	warn "$class -> new() - we have not got a image to deploy the colors to..."
 	  unless ( defined $im );
 	my ($self);
 	$bgColor = 'white' unless ( defined $bgColor );
 
 	$self = {
-		uniqueColor         => 1 == 1,
-		IL7_difference      => 1 == 1,
+		'order'          => [],
+		'uniqueColor'    => 1 == 1,
+		'IL7_difference' => 1 == 1,
+		'nextColor' => -1,
 	};
 
 	bless $self, $class if ( $class eq "color" );
+	if ( defined $rgb_array && -f $rgb_array ) {
+		open( IN, "<$rgb_array" )
+		  or die
+		  "I could not open the colour definition file '$rgb_array'\n$!\n";
+		my @line;
+		$rgb_array = undef;
+		my $OK = 0;
+		while (<IN>) {
+			if ( $_ =~ m/names\tred\tgreen\tblue\n/ ) {
+				$OK        = 1;
+				$rgb_array = [];
+				$names     = [];
+				next;
+			}
+			last unless ($OK);
+			chomp($_);
+			@line = split( "\t", $_ );
+			push( @$names, shift(@line) );
+			push( @$rgb_array, [@line] );
+		}
+		close(IN);
+	}
 
-	$self->createColors( $im, $bgColor ) if ( defined $im );
+#	Carp::confess ( "createColors( $im, $bgColor, [".join(",",@$rgb_array)."], [".join(",",@$names )."])");
+	$self->createColors( $im, $bgColor, $rgb_array, $names ) if ( defined $im );
 
 	return $self;
 
@@ -42,8 +66,8 @@ sub new {
 
 sub getNextColor {
 	my ($self) = @_;
-	$self->{nextColor} = 0 if ( $self->{nextColor} == $self->{maxColorIndex} );
-	return $self->{colorArray}[ ++$self->{nextColor} ];
+	$self->{nextColor} = -1 if ( $self->{nextColor} == $self->{maxColorIndex} );
+	return $self->{@{$self->{'order'}}[ ++$self->{nextColor} ] };
 }
 
 sub getDensityMapColorArray {
@@ -65,66 +89,70 @@ sub UseUniqueColors {
 }
 
 sub createColors {
-	my ( $self, $im, $bgColor ) = @_;
+	my ( $self, $im, $bgColor, $rgb_array, $names ) = @_;
 	$self->{im} = $im;
-	my @array;
-	$self->{colorArray} = \@array;
-	$self->{nextColor}  = 0;
-	my $colors = {
-		'white'        => [ 255, 255, 255 ],
-		'grey'         => [ 183, 183, 183 ],
-		'dark_grey'    => [ 100, 100, 100 ],
-		'dark_purple'  => [ 155, 0,   155 ],
-		'purple'       => [ 169, 0,   247 ],
-		'light_purple' => [ 251, 148, 251 ],
-		'black'        => [ 0,   0,   0 ],
-		'dark_green'   => [ 0,   119, 10 ],
-		'green'        => [ 0,   155, 0 ],
-		'light_green'  => [ 0,   255, 0 ],
-		'yellowgreen'  => [ 165, 202, 0 ],
-		'dark_yellow'  => [ 240, 240, 40 ],
-		'yellow'       => [ 255, 255, 0 ],
-		'light_yelow'  => [ 255, 255, 235 ],
-		'dark_blue'    => [ 0,   0,   255 ],
-		'blue'         => [ 0,   155, 255 ],
-		'blau2'        => [ 71,  0,   184 ],
-		'tuerkies1'    => [ 0,   220, 255 ],
-		'light_blue'   => [ 149, 204, 243 ],
-		'red'          => [ 255, 0,   0 ],
-		'rosa'         => [ 255, 0,   221 ],
-		'brown'        => [ 194, 132, 80 ],
-		'light_orange' => [ 255, 180, 4 ],
-		'orange'       => [ 254, 115, 8 ],
-		'pastel_blue'  => [ 249, 247, 255 ]
-		,    ## do not change!! colors for legend! ##
-		'pastel_yellow' => [ 255, 255, 230 ]
-		,    ## do not change!! colors for legend! ##
-		'ultra_pastel_blue' => [ 251, 251, 255 ]
-		,    ## do not change!! colors for legend! ##
-		'ultra_pastel_yellow' => [ 255, 255, 240 ]
-		,    ## do not change!! colors for legend! ##
-	};
-	$bgColor = 'white'
-	  unless ( defined $bgColor );
+	my $colors;
+	if ( ref($rgb_array) eq "ARRAY" ) {
+		## define new colours!
+		if ( ref($names) eq "ARRAY" && scalar(@$names) == scalar(@$rgb_array) )
+		{
+			$colors =
+			  { map { @$names[$_] => @$rgb_array[$_] }
+				  0 .. scalar(@$names) - 1 };
+			$colors->{'white'} = [ 255, 255, 255 ];
+			$colors->{'black'} = [ 0,   0,   0 ];
+			push( @$names, 'white', 'black' );
+		}
+	}
+	else {
+		$colors = {
+			'white'        => [ 255, 255, 255 ],
+			'grey'         => [ 183, 183, 183 ],
+			'dark_grey'    => [ 100, 100, 100 ],
+			'dark_purple'  => [ 155, 0,   155 ],
+			'purple'       => [ 169, 0,   247 ],
+			'light_purple' => [ 251, 148, 251 ],
+			'black'        => [ 0,   0,   0 ],
+			'dark_green'   => [ 0,   119, 10 ],
+			'green'        => [ 0,   155, 0 ],
+			'light_green'  => [ 0,   255, 0 ],
+			'yellowgreen'  => [ 165, 202, 0 ],
+			'dark_yellow'  => [ 240, 240, 40 ],
+			'yellow'       => [ 255, 255, 0 ],
+			'light_yelow'  => [ 255, 255, 235 ],
+			'dark_blue'    => [ 0,   0,   255 ],
+			'blue'         => [ 0,   155, 255 ],
+			'blau2'        => [ 71,  0,   184 ],
+			'tuerkies1'    => [ 0,   220, 255 ],
+			'light_blue'   => [ 149, 204, 243 ],
+			'red'          => [ 255, 0,   0 ],
+			'rosa'         => [ 255, 0,   221 ],
+			'brown'        => [ 194, 132, 80 ],
+			'light_orange' => [ 255, 180, 4 ],
+			'orange'       => [ 254, 115, 8 ],
+			'pastel_blue'  => [ 249, 247, 255 ]
+			,    ## do not change!! colors for legend! ##
+			'pastel_yellow' => [ 255, 255, 230 ]
+			,    ## do not change!! colors for legend! ##
+			'ultra_pastel_blue' => [ 251, 251, 255 ]
+			,    ## do not change!! colors for legend! ##
+			'ultra_pastel_yellow' => [ 255, 255, 240 ]
+			,    ## do not change!! colors for legend! ##
+		};
+		$names = [ sort keys %$colors ] ;
+	}
+	$bgColor ||= 'white';
 	$self->{$bgColor} = $self->{im}->colorAllocate( @{ $colors->{$bgColor} } );
 	unless ( $bgColor eq "white" ) {
-		$im -> filledRectangle( 0,0, $im->{'width'}, $im->{'height'}, $self->{$bgColor});
+		$im->filledRectangle( 0, 0, $im->{'width'}, $im->{'height'},
+			$self->{$bgColor} );
 	}
-	foreach ( keys %$colors ) {
+	foreach ( @$names ) {
 		next if ( $_ eq $bgColor );
 		$self->{$_} = $self->{im}->colorAllocate( @{ $colors->{$_} } );
 	}
-	foreach (
-		qw(
-		white purple dark_green yellowgreen dark_yellow dark_blue tuerkies1
-		light_blue red rosa brown orange black green blue light_orange
-		light_green ultra_pastel_blue
-		)
-	  )
-	{
-		push( @array, $self->{$_} );
-	}
-	$self->{maxColorIndex} = @array - 1;
+	$self->{'order'} = $names;
+	$self->{maxColorIndex} = @$names - 1;
 }
 
 sub selectTwoFoldColor {
@@ -282,8 +310,8 @@ sub color_and_Name {
 	if ( $tag eq "D_segment" ) {
 
 		#     print "D_segment name = $name;\n";
-		return $1, $self->{dark_blue} if ( $name =~ m/(DQ-52)/ );
-		return $1, $self->{dark_blue} if ( $name =~ m/D_FL16.1/ );
+		return $1,    $self->{dark_blue} if ( $name =~ m/(DQ-52)/ );
+		return $1,    $self->{dark_blue} if ( $name =~ m/D_FL16.1/ );
 		return $name, $self->{dark_blue} if ( $name eq "D1" || $name eq "D2" );
 
 		$name =~ s/TR[AGDB]/IGH/;
@@ -432,7 +460,7 @@ sub V_segment_Name {
 		return "DQ52"    if ( $name =~ m/52/ );
 		return "DFL16.1" if ( $name =~ m/D-FL16.1/ );
 		return "D$1"     if ( $name =~ m/TRDD(\d)/ );
-		return $name if ( $name eq "D1" || $name eq "D2" );
+		return $name     if ( $name eq "D1" || $name eq "D2" );
 		return "";
 		return $1 if ( $name =~ m/IGHD-(.*)/ );
 		return $name;

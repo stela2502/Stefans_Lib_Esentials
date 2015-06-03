@@ -237,14 +237,25 @@ sub writePicture {
 	#print "We print to path $path\n";
 	Carp::confess ( "You gave me a shitty filename containing line ends - why??\n'$pictureFileName'\n")if ( $pictureFileName =~ m/\n/ );
 	mkdir($path) unless ( -d $path );
+	if ( ref ( $self->{im} ) eq "GD::SVG::Image" ) {
 	$pictureFileName = "$pictureFileName.svg"
 	  unless ( $pictureFileName =~ m/\.svg$/ );
+	}elsif ( ref ( $self->{im} ) eq "GD::Image" ){
+		$pictureFileName = "$pictureFileName.png"
+	  unless ( $pictureFileName =~ m/\.png$/ );
+	}
 	open( PICTURE, ">$pictureFileName" )
 	  or die "Cannot open file $pictureFileName for writing\n$!\n";
 
 	binmode PICTURE;
-
-	print PICTURE $self->{im}->svg;
+	if ( ref ( $self->{im} ) eq "GD::SVG::Image" ) {
+		print PICTURE $self->{im}->svg;
+	}elsif ( ref ( $self->{im} ) eq "GD::Image" ){
+		print PICTURE $self->{im}->png;
+	}else {
+		Carp::confess ( "Not supported image format: ".  ref ( $self->{im} ) );
+	}
+	
 	close PICTURE;
 	print "Bild als $pictureFileName gespeichert\n";
 	$self->{im} = undef;
@@ -333,6 +344,7 @@ sub _createPicture {
 	my ( $self, $hash ) = @_;
 
 	return $self->{im} if ( defined $self->{im} );
+	$hash->{'type'} ||= 'svg';
 	$hash = {} unless ( ref($hash) eq "HASH" );
 	if ( defined $hash->{'im'} ) {
 		$self->{im} = $hash->{'im'};
@@ -350,7 +362,13 @@ sub _createPicture {
 		}
 		$self->{x}       = $x;
 		$self->{y}       = $y;
-		$self->{im}      = new GD::SVG::Image( $x, $y );
+		if ( $hash->{'type'} eq "svg" ){
+			$self->{im}      = new GD::SVG::Image( $x, $y );
+			$hash->{'font'} = Font->new( $hash->{'size'}, 'GD::SVG' ) unless ( defined $hash->{'font'} );
+		}elsif  ( $hash->{'type'} eq "png" ){
+			$self->{im}      = new GD::Image( $x, $y );
+			$hash->{'font'} = Font->new( $hash->{'size'}, 'GD' ) unless ( defined $hash->{'font'} );
+		}
 		if ( defined $hash->{'bgColor'} ) {
 			$hash->{'color'} = color->new( $self->{im}, $hash->{'bgColor'} );
 			$self->{'axis_color'} = $hash->{'color'}->{'white'} unless ( defined $self->{'axis_color'});
@@ -361,13 +379,9 @@ sub _createPicture {
 		}
 		
 	}
-
-	$self->{color} = $hash->{color} if ( defined $hash->{color} );
-	$self->{color} = color->new( $self->{im} )
-	  unless ( defined $self->{color} );
-	$self->{font} = $hash->{'font'} if ( defined $hash->{'font'} );
-	$self->{font} = Font->new( $hash->{'size'} )
-	  unless ( defined $hash->{'font'} );
+	$self->{color} = $hash->{color};
+	$self->{color} ||= color->new( $self->{im} );
+	$self->{font} = $hash->{'font'};
 	return $self->{im};
 }
 
@@ -381,7 +395,7 @@ sub _createAxies {
 		elsif ( defined $hash->{x_min} && defined $hash->{x_max} ) {
 			$self->{xaxis} =
 			  axis->new( "x", $hash->{x_min}, $hash->{x_max}, $self->Xtitle(),
-				$self->{'font'}->{'resolution'} );
+				$self->{'font'}->{'resolution'}, $self->{im} );
 
 		}
 		else {
@@ -396,7 +410,7 @@ sub _createAxies {
 		elsif ( defined $hash->{y_min} && defined $hash->{y_max} ) {
 			$self->{yaxis} =
 			  axis->new( "y", $hash->{y_min}, $hash->{y_max}, $self->Ytitle(),
-				$self->{'font'}->{'resolution'} );
+				$self->{'font'}->{'resolution'}, $self->{im} );
 		}
 		else {
 			$error .=
@@ -494,7 +508,7 @@ sub plot_2_image {
 	  if ( $self->{'error'} =~ m/\w/);
 	my ( $group_name, $dataset, @colors );
 	$group_name = ref($self) . rand();
-	$self->{im}->newGroup($group_name);
+#	$self->{im}->newGroup($group_name);
 
 	## plot the axies
 	$self->_plot_axies();
@@ -526,7 +540,7 @@ sub plot_2_image {
 	}
 	$self->plot_title();
 	$self->Note( $self->{im} );
-	$self->{im}->endGroup($group_name);
+#	$self->{im}->endGroup($group_name);
 	return $self->{im};
 }
 

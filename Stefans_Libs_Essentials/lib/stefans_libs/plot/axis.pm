@@ -19,10 +19,18 @@ use stefans_libs::plot::Font;
 use strict;
 
 sub new {
-	my ( $class, $which, $min_pixels, $max_pixels, $title, $resolution ) = @_;
+	my ( $class, $which, $min_pixels, $max_pixels, $title, $resolution, $im) = @_;
 
 	my ( $self, $temp );
 	#Carp::confess ( "I need to know #3 and #4 which might not be defined") unless ( defined $min_pixels && defined $max_pixels);
+	my $imgtype;
+	if ( ref($im) eq "GD::SVG::Image"){
+		$imgtype = "GD::SVG";
+	}elsif( ref($im) eq "GD::Image"){
+		$imgtype = "GD";
+	}else {
+		Carp::confess ( "Internal axis bug (new), $im");
+	}
 	$self = {
 		tics       => 6,             #12
 		tic_length => 20,            #20
@@ -30,7 +38,8 @@ sub new {
 		max_pixel  => $max_pixels,
 		min_pixel  => $min_pixels,
 		max        => -1e+6,
-		min        => +1e+6
+		min        => +1e+6,
+		imgtype => $imgtype,
 	};
 
 	$resolution = "large" if ( $resolution eq "max" );
@@ -40,25 +49,22 @@ sub new {
 	if ( $resolution eq "large" ) {
 		$self->{tics}              = 6;
 		$self->{tic_length}        = 20;
-		$self->{font}              = Font->new($resolution);
 		$self->{tokenX_correction} = 8;
 		$self->{tokenY_correction} = -6;
 	}
 	elsif ( $resolution eq "small" ) {
 		$self->{tics}       = 8;
 		$self->{tic_length} = 17;
-		$self->{font}       = Font->new($resolution);
 	}
 	elsif ( $resolution eq "tiny" ) {
 		$self->{tics}       = 6;
 		$self->{tic_length} = 7;
-		$self->{font}       = Font->new($resolution);
 	}
 	elsif ( $resolution eq "gbfeature" ) {
 		$self->{tics}       = 6;
 		$self->{tic_length} = 7;
-		$self->{font}       = Font->new($resolution);
 	}
+	$self->{font}              = Font->new($resolution, $imgtype);
 	unless ( defined $self->{font} ) {
 		warn root::identifyCaller( $class, "new" );
 	}
@@ -124,7 +130,7 @@ sub plotLabel {
 			$image, $string,
 			$self->resolveValue( $max - $dimension ),
 			$other_pixel + 2.5 * $self->{tic_length},
-			$color, "gbfeature", 0
+			$color, "tiny", 0
 		);
 	}
 	else {
@@ -160,7 +166,7 @@ sub plotLabel {
 			$image, $string,
 			$other_pixel + 2.5 * $self->{tic_length},
 			$self->resolveValue( $max - $dimension ),
-			$color, "gbfeature", 0
+			$color, "tiny", 0
 		);
 	}
 	return 1;
@@ -273,6 +279,12 @@ sub convert_lable{
 		$self->{'__convert_these_lables_to'}->{$orig_lable} = $modify_to;
 	}
 	return $self->{'__convert_these_lables_to'}->{$orig_lable};
+}
+
+sub pix2value{
+	my ( $self, $value ) = @_;
+	my $r = $self->max_value() - ( $value - $self->{max_pixel} ) / $self->defineAxis();
+	return $r;
 }
 
 sub plot_without_digits {

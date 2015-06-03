@@ -21,11 +21,13 @@ use strict;
 
 sub new {
 
-	my ($class) = @_;
+	my ($class, $output_format) = @_;
 
 	my ($self);
-
-	$self = { max => 0 };
+	
+	$output_format ||= 'svg';
+	
+	$self = { max => 0, 'format' => 'svg' };
 
 	bless $self, $class if ( $class eq "simpleBarGraph" );
 
@@ -86,16 +88,13 @@ sub plot_Data {
 	$dataCount = scalar( @{ $self->{'dataNames'} } );
 	## now are we a portrait or landscape plot??
 	if ( $self->Mode eq "landscape" ) {
-
 		$self->{'xaxis'}->{tics} = $dataCount + 2;
-
 		## one datapoint will be 0.8 long
 		for ( my $i = 0 ; $i < scalar( @{ $self->{'tags'} } ) ; $i++ ) {
 			$data = $hash->{'y_values'}->{ @{ $self->{'tags'} }[$i] };
 			next if ( $data->{'y'} eq "No Values");
 			$x1 = -0.4 + ( 0.8 / $dataCount ) * ( $self->{'_my_iter'} - 1 );
 			$x2 = -0.4 + ( 0.8 / $dataCount ) * ( $self->{'_my_iter'} );
-
 			$self->{im}->filledRectangle(
 				$self->{xaxis}->resolveValue( $i + 1 + $x1 ),
 				$self->{yaxis}->resolveValue( $self->{yaxis}->min_value() ),
@@ -113,8 +112,6 @@ sub plot_Data {
 			if ( defined $data->{'std'}
 				&& $data->{'std'} > 0 )
 			{
-
-				#warn "we plot for y = $data->{'y'}\n";
 				$self->{im}->line(
 					$self->{xaxis}->resolveValue( $i + 1 + ( $x1 + $x2 ) / 2 ),
 					$self->{yaxis}->resolveValue( $data->{'y'} ),

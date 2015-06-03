@@ -1,5 +1,7 @@
+.gitignore
 .includepath
 .project
+.Rhistory
 bin/add_column_to_table.pl
 bin/bib_create.pl
 bin/binCreate.pl
@@ -29,6 +31,7 @@ lib/stefans_libs/file_readers/help_data.pm
 lib/stefans_libs/file_readers/Patcher.pm
 lib/stefans_libs/flexible_data_structures/data_table.pm
 lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm
+lib/stefans_libs/fonts/LinLibertineFont/LinLibertineC-2.2.3.ttf
 lib/stefans_libs/install_helper.pm
 lib/stefans_libs/install_helper/Patcher.pm
 lib/stefans_libs/Latex_Document.pm
@@ -55,15 +58,19 @@ MYMETA.json
 MYMETA.yml
 pm_to_blib
 README
+README.md
 t/001.1_variable_table_speed_test.t
 t/001.2_variable_table_memory_usage_test.t
 t/001_variable_table.t
+t/data/.gitignore
 t/data/data_table_pivot_test.xls
 t/data/htpcra.conf
+t/data/rainbow_4.cols
 t/data/upload.tt2
 t/data_table.t
 t/data_table_HTML.t
 t/Latex_Document.t
+t/simpleBarGraph.t
 t/stefans_libs_install_helper.t
 t/stefans_libs_install_helper_Patcher.t
 t/stefans_libs_Latex_Document_bibTeX.t
@@ -71,5 +78,7 @@ t/stefans_libs_Latex_Document_Chapter.t
 t/stefans_libs_Latex_Document_Figure.t
 t/stefans_libs_Latex_Document_gene_description.t
 t/stefans_libs_Latex_Document_Text.t
+t/stefans_libs_plot.t
+t/stefans_libs_plot_color.t
 t/temp_table.xls
 t/Test_subsets.xls

@@ -1167,6 +1167,7 @@ sub AsString {
 	my $str = '';
 	my @default_values;
 	my @line;
+	Carp::confess("Lib error: no data loaded!") unless ( defined @{ $self->{'data'} }[0] );
 	if ( defined $subset ) {
 		## 1 get the default values
 		return $self->GetAsObject($subset)->AsString();

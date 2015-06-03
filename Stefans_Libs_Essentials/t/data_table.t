@@ -6,6 +6,7 @@ use PDL;
 
 use FindBin;
 my $plugin_path = "$FindBin::Bin";
+my $outpath = $plugin_path."/data/output/";
 
 BEGIN { use_ok 'stefans_libs::flexible_data_structures::data_table' }
 
@@ -80,7 +81,7 @@ is_deeply(
 	{
 		'forename'   => 'geraldin',
 		'surename'   => 'lang',
-		'university' => '',
+		'university' => undef,
 		'gender'     => 'female'
 	},
 	"I could merge on two columns (2)"
@@ -243,7 +244,7 @@ is_deeply(
 );
 
 $data_table->Add_unique_key( 'name_loc', [ 'first', 'second', 'nationality' ] );
-$data_table->write_file('save.xls');
+$data_table->write_file($outpath.'save.xls');
 $data_table->Add_2_Header('second nationality');
 $data_table->Add_dataset_for_entry_at_index( { 'second nationality' => 'de' },
 	'lang', 'second' );
@@ -260,7 +261,7 @@ is_deeply(
 "if the new entry is an array, we create new lines for the not existing entries"
 );
 $data_table = data_table->new();
-$data_table->read_file('save.xls');
+$data_table->read_file($outpath.'save.xls');
 $data_table->{'data'} = [
 	[ "stefan",   "lang", "stefan\@nix.de", "32",  'se' ],
 	[ 'eva',      'lang', 'nix2@nix.de',    '30',  'se' ],
@@ -293,10 +294,10 @@ $data_table->Add_dataset_for_entry_at_index( { 'email' => 'nix', 'age' => 2 },
 	[ 'lang', 'geraldin' ], 'name' );
 $data_table->define_subset( 'eMail Addresse', ['email'] )
   ;    ## ein Alias eingefügt
-$data_table->print2file('temp_table.txt');
+$data_table->print2file( $outpath.'temp_table.txt');
 $data_table2 = data_table->new();
-$data_table2->read_file('temp_table.xls');
-$data_table->{'read_filename'} = 'temp_table.xls';
+$data_table2->read_file($outpath.'temp_table.xls');
+$data_table->{'read_filename'} = $outpath.'temp_table.xls';
 $data_table->AsString();
 $data_table2->AsString();
 
@@ -859,7 +860,7 @@ is_deeply( [ split( "\t", $return->AsTestString() ) ],
 
 $value->plot_as_bar_graph(
 	{
-		'outfile'             => $plugin_path . "data/test_figure",
+		'outfile'             => $plugin_path . "/data/output/test_figure",
 		'title'               => "only a test",
 		'y_title'             => "mean payment",
 		'data_name_column'    => 'sex',
@@ -1049,8 +1050,8 @@ a',                   'b',          'c
 
 is_deeply( [ split( "\t", $subset_text->AsTestString() ) ],
 	$exp, 'Subset OK to add data' );
-$subset_text->write_file('Test_subsets.xls');
-$subset_text->read_file('Test_subsets.xls');
+$subset_text->write_file($outpath.'Test_subsets.xls');
+$subset_text->read_file($outpath.'Test_subsets.xls');
 is_deeply( [ split( "\t", $subset_text->AsTestString() ) ],
 	$exp, 'Subset after write/read cycle' );
 ## seams that the select_where function creates a problem here!

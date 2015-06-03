@@ -18,7 +18,9 @@ requires 'DateTime::Format::MySQL';
 requires 'Statistics::Descriptive';
 requires 'Date::Simple';
 requires 'Number::Format';
-requires 'GD::SVG';
+requires 'GD';
+requires 'SVG';
+requires 'GD::SVG' => '0.33';
 
 catalyst;
 
