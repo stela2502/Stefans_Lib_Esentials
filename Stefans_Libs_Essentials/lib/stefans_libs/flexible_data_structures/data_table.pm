@@ -40,6 +40,7 @@ sub new {
 		'debug'                 => $hash->{'debug'},
 		'arraySorter'           => arraySorter->new(),
 		'string_separator'      => undef,
+		'VERSION' => 1,
 		'str_checked_1'         => 0,
 		'line_checked_1'        => 0,
 		'description'           => [],
@@ -1525,6 +1526,86 @@ sub __process_line_No_Header {
 	return 0;
 }
 
+=head2 read_file(<filename>, <amount of lines to read>)
+
+This function will read a tab separated table file. The separator can be set usiong the line_separator function.
+
+=cut
+
+sub read_file {
+	my ( $self, $filename, $lines ) = @_;
+	return undef unless ( -f $filename );
+	if ( $self->Lines > 0 ) {
+		$self = ref($self)->new();
+	}
+	$self->{'read_filename'}   = $filename;
+	$self->{'header_position'} = {} if ( ref($self) eq "data_table" );
+	$self->{'header'}          = [] if ( ref($self) eq "data_table" );
+	$self->{'data'}            = [];
+	$self->string_separator();    ##init
+	$self->line_separator();      ##init
+	my ( @line, $value, $temp );
+	open( IN, "<$filename" )
+	  or die ref($self)
+	  . "::read_file -> could not open file '$filename'\n$!\n";
+	my (@description);
+
+	if ( defined $lines ) {
+		my $i = 0;
+		foreach (<IN>) {
+			if ( $self->{'no_doubble_cross'}
+				&& !defined @{ $self->{'header'} }[0])
+			{
+				$self->Add_2_Header( $self->__split_line($_) );
+				next;
+			}
+			$i++;
+			chomp($_);
+			if ( substr( $_, 0, 1 ) eq "#" ) {
+				$value = $self->__process_comment_line($_);
+				push( @{ $self->{'description'} }, $value )
+				  if ( $value =~ m/\w/ );
+				next;
+			}
+			unless ( defined @{ $self->{'header'} }[0] ) {
+				next if ( $self->__process_line_No_Header($_) );
+			}
+			$temp = $self->__split_line($_);
+			push( @{ $self->{'data'} }, $temp ) if ( ref($temp) eq "ARRAY" );
+			last if ( $i >= $lines );
+		}
+	}
+	else {
+		foreach (<IN>) {
+			chomp($_);
+			if ( $self->{'no_doubble_cross'}
+				&& !defined @{ $self->{'header'} }[0] )
+			{
+				$self->Add_2_Header( $self->__split_line($_) );
+				next;
+			}
+			if ( substr( $_, 0, 1 ) eq "#" ) {    #} $_ =~ m/^#/ ) {
+				$value = $self->__process_comment_line($_);
+				push( @{ $self->{'description'} }, $value )
+				  if ( $value =~ m/\w/ );
+				next;
+			}
+			unless ( defined @{ $self->{'header'} }[0] ) {
+				next if ( $self->__process_line_No_Header($_) );
+			}
+			$temp = $self->__split_line($_);
+			push( @{ $self->{'data'} }, $temp ) if ( ref($temp) eq "ARRAY" );
+		}
+	}
+	foreach ( keys %{ $self->{'index'} } ) {
+		$self->UpdateIndex($_) if ( defined $self->Header_Position($_) );
+	}
+	foreach ( keys %{ $self->{'uniques'} } ) {
+		$self->UpdateUniqueKey($_) if ( defined $self->Header_Position($_) );
+	}
+	$self->After_Data_read();
+	return $self;
+}
 sub parse_from_string {
 	my ( $self, $string ) = @_;
 	my @data;
@@ -1674,85 +1755,6 @@ sub Description {
 	return $self->{'description'};
 }
 
-=head2 read_file(<filename>, <amount of lines to read>)
-
-This function will read a tab separated table file. The separator can be set usiong the line_separator function.
-
-=cut
-
-sub read_file {
-	my ( $self, $filename, $lines ) = @_;
-	return undef unless ( -f $filename );
-	if ( $self->Lines > 0 ) {
-		$self = ref($self)->new();
-	}
-	$self->{'read_filename'}   = $filename;
-	$self->{'header_position'} = {} if ( ref($self) eq "data_table" );
-	$self->{'header'}          = [] if ( ref($self) eq "data_table" );
-	$self->{'data'}            = [];
-	$self->string_separator();    ##init
-	$self->line_separator();      ##init
-	my ( @line, $value, $temp );
-	open( IN, "<$filename" )
-	  or die ref($self)
-	  . "::read_file -> could not open file '$filename'\n$!\n";
-	my (@description);
-
-	if ( defined $lines ) {
-		my $i = 0;
-		foreach (<IN>) {
-			if ( $self->{'no_doubble_cross'}
-				&& !defined @{ $self->{'header'} }[0] )
-			{
-				$_ = "#$_" unless ( $_ =~ m /^#/ );
-			}
-			$i++;
-			chomp($_);
-			if ( substr( $_, 0, 1 ) eq "#" ) {
-				$value = $self->__process_comment_line($_);
-				push( @{ $self->{'description'} }, $value )
-				  if ( $value =~ m/\w/ );
-				next;
-			}
-			unless ( defined @{ $self->{'header'} }[0] ) {
-				next if ( $self->__process_line_No_Header($_) );
-			}
-			$temp = $self->__split_line($_);
-			push( @{ $self->{'data'} }, $temp ) if ( ref($temp) eq "ARRAY" );
-			last if ( $i >= $lines );
-		}
-	}
-	else {
-		foreach (<IN>) {
-			chomp($_);
-			if ( $self->{'no_doubble_cross'}
-				&& !defined @{ $self->{'header'} }[0] )
-			{
-				$_ = "#$_" unless ( $_ =~ m /^#/ );
-			}
-			if ( substr( $_, 0, 1 ) eq "#" ) {    #} $_ =~ m/^#/ ) {
-				$value = $self->__process_comment_line($_);
-				push( @{ $self->{'description'} }, $value )
-				  if ( $value =~ m/\w/ );
-				next;
-			}
-			unless ( defined @{ $self->{'header'} }[0] ) {
-				next if ( $self->__process_line_No_Header($_) );
-			}
-			$temp = $self->__split_line($_);
-			push( @{ $self->{'data'} }, $temp ) if ( ref($temp) eq "ARRAY" );
-		}
-	}
-	foreach ( keys %{ $self->{'index'} } ) {
-		$self->UpdateIndex($_) if ( defined $self->Header_Position($_) );
-	}
-	foreach ( keys %{ $self->{'uniques'} } ) {
-		$self->UpdateUniqueKey($_) if ( defined $self->Header_Position($_) );
-	}
-	$self->After_Data_read();
-	return $self;
-}
-
 sub Add_header_Array {
 	my ( $self, $header_array ) = @_;
 	foreach my $value (@$header_array) {
@@ -1778,14 +1780,6 @@ sub Add_db_result {
 
 sub get_lable_for_row_and_column {
 	my ( $self, $row_id, $columnName ) = @_;
-
-#my @temp = $self->get_row_entries( $row_id, $columnName );
-#foreach ( @temp ){
-#	unless ( defined $_ ){
-#		my $str = "'".join("' '", @temp )."'";
-#	die "I found an undefined entry in the result for column '$columnName' and row $row_id\n$str\n" ;
-#	}
-#}
 	return join( ' ', ( $self->get_row_entries( $row_id, $columnName ) ) );
 }
 

@@ -1504,8 +1504,7 @@ sub __escape_putativley_dangerous_things {
 }
 
 sub NOW {
-	return DateTime::Format::MySQL->format_datetime(
-		DateTime->now()->set_time_zone('Europe/Berlin') );
+	return DateTime::Format::MySQL->format_datetime( DateTime->now( time_zone => 'Europe/Berlin' ) );
 }
 
 sub check_dataset {
