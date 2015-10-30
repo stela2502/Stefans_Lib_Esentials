@@ -148,7 +148,7 @@ sub show {
 	my $to_do_data;
 	$options ||= {};
 	
-	if ( defined  $id  && $id =~ m/^\d+$/ ) {
+	if ( defined  $id ) {
 		$to_do_data = $self->get_data_table_4_search({
  			'search_columns' => [ ref($self).".id", 'summary', 'information', 'path', 'parent_id' ],
  			'where' => [
@@ -168,6 +168,7 @@ sub show {
  			'order_by' => [ 'send_time' ]
 		 }, $self->{username} ||= $options->{'user'}, 0);
 	}
+	print "Problematic search?: $self->{'complex_search'}\n" if ( $self->{'debug'});
 	return $self->to_string( $to_do_data, $options );
 }
 
@@ -191,10 +192,8 @@ sub to_string {
 		}
 		$str .= "\n";
 		if ( $hash->{'parent_id'} > 0 && ! defined $options->{'no_child'} ) {
-#			warn $options->{'ind'};
 			my $tmp = {%$options};
 			$tmp->{'ind'} = $options->{'ind'}+1;
-#			warn join ("\t", $tmp->{'ind'}, $options->{'ind'} );
 			($tmp, @tmp ) = $self->{'list'}->show($hash->{'parent_id'} , $tmp );
 			$str .= $tmp;
 			map { $exclude->{$_} = 1 } @tmp;

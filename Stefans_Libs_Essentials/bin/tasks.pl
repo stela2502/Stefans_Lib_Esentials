@@ -74,7 +74,7 @@ if ( $error =~ m/\w/ ) {
 	exit;
 }
 
-warn $warn if ($warn =~ m/\w/ );
+#warn $warn if ($warn =~ m/\w/ );
 
 sub helpString {
 	my $errorMessage = shift;
@@ -117,6 +117,7 @@ $task_description .= ' -options ' . join( ' ', @options )
 my ( $User, $master_id, $last_id, $db, $child_id, $tmp );
 $db = stefans_libs::database::to_do_list->new();
 
+print "\n\n";
 if ( -f ".task.info" ) {
 	open( IN, "<.task.info" )
 	  or die "strange - I found but could not open .task.info\n$!\n";
@@ -131,6 +132,7 @@ unless ( $user =~ m/\w/ ) {
 }
 $db->{username} = $user;
 if ( !defined( $options[0] ) || $options[0] eq "show" ) {
+	print "option show\n" if ( $debug );
 	$tmp = { map { $_ => 1 } @options };
 	if ( $tmp->{'all'} ) {
 		print $db->show( undef, $tmp );
@@ -140,6 +142,7 @@ if ( !defined( $options[0] ) || $options[0] eq "show" ) {
 	}
 }
 elsif ( $options[0] eq "add" ) {
+	print "option add\n" if ( $debug );
 	if ( defined $master_id ) {
 		my ($master_data) =
 		  @{ $db->_select_all_for_DATAFIELD( $master_id, 'id' ) };
@@ -156,7 +159,7 @@ elsif ( $options[0] eq "add" ) {
 				'send_time'   => $deadline,
 			}
 		);
-		$db->{'list'}->add_to_list( $master_id, { 'id' => $child_id } );
+		$db->{'list'}->add_to_list($master_data->{'parent_id'} , { 'id' => $child_id } );
 		&save();
 	}
 	else {
@@ -174,6 +177,7 @@ elsif ( $options[0] eq "add" ) {
 	print $db->show( $master_id, { map { $_ => 1 } @options } );
 }
 elsif ( $options[0] =~ m /^finish/ ){
+	print "option finish\n" if ( $debug );
 	unless ( $options[1]=~ m/^\d+$/ ) {
 		warn "Sorry - if you want to finish a task please give me the id as second option!\n"
 	}
@@ -183,6 +187,7 @@ elsif ( $options[0] =~ m /^finish/ ){
 	print $db->show( $master_id, { map { $_ => 1 } @options } );
 }
 elsif (  $options[0] =~ m /^relocate/ ){
+	print "option relocate\n" if ( $debug );
 	unless ( $options[1]=~ m/^\d+$/ && $options[2]=~ m/^\d+$/) {
 		warn "Sorry - if you want to relocate == add to a new master id give me the child id as second option and the master id as third!\n"
 	}
@@ -200,11 +205,12 @@ elsif (  $options[0] =~ m /^relocate/ ){
 	print $db->show( $master_id, { map { $_ => 1 } @options } );
 }
 else {
+	print "option $options[0]\n" if ( $debug );
 	warn "I do not undestand what you want to do!\nAssume you want to see the data:\n";
 	print $db->show( $master_id, { map { $_ => 1 } @options } );
 }
 
-
+print "\n\n";
 sub save {
 	open( OUT, ">.task.info" )
 	  or die "I could not create the .task.info file!\n$!\n";

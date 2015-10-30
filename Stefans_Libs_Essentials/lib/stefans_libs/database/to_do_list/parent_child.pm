@@ -51,6 +51,7 @@ sub new {
 
 sub show{
 	my ( $self, $parent_id, $options ) = @_;
+	print ref($self)."::show($parent_id, $options )\nIDs: ". join("; ", @{$self->Get_IDs_for_ListID( $parent_id )})."\n" if ( $self->{'debug'});
 	return $self->{'data_handler'}->{'otherTable'}->show( $self->Get_IDs_for_ListID( $parent_id ), $options );
 }
 

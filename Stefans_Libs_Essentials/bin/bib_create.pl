@@ -223,6 +223,9 @@ use warnings;
 use Test::More tests => 2;
 BEGIN { use_ok '$includeStr' }
 
+use FindBin;
+my \$plugin_path = '\$FindBin::Bin';
+
 my ( \$value, \@values, \$exp );
 my \$$package = $includeStr -> new();
 is_deeply ( ref(\$$package) , '$includeStr', 'simple test of function $includeStr -> new()' );

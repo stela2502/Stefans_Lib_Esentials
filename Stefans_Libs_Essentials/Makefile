@@ -15,17 +15,17 @@
 #     BUILD_REQUIRES => { ExtUtils::MakeMaker=>q[6.36] }
 #     CONFIGURE_REQUIRES => {  }
 #     DISTNAME => q[Stefans_Libs_Essentials]
-#     EXE_FILES => [q[bin/add_column_to_table.pl], q[bin/AddUser.pl], q[bin/bib_create.pl], q[bin/binCreate.pl], q[bin/create_variable_table_class.pl], q[bin/tasks.pl]]
+#     EXE_FILES => [q[bin/add_column_to_table.pl], q[bin/AddUser.pl], q[bin/bib_create.pl], q[bin/binCreate.pl], q[bin/cef_join.pl], q[bin/cef_splice.pl], q[bin/create_variable_table_class.pl], q[bin/tasks.pl]]
 #     LICENSE => q[perl]
 #     NAME => q[Stefans_Libs_Essentials]
 #     NO_META => q[1]
-#     PREREQ_PM => { SVG=>q[0], Statistics::Descriptive=>q[0], Date::Simple=>q[0], GD::SVG=>q[0.33], Number::Format=>q[0], DBI=>q[0], DateTime::Format::MySQL=>q[0], ExtUtils::MakeMaker=>q[6.36], GD=>q[0] }
+#     PREREQ_PM => { ExtUtils::MakeMaker=>q[6.36], DateTime::Format::MySQL=>q[0], SVG=>q[0], Statistics::Descriptive=>q[0], GD::SVG=>q[0.33], Date::Simple=>q[0], GD=>q[0], Number::Format=>q[0], DBI=>q[0] }
 #     TEST_REQUIRES => {  }
 #     VERSION => q[1.01]
 #     VERSION_FROM => q[lib/Stefans_Libs_Essentials.pm]
 #     dist => {  }
 #     realclean => { FILES=>q[MYMETA.yml] }
-#     test => { TESTS=>q[t/001.1_variable_table_speed_test.t t/001.2_variable_table_memory_usage_test.t t/001_variable_table.t t/data_table.t t/data_table_2.t t/data_table_HTML.t t/Latex_Document.t t/simpleBarGraph.t t/stefans_libs_install_helper.t t/stefans_libs_install_helper_Patcher.t t/stefans_libs_Latex_Document_bibTeX.t t/stefans_libs_Latex_Document_Chapter.t t/stefans_libs_Latex_Document_Figure.t t/stefans_libs_Latex_Document_gene_description.t t/stefans_libs_Latex_Document_Text.t t/stefans_libs_plot.t t/stefans_libs_plot_color.t] }
+#     test => { TESTS=>q[t/001.1_variable_table_speed_test.t t/001.2_variable_table_memory_usage_test.t t/001_variable_table.t t/data_table.t t/data_table_2.t t/data_table_HTML.t t/Latex_Document.t t/simpleBarGraph.t t/stefans_libs_file_readers_cefFile.t t/stefans_libs_install_helper.t t/stefans_libs_install_helper_Patcher.t t/stefans_libs_Latex_Document_bibTeX.t t/stefans_libs_Latex_Document_Chapter.t t/stefans_libs_Latex_Document_Figure.t t/stefans_libs_Latex_Document_gene_description.t t/stefans_libs_Latex_Document_Text.t t/stefans_libs_plot.t t/stefans_libs_plot_color.t] }
 
 # --- MakeMaker post_initialize section:
 
@@ -171,6 +171,8 @@ MAN1PODS = bin/AddUser.pl \
 	bin/add_column_to_table.pl \
 	bin/bib_create.pl \
 	bin/binCreate.pl \
+	bin/cef_join.pl \
+	bin/cef_splice.pl \
 	bin/create_variable_table_class.pl \
 	bin/tasks.pl
 MAN3PODS = lib/Stefans_Libs_Essentials.pm \
@@ -187,6 +189,7 @@ MAN3PODS = lib/Stefans_Libs_Essentials.pm \
 	lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm \
 	lib/stefans_libs/database/variable_table/queryInterface.pm \
 	lib/stefans_libs/fastaDB.pm \
+	lib/stefans_libs/file_readers/cefFile.pm \
 	lib/stefans_libs/flexible_data_structures/data_table.pm \
 	lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm \
 	lib/stefans_libs/install_helper.pm \
@@ -239,6 +242,7 @@ TO_INST_PM = lib/Stefans_Libs_Essentials.pm \
 	lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm \
 	lib/stefans_libs/database/variable_table/queryInterface.pm \
 	lib/stefans_libs/fastaDB.pm \
+	lib/stefans_libs/file_readers/cefFile.pm \
 	lib/stefans_libs/file_readers/help_data.pm \
 	lib/stefans_libs/flexible_data_structures/data_table.pm \
 	lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm \
@@ -253,78 +257,80 @@ TO_INST_PM = lib/Stefans_Libs_Essentials.pm \
 	lib/stefans_libs/plot/simpleWhiskerPlot.pm \
 	lib/stefans_libs/root.pm
 
-PM_TO_BLIB = lib/stefans_libs/Latex_Document/Section.pm \
+PM_TO_BLIB = lib/stefans_libs/plot/simpleBarGraph.pm \
+	blib/lib/stefans_libs/plot/simpleBarGraph.pm \
+	lib/stefans_libs/Latex_Document/Section.pm \
 	blib/lib/stefans_libs/Latex_Document/Section.pm \
-	lib/stefans_libs/plot/figure.pm \
-	blib/lib/stefans_libs/plot/figure.pm \
-	lib/stefans_libs/Latex_Document/Figure.pm \
-	blib/lib/stefans_libs/Latex_Document/Figure.pm \
-	lib/stefans_libs/database/lists/list_using_table.pm \
-	blib/lib/stefans_libs/database/lists/list_using_table.pm \
-	lib/stefans_libs/Latex_Document.pm \
-	blib/lib/stefans_libs/Latex_Document.pm \
-	lib/stefans_libs/database/userTable/role_list.pm \
-	blib/lib/stefans_libs/database/userTable/role_list.pm \
-	lib/stefans_libs/Latex_Document/HTML_2_TEX.pm \
-	blib/lib/stefans_libs/Latex_Document/HTML_2_TEX.pm \
-	lib/stefans_libs/database/userTable/action_group_list.pm \
-	blib/lib/stefans_libs/database/userTable/action_group_list.pm \
-	lib/stefans_libs/Latex_Document/Chapter.pm \
-	blib/lib/stefans_libs/Latex_Document/Chapter.pm \
-	lib/stefans_libs/database/variable_table.pm \
-	blib/lib/stefans_libs/database/variable_table.pm \
-	lib/stefans_libs/database/userTable/CatalystUser.pm \
-	blib/lib/stefans_libs/database/userTable/CatalystUser.pm \
-	lib/stefans_libs/database/variable_table/queryInterface.pm \
-	blib/lib/stefans_libs/database/variable_table/queryInterface.pm \
-	lib/stefans_libs/fonts/LinLibertineFont/LinLibertineC-2.2.3.ttf \
-	blib/lib/stefans_libs/fonts/LinLibertineFont/LinLibertineC-2.2.3.ttf \
-	lib/stefans_libs/database/variable_table/linkage_info.pm \
-	blib/lib/stefans_libs/database/variable_table/linkage_info.pm \
-	lib/stefans_libs/plot/axis.pm \
-	blib/lib/stefans_libs/plot/axis.pm \
-	lib/stefans_libs/database/userTable/roles.pm \
-	blib/lib/stefans_libs/database/userTable/roles.pm \
-	lib/stefans_libs/database/userTable/action_groups.pm \
-	blib/lib/stefans_libs/database/userTable/action_groups.pm \
-	lib/stefans_libs/database/userTable.pm \
-	blib/lib/stefans_libs/database/userTable.pm \
-	lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm \
-	blib/lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm \
-	lib/stefans_libs/database/to_do_list.pm \
-	blib/lib/stefans_libs/database/to_do_list.pm \
 	lib/stefans_libs/flexible_data_structures/data_table.pm \
 	blib/lib/stefans_libs/flexible_data_structures/data_table.pm \
-	lib/stefans_libs/plot/Font.pm \
-	blib/lib/stefans_libs/plot/Font.pm \
-	lib/stefans_libs/database/lists/basic_list.pm \
-	blib/lib/stefans_libs/database/lists/basic_list.pm \
-	lib/Stefans_Libs_Essentials.pm \
-	blib/lib/Stefans_Libs_Essentials.pm \
-	lib/stefans_libs/database/to_do_list/parent_child.pm \
-	blib/lib/stefans_libs/database/to_do_list/parent_child.pm \
-	lib/stefans_libs/plot/simpleBarGraph.pm \
-	blib/lib/stefans_libs/plot/simpleBarGraph.pm \
-	lib/stefans_libs/Latex_Document/Text.pm \
-	blib/lib/stefans_libs/Latex_Document/Text.pm \
-	lib/stefans_libs/root.pm \
-	blib/lib/stefans_libs/root.pm \
+	lib/stefans_libs/database/variable_table/queryInterface.pm \
+	blib/lib/stefans_libs/database/variable_table/queryInterface.pm \
+	lib/stefans_libs/Latex_Document/Chapter.pm \
+	blib/lib/stefans_libs/Latex_Document/Chapter.pm \
+	lib/stefans_libs/install_helper.pm \
+	blib/lib/stefans_libs/install_helper.pm \
 	lib/stefans_libs/install_helper/Patcher.pm \
 	blib/lib/stefans_libs/install_helper/Patcher.pm \
-	lib/stefans_libs/plot/color.pm \
-	blib/lib/stefans_libs/plot/color.pm \
-	lib/stefans_libs/file_readers/help_data.pm \
-	blib/lib/stefans_libs/file_readers/help_data.pm \
-	lib/stefans_libs/database/userTable/temporary_banned.pm \
-	blib/lib/stefans_libs/database/userTable/temporary_banned.pm \
+	lib/stefans_libs/database/userTable/action_groups.pm \
+	blib/lib/stefans_libs/database/userTable/action_groups.pm \
+	lib/stefans_libs/root.pm \
+	blib/lib/stefans_libs/root.pm \
 	lib/stefans_libs/plot/simpleWhiskerPlot.pm \
 	blib/lib/stefans_libs/plot/simpleWhiskerPlot.pm \
-	lib/stefans_libs/fastaDB.pm \
-	blib/lib/stefans_libs/fastaDB.pm \
+	lib/stefans_libs/database/userTable/temporary_banned.pm \
+	blib/lib/stefans_libs/database/userTable/temporary_banned.pm \
+	lib/stefans_libs/database/lists/list_using_table.pm \
+	blib/lib/stefans_libs/database/lists/list_using_table.pm \
 	lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm \
 	blib/lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm \
-	lib/stefans_libs/install_helper.pm \
-	blib/lib/stefans_libs/install_helper.pm
+	lib/stefans_libs/database/userTable/action_group_list.pm \
+	blib/lib/stefans_libs/database/userTable/action_group_list.pm \
+	lib/stefans_libs/database/variable_table.pm \
+	blib/lib/stefans_libs/database/variable_table.pm \
+	lib/stefans_libs/database/lists/basic_list.pm \
+	blib/lib/stefans_libs/database/lists/basic_list.pm \
+	lib/stefans_libs/fastaDB.pm \
+	blib/lib/stefans_libs/fastaDB.pm \
+	lib/stefans_libs/plot/color.pm \
+	blib/lib/stefans_libs/plot/color.pm \
+	lib/stefans_libs/Latex_Document.pm \
+	blib/lib/stefans_libs/Latex_Document.pm \
+	lib/stefans_libs/file_readers/help_data.pm \
+	blib/lib/stefans_libs/file_readers/help_data.pm \
+	lib/stefans_libs/Latex_Document/Figure.pm \
+	blib/lib/stefans_libs/Latex_Document/Figure.pm \
+	lib/stefans_libs/Latex_Document/HTML_2_TEX.pm \
+	blib/lib/stefans_libs/Latex_Document/HTML_2_TEX.pm \
+	lib/Stefans_Libs_Essentials.pm \
+	blib/lib/Stefans_Libs_Essentials.pm \
+	lib/stefans_libs/database/userTable/roles.pm \
+	blib/lib/stefans_libs/database/userTable/roles.pm \
+	lib/stefans_libs/fonts/LinLibertineFont/LinLibertineC-2.2.3.ttf \
+	blib/lib/stefans_libs/fonts/LinLibertineFont/LinLibertineC-2.2.3.ttf \
+	lib/stefans_libs/database/userTable/role_list.pm \
+	blib/lib/stefans_libs/database/userTable/role_list.pm \
+	lib/stefans_libs/database/userTable/CatalystUser.pm \
+	blib/lib/stefans_libs/database/userTable/CatalystUser.pm \
+	lib/stefans_libs/file_readers/cefFile.pm \
+	blib/lib/stefans_libs/file_readers/cefFile.pm \
+	lib/stefans_libs/Latex_Document/Text.pm \
+	blib/lib/stefans_libs/Latex_Document/Text.pm \
+	lib/stefans_libs/plot/figure.pm \
+	blib/lib/stefans_libs/plot/figure.pm \
+	lib/stefans_libs/plot/Font.pm \
+	blib/lib/stefans_libs/plot/Font.pm \
+	lib/stefans_libs/plot/axis.pm \
+	blib/lib/stefans_libs/plot/axis.pm \
+	lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm \
+	blib/lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm \
+	lib/stefans_libs/database/userTable.pm \
+	blib/lib/stefans_libs/database/userTable.pm \
+	lib/stefans_libs/database/to_do_list.pm \
+	blib/lib/stefans_libs/database/to_do_list.pm \
+	lib/stefans_libs/database/variable_table/linkage_info.pm \
+	blib/lib/stefans_libs/database/variable_table/linkage_info.pm \
+	lib/stefans_libs/database/to_do_list/parent_child.pm \
+	blib/lib/stefans_libs/database/to_do_list/parent_child.pm
 
 
 # --- MakeMaker platform_constants section:
@@ -546,64 +552,70 @@ POD2MAN = $(POD2MAN_EXE)
 
 
 manifypods : pure_all  \
-	bin/tasks.pl \
 	bin/create_variable_table_class.pl \
-	bin/bib_create.pl \
 	bin/binCreate.pl \
-	bin/AddUser.pl \
+	bin/tasks.pl \
+	bin/cef_join.pl \
 	bin/add_column_to_table.pl \
-	lib/stefans_libs/database/variable_table/linkage_info.pm \
-	lib/stefans_libs/root.pm \
-	lib/stefans_libs/database/variable_table/queryInterface.pm \
-	lib/stefans_libs/database/variable_table.pm \
-	lib/stefans_libs/Latex_Document/Text.pm \
-	lib/stefans_libs/Latex_Document/Chapter.pm \
-	lib/stefans_libs/install_helper.pm \
+	bin/AddUser.pl \
+	bin/bib_create.pl \
+	bin/cef_splice.pl \
+	lib/stefans_libs/Latex_Document/Section.pm \
 	lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm \
-	lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm \
-	lib/stefans_libs/database/userTable.pm \
+	lib/stefans_libs/database/lists/list_using_table.pm \
 	lib/stefans_libs/fastaDB.pm \
-	lib/stefans_libs/plot/simpleWhiskerPlot.pm \
+	lib/stefans_libs/Latex_Document.pm \
+	lib/stefans_libs/database/variable_table.pm \
+	lib/stefans_libs/Latex_Document/Chapter.pm \
+	lib/stefans_libs/flexible_data_structures/data_table.pm \
+	lib/stefans_libs/database/variable_table/queryInterface.pm \
+	lib/stefans_libs/Latex_Document/Figure.pm \
+	lib/stefans_libs/Latex_Document/HTML_2_TEX.pm \
+	lib/Stefans_Libs_Essentials.pm \
+	lib/stefans_libs/install_helper.pm \
+	lib/stefans_libs/file_readers/cefFile.pm \
+	lib/stefans_libs/plot/figure.pm \
+	lib/stefans_libs/Latex_Document/Text.pm \
 	lib/stefans_libs/plot/axis.pm \
 	lib/stefans_libs/install_helper/Patcher.pm \
-	lib/Stefans_Libs_Essentials.pm \
-	lib/stefans_libs/plot/figure.pm \
-	lib/stefans_libs/Latex_Document/Section.pm \
-	lib/stefans_libs/flexible_data_structures/data_table.pm \
-	lib/stefans_libs/Latex_Document/HTML_2_TEX.pm \
-	lib/stefans_libs/database/lists/list_using_table.pm \
-	lib/stefans_libs/Latex_Document.pm \
-	lib/stefans_libs/Latex_Document/Figure.pm
+	lib/stefans_libs/database/userTable.pm \
+	lib/stefans_libs/root.pm \
+	lib/stefans_libs/database/variable_table/linkage_info.pm \
+	lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm \
+	lib/stefans_libs/plot/simpleWhiskerPlot.pm
 	$(NOECHO) $(POD2MAN) --section=1 --perm_rw=$(PERM_RW) \
-	  bin/tasks.pl $(INST_MAN1DIR)/tasks.pl.$(MAN1EXT) \
 	  bin/create_variable_table_class.pl $(INST_MAN1DIR)/create_variable_table_class.pl.$(MAN1EXT) \
-	  bin/bib_create.pl $(INST_MAN1DIR)/bib_create.pl.$(MAN1EXT) \
 	  bin/binCreate.pl $(INST_MAN1DIR)/binCreate.pl.$(MAN1EXT) \
+	  bin/tasks.pl $(INST_MAN1DIR)/tasks.pl.$(MAN1EXT) \
+	  bin/cef_join.pl $(INST_MAN1DIR)/cef_join.pl.$(MAN1EXT) \
+	  bin/add_column_to_table.pl $(INST_MAN1DIR)/add_column_to_table.pl.$(MAN1EXT) \
 	  bin/AddUser.pl $(INST_MAN1DIR)/AddUser.pl.$(MAN1EXT) \
-	  bin/add_column_to_table.pl $(INST_MAN1DIR)/add_column_to_table.pl.$(MAN1EXT) 
+	  bin/bib_create.pl $(INST_MAN1DIR)/bib_create.pl.$(MAN1EXT) \
+	  bin/cef_splice.pl $(INST_MAN1DIR)/cef_splice.pl.$(MAN1EXT) 
 	$(NOECHO) $(POD2MAN) --section=3 --perm_rw=$(PERM_RW) \
-	  lib/stefans_libs/database/variable_table/linkage_info.pm $(INST_MAN3DIR)/stefans_libs::database::variable_table::linkage_info.$(MAN3EXT) \
-	  lib/stefans_libs/root.pm $(INST_MAN3DIR)/stefans_libs::root.$(MAN3EXT) \
-	  lib/stefans_libs/database/variable_table/queryInterface.pm $(INST_MAN3DIR)/stefans_libs::database::variable_table::queryInterface.$(MAN3EXT) \
-	  lib/stefans_libs/database/variable_table.pm $(INST_MAN3DIR)/stefans_libs::database::variable_table.$(MAN3EXT) \
-	  lib/stefans_libs/Latex_Document/Text.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document::Text.$(MAN3EXT) \
-	  lib/stefans_libs/Latex_Document/Chapter.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document::Chapter.$(MAN3EXT) \
-	  lib/stefans_libs/install_helper.pm $(INST_MAN3DIR)/stefans_libs::install_helper.$(MAN3EXT) \
+	  lib/stefans_libs/Latex_Document/Section.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document::Section.$(MAN3EXT) \
 	  lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm $(INST_MAN3DIR)/stefans_libs::database::variable_table::linkage_info::table_script_generator.$(MAN3EXT) \
-	  lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm $(INST_MAN3DIR)/stefans_libs::flexible_data_structures::data_table::arraySorter.$(MAN3EXT) \
-	  lib/stefans_libs/database/userTable.pm $(INST_MAN3DIR)/stefans_libs::database::userTable.$(MAN3EXT) \
+	  lib/stefans_libs/database/lists/list_using_table.pm $(INST_MAN3DIR)/stefans_libs::database::lists::list_using_table.$(MAN3EXT) \
 	  lib/stefans_libs/fastaDB.pm $(INST_MAN3DIR)/stefans_libs::fastaDB.$(MAN3EXT) \
-	  lib/stefans_libs/plot/simpleWhiskerPlot.pm $(INST_MAN3DIR)/stefans_libs::plot::simpleWhiskerPlot.$(MAN3EXT) \
+	  lib/stefans_libs/Latex_Document.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document.$(MAN3EXT) \
+	  lib/stefans_libs/database/variable_table.pm $(INST_MAN3DIR)/stefans_libs::database::variable_table.$(MAN3EXT) \
+	  lib/stefans_libs/Latex_Document/Chapter.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document::Chapter.$(MAN3EXT) \
+	  lib/stefans_libs/flexible_data_structures/data_table.pm $(INST_MAN3DIR)/stefans_libs::flexible_data_structures::data_table.$(MAN3EXT) \
+	  lib/stefans_libs/database/variable_table/queryInterface.pm $(INST_MAN3DIR)/stefans_libs::database::variable_table::queryInterface.$(MAN3EXT) \
+	  lib/stefans_libs/Latex_Document/Figure.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document::Figure.$(MAN3EXT) \
+	  lib/stefans_libs/Latex_Document/HTML_2_TEX.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document::HTML_2_TEX.$(MAN3EXT) \
+	  lib/Stefans_Libs_Essentials.pm $(INST_MAN3DIR)/Stefans_Libs_Essentials.$(MAN3EXT) \
+	  lib/stefans_libs/install_helper.pm $(INST_MAN3DIR)/stefans_libs::install_helper.$(MAN3EXT) \
+	  lib/stefans_libs/file_readers/cefFile.pm $(INST_MAN3DIR)/stefans_libs::file_readers::cefFile.$(MAN3EXT) \
+	  lib/stefans_libs/plot/figure.pm $(INST_MAN3DIR)/stefans_libs::plot::figure.$(MAN3EXT) \
+	  lib/stefans_libs/Latex_Document/Text.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document::Text.$(MAN3EXT) \
 	  lib/stefans_libs/plot/axis.pm $(INST_MAN3DIR)/stefans_libs::plot::axis.$(MAN3EXT) \
 	  lib/stefans_libs/install_helper/Patcher.pm $(INST_MAN3DIR)/stefans_libs::install_helper::Patcher.$(MAN3EXT) \
-	  lib/Stefans_Libs_Essentials.pm $(INST_MAN3DIR)/Stefans_Libs_Essentials.$(MAN3EXT) \
-	  lib/stefans_libs/plot/figure.pm $(INST_MAN3DIR)/stefans_libs::plot::figure.$(MAN3EXT) \
-	  lib/stefans_libs/Latex_Document/Section.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document::Section.$(MAN3EXT) \
-	  lib/stefans_libs/flexible_data_structures/data_table.pm $(INST_MAN3DIR)/stefans_libs::flexible_data_structures::data_table.$(MAN3EXT) \
-	  lib/stefans_libs/Latex_Document/HTML_2_TEX.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document::HTML_2_TEX.$(MAN3EXT) \
-	  lib/stefans_libs/database/lists/list_using_table.pm $(INST_MAN3DIR)/stefans_libs::database::lists::list_using_table.$(MAN3EXT) \
-	  lib/stefans_libs/Latex_Document.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document.$(MAN3EXT) \
-	  lib/stefans_libs/Latex_Document/Figure.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document::Figure.$(MAN3EXT) 
+	  lib/stefans_libs/database/userTable.pm $(INST_MAN3DIR)/stefans_libs::database::userTable.$(MAN3EXT) \
+	  lib/stefans_libs/root.pm $(INST_MAN3DIR)/stefans_libs::root.$(MAN3EXT) \
+	  lib/stefans_libs/database/variable_table/linkage_info.pm $(INST_MAN3DIR)/stefans_libs::database::variable_table::linkage_info.$(MAN3EXT) \
+	  lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm $(INST_MAN3DIR)/stefans_libs::flexible_data_structures::data_table::arraySorter.$(MAN3EXT) \
+	  lib/stefans_libs/plot/simpleWhiskerPlot.pm $(INST_MAN3DIR)/stefans_libs::plot::simpleWhiskerPlot.$(MAN3EXT) 
 
 
 
@@ -613,22 +625,17 @@ manifypods : pure_all  \
 
 # --- MakeMaker installbin section:
 
-EXE_FILES = bin/add_column_to_table.pl bin/AddUser.pl bin/bib_create.pl bin/binCreate.pl bin/create_variable_table_class.pl bin/tasks.pl
+EXE_FILES = bin/add_column_to_table.pl bin/AddUser.pl bin/bib_create.pl bin/binCreate.pl bin/cef_join.pl bin/cef_splice.pl bin/create_variable_table_class.pl bin/tasks.pl
 
-pure_all :: $(INST_SCRIPT)/tasks.pl $(INST_SCRIPT)/create_variable_table_class.pl $(INST_SCRIPT)/AddUser.pl $(INST_SCRIPT)/binCreate.pl $(INST_SCRIPT)/bib_create.pl $(INST_SCRIPT)/add_column_to_table.pl
+pure_all :: $(INST_SCRIPT)/create_variable_table_class.pl $(INST_SCRIPT)/binCreate.pl $(INST_SCRIPT)/cef_join.pl $(INST_SCRIPT)/tasks.pl $(INST_SCRIPT)/add_column_to_table.pl $(INST_SCRIPT)/cef_splice.pl $(INST_SCRIPT)/bib_create.pl $(INST_SCRIPT)/AddUser.pl
 	$(NOECHO) $(NOOP)
 
 realclean ::
 	$(RM_F) \
-	  $(INST_SCRIPT)/tasks.pl $(INST_SCRIPT)/create_variable_table_class.pl \
-	  $(INST_SCRIPT)/AddUser.pl $(INST_SCRIPT)/binCreate.pl \
-	  $(INST_SCRIPT)/bib_create.pl $(INST_SCRIPT)/add_column_to_table.pl 
-
-$(INST_SCRIPT)/tasks.pl : bin/tasks.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
-	$(NOECHO) $(RM_F) $(INST_SCRIPT)/tasks.pl
-	$(CP) bin/tasks.pl $(INST_SCRIPT)/tasks.pl
-	$(FIXIN) $(INST_SCRIPT)/tasks.pl
-	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/tasks.pl
+	  $(INST_SCRIPT)/create_variable_table_class.pl $(INST_SCRIPT)/binCreate.pl \
+	  $(INST_SCRIPT)/cef_join.pl $(INST_SCRIPT)/tasks.pl \
+	  $(INST_SCRIPT)/add_column_to_table.pl $(INST_SCRIPT)/cef_splice.pl \
+	  $(INST_SCRIPT)/bib_create.pl $(INST_SCRIPT)/AddUser.pl 
 
 $(INST_SCRIPT)/create_variable_table_class.pl : bin/create_variable_table_class.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
 	$(NOECHO) $(RM_F) $(INST_SCRIPT)/create_variable_table_class.pl
@@ -636,17 +643,35 @@ $(INST_SCRIPT)/create_variable_table_class.pl : bin/create_variable_table_class.
 	$(FIXIN) $(INST_SCRIPT)/create_variable_table_class.pl
 	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/create_variable_table_class.pl
 
-$(INST_SCRIPT)/AddUser.pl : bin/AddUser.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
-	$(NOECHO) $(RM_F) $(INST_SCRIPT)/AddUser.pl
-	$(CP) bin/AddUser.pl $(INST_SCRIPT)/AddUser.pl
-	$(FIXIN) $(INST_SCRIPT)/AddUser.pl
-	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/AddUser.pl
-
 $(INST_SCRIPT)/binCreate.pl : bin/binCreate.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
 	$(NOECHO) $(RM_F) $(INST_SCRIPT)/binCreate.pl
 	$(CP) bin/binCreate.pl $(INST_SCRIPT)/binCreate.pl
 	$(FIXIN) $(INST_SCRIPT)/binCreate.pl
 	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/binCreate.pl
+
+$(INST_SCRIPT)/cef_join.pl : bin/cef_join.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
+	$(NOECHO) $(RM_F) $(INST_SCRIPT)/cef_join.pl
+	$(CP) bin/cef_join.pl $(INST_SCRIPT)/cef_join.pl
+	$(FIXIN) $(INST_SCRIPT)/cef_join.pl
+	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/cef_join.pl
+
+$(INST_SCRIPT)/tasks.pl : bin/tasks.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
+	$(NOECHO) $(RM_F) $(INST_SCRIPT)/tasks.pl
+	$(CP) bin/tasks.pl $(INST_SCRIPT)/tasks.pl
+	$(FIXIN) $(INST_SCRIPT)/tasks.pl
+	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/tasks.pl
+
+$(INST_SCRIPT)/add_column_to_table.pl : bin/add_column_to_table.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
+	$(NOECHO) $(RM_F) $(INST_SCRIPT)/add_column_to_table.pl
+	$(CP) bin/add_column_to_table.pl $(INST_SCRIPT)/add_column_to_table.pl
+	$(FIXIN) $(INST_SCRIPT)/add_column_to_table.pl
+	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/add_column_to_table.pl
+
+$(INST_SCRIPT)/cef_splice.pl : bin/cef_splice.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
+	$(NOECHO) $(RM_F) $(INST_SCRIPT)/cef_splice.pl
+	$(CP) bin/cef_splice.pl $(INST_SCRIPT)/cef_splice.pl
+	$(FIXIN) $(INST_SCRIPT)/cef_splice.pl
+	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/cef_splice.pl
 
 $(INST_SCRIPT)/bib_create.pl : bin/bib_create.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
 	$(NOECHO) $(RM_F) $(INST_SCRIPT)/bib_create.pl
@@ -654,11 +679,11 @@ $(INST_SCRIPT)/bib_create.pl : bin/bib_create.pl $(FIRST_MAKEFILE) $(INST_SCRIPT
 	$(FIXIN) $(INST_SCRIPT)/bib_create.pl
 	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/bib_create.pl
 
-$(INST_SCRIPT)/add_column_to_table.pl : bin/add_column_to_table.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
-	$(NOECHO) $(RM_F) $(INST_SCRIPT)/add_column_to_table.pl
-	$(CP) bin/add_column_to_table.pl $(INST_SCRIPT)/add_column_to_table.pl
-	$(FIXIN) $(INST_SCRIPT)/add_column_to_table.pl
-	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/add_column_to_table.pl
+$(INST_SCRIPT)/AddUser.pl : bin/AddUser.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
+	$(NOECHO) $(RM_F) $(INST_SCRIPT)/AddUser.pl
+	$(CP) bin/AddUser.pl $(INST_SCRIPT)/AddUser.pl
+	$(FIXIN) $(INST_SCRIPT)/AddUser.pl
+	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/AddUser.pl
 
 
 
@@ -678,22 +703,22 @@ clean_subdirs :
 
 clean :: clean_subdirs
 	- $(RM_F) \
-	  perl MYMETA.json \
-	  mon.out pm_to_blib.ts \
-	  $(INST_ARCHAUTODIR)/extralibs.ld core.[0-9][0-9][0-9][0-9] \
-	  $(MAKE_APERL_FILE) core.[0-9][0-9][0-9][0-9][0-9] \
-	  $(BASEEXT).def core.[0-9] \
-	  so_locations pm_to_blib \
-	  $(BASEEXT).bso lib$(BASEEXT).def \
-	  $(INST_ARCHAUTODIR)/extralibs.all tmon.out \
-	  *perl.core *$(OBJ_EXT) \
-	  core.[0-9][0-9] $(BASEEXT).exp \
-	  perlmain.c perl$(EXE_EXT) \
-	  perl.exe core \
-	  core.*perl.*.? $(BASEEXT).x \
-	  $(BOOTSTRAP) blibdirs.ts \
-	  core.[0-9][0-9][0-9] MYMETA.yml \
-	  *$(LIB_EXT) 
+	  pm_to_blib.ts $(BASEEXT).exp \
+	  core.[0-9][0-9][0-9][0-9][0-9] mon.out \
+	  lib$(BASEEXT).def perlmain.c \
+	  MYMETA.json $(INST_ARCHAUTODIR)/extralibs.all \
+	  *$(OBJ_EXT) core.[0-9][0-9] \
+	  *perl.core core.[0-9][0-9][0-9] \
+	  tmon.out $(BASEEXT).x \
+	  core.[0-9][0-9][0-9][0-9] perl \
+	  core $(INST_ARCHAUTODIR)/extralibs.ld \
+	  $(BOOTSTRAP) $(BASEEXT).bso \
+	  perl$(EXE_EXT) MYMETA.yml \
+	  $(MAKE_APERL_FILE) so_locations \
+	  core.[0-9] *$(LIB_EXT) \
+	  blibdirs.ts $(BASEEXT).def \
+	  pm_to_blib perl.exe \
+	  core.*perl.*.? 
 	- $(RM_RF) \
 	  blib 
 	- $(NOECHO) $(RM_F) $(MAKEFILE_OLD)
@@ -709,9 +734,9 @@ realclean_subdirs :
 # Delete temporary files (via clean) and also delete dist files
 realclean purge ::  clean realclean_subdirs
 	- $(RM_F) \
-	  $(FIRST_MAKEFILE) $(MAKEFILE_OLD) 
+	  $(MAKEFILE_OLD) $(FIRST_MAKEFILE) 
 	- $(RM_RF) \
-	  MYMETA.yml $(DISTVNAME) 
+	  $(DISTVNAME) MYMETA.yml 
 
 
 # --- MakeMaker metafile section:
@@ -988,7 +1013,7 @@ $(MAKE_APERL_FILE) : $(FIRST_MAKEFILE) pm_to_blib
 TEST_VERBOSE=0
 TEST_TYPE=test_$(LINKTYPE)
 TEST_FILE = test.pl
-TEST_FILES = t/001.1_variable_table_speed_test.t t/001.2_variable_table_memory_usage_test.t t/001_variable_table.t t/data_table.t t/data_table_2.t t/data_table_HTML.t t/Latex_Document.t t/simpleBarGraph.t t/stefans_libs_install_helper.t t/stefans_libs_install_helper_Patcher.t t/stefans_libs_Latex_Document_bibTeX.t t/stefans_libs_Latex_Document_Chapter.t t/stefans_libs_Latex_Document_Figure.t t/stefans_libs_Latex_Document_gene_description.t t/stefans_libs_Latex_Document_Text.t t/stefans_libs_plot.t t/stefans_libs_plot_color.t
+TEST_FILES = t/001.1_variable_table_speed_test.t t/001.2_variable_table_memory_usage_test.t t/001_variable_table.t t/data_table.t t/data_table_2.t t/data_table_HTML.t t/Latex_Document.t t/simpleBarGraph.t t/stefans_libs_file_readers_cefFile.t t/stefans_libs_install_helper.t t/stefans_libs_install_helper_Patcher.t t/stefans_libs_Latex_Document_bibTeX.t t/stefans_libs_Latex_Document_Chapter.t t/stefans_libs_Latex_Document_Figure.t t/stefans_libs_Latex_Document_gene_description.t t/stefans_libs_Latex_Document_Text.t t/stefans_libs_plot.t t/stefans_libs_plot_color.t
 TESTDB_SW = -d
 
 testdb :: testdb_$(LINKTYPE)
@@ -1036,43 +1061,44 @@ ppd :
 
 pm_to_blib : $(FIRST_MAKEFILE) $(TO_INST_PM)
 	$(NOECHO) $(ABSPERLRUN) -MExtUtils::Install -e 'pm_to_blib({@ARGV}, '\''$(INST_LIB)/auto'\'', q[$(PM_FILTER)], '\''$(PERM_DIR)'\'')' -- \
-	  lib/stefans_libs/Latex_Document/Section.pm blib/lib/stefans_libs/Latex_Document/Section.pm \
-	  lib/stefans_libs/plot/figure.pm blib/lib/stefans_libs/plot/figure.pm \
-	  lib/stefans_libs/Latex_Document/Figure.pm blib/lib/stefans_libs/Latex_Document/Figure.pm \
-	  lib/stefans_libs/database/lists/list_using_table.pm blib/lib/stefans_libs/database/lists/list_using_table.pm \
-	  lib/stefans_libs/Latex_Document.pm blib/lib/stefans_libs/Latex_Document.pm \
-	  lib/stefans_libs/database/userTable/role_list.pm blib/lib/stefans_libs/database/userTable/role_list.pm \
-	  lib/stefans_libs/Latex_Document/HTML_2_TEX.pm blib/lib/stefans_libs/Latex_Document/HTML_2_TEX.pm \
-	  lib/stefans_libs/database/userTable/action_group_list.pm blib/lib/stefans_libs/database/userTable/action_group_list.pm \
-	  lib/stefans_libs/Latex_Document/Chapter.pm blib/lib/stefans_libs/Latex_Document/Chapter.pm \
-	  lib/stefans_libs/database/variable_table.pm blib/lib/stefans_libs/database/variable_table.pm \
-	  lib/stefans_libs/database/userTable/CatalystUser.pm blib/lib/stefans_libs/database/userTable/CatalystUser.pm \
-	  lib/stefans_libs/database/variable_table/queryInterface.pm blib/lib/stefans_libs/database/variable_table/queryInterface.pm \
-	  lib/stefans_libs/fonts/LinLibertineFont/LinLibertineC-2.2.3.ttf blib/lib/stefans_libs/fonts/LinLibertineFont/LinLibertineC-2.2.3.ttf \
-	  lib/stefans_libs/database/variable_table/linkage_info.pm blib/lib/stefans_libs/database/variable_table/linkage_info.pm \
-	  lib/stefans_libs/plot/axis.pm blib/lib/stefans_libs/plot/axis.pm \
-	  lib/stefans_libs/database/userTable/roles.pm blib/lib/stefans_libs/database/userTable/roles.pm \
-	  lib/stefans_libs/database/userTable/action_groups.pm blib/lib/stefans_libs/database/userTable/action_groups.pm \
-	  lib/stefans_libs/database/userTable.pm blib/lib/stefans_libs/database/userTable.pm \
-	  lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm blib/lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm \
-	  lib/stefans_libs/database/to_do_list.pm blib/lib/stefans_libs/database/to_do_list.pm \
-	  lib/stefans_libs/flexible_data_structures/data_table.pm blib/lib/stefans_libs/flexible_data_structures/data_table.pm \
-	  lib/stefans_libs/plot/Font.pm blib/lib/stefans_libs/plot/Font.pm \
-	  lib/stefans_libs/database/lists/basic_list.pm blib/lib/stefans_libs/database/lists/basic_list.pm \
-	  lib/Stefans_Libs_Essentials.pm blib/lib/Stefans_Libs_Essentials.pm \
-	  lib/stefans_libs/database/to_do_list/parent_child.pm blib/lib/stefans_libs/database/to_do_list/parent_child.pm \
 	  lib/stefans_libs/plot/simpleBarGraph.pm blib/lib/stefans_libs/plot/simpleBarGraph.pm \
-	  lib/stefans_libs/Latex_Document/Text.pm blib/lib/stefans_libs/Latex_Document/Text.pm 
-	$(NOECHO) $(ABSPERLRUN) -MExtUtils::Install -e 'pm_to_blib({@ARGV}, '\''$(INST_LIB)/auto'\'', q[$(PM_FILTER)], '\''$(PERM_DIR)'\'')' -- \
-	  lib/stefans_libs/root.pm blib/lib/stefans_libs/root.pm \
+	  lib/stefans_libs/Latex_Document/Section.pm blib/lib/stefans_libs/Latex_Document/Section.pm \
+	  lib/stefans_libs/flexible_data_structures/data_table.pm blib/lib/stefans_libs/flexible_data_structures/data_table.pm \
+	  lib/stefans_libs/database/variable_table/queryInterface.pm blib/lib/stefans_libs/database/variable_table/queryInterface.pm \
+	  lib/stefans_libs/Latex_Document/Chapter.pm blib/lib/stefans_libs/Latex_Document/Chapter.pm \
+	  lib/stefans_libs/install_helper.pm blib/lib/stefans_libs/install_helper.pm \
 	  lib/stefans_libs/install_helper/Patcher.pm blib/lib/stefans_libs/install_helper/Patcher.pm \
-	  lib/stefans_libs/plot/color.pm blib/lib/stefans_libs/plot/color.pm \
-	  lib/stefans_libs/file_readers/help_data.pm blib/lib/stefans_libs/file_readers/help_data.pm \
-	  lib/stefans_libs/database/userTable/temporary_banned.pm blib/lib/stefans_libs/database/userTable/temporary_banned.pm \
+	  lib/stefans_libs/database/userTable/action_groups.pm blib/lib/stefans_libs/database/userTable/action_groups.pm \
+	  lib/stefans_libs/root.pm blib/lib/stefans_libs/root.pm \
 	  lib/stefans_libs/plot/simpleWhiskerPlot.pm blib/lib/stefans_libs/plot/simpleWhiskerPlot.pm \
-	  lib/stefans_libs/fastaDB.pm blib/lib/stefans_libs/fastaDB.pm \
+	  lib/stefans_libs/database/userTable/temporary_banned.pm blib/lib/stefans_libs/database/userTable/temporary_banned.pm \
+	  lib/stefans_libs/database/lists/list_using_table.pm blib/lib/stefans_libs/database/lists/list_using_table.pm \
 	  lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm blib/lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm \
-	  lib/stefans_libs/install_helper.pm blib/lib/stefans_libs/install_helper.pm 
+	  lib/stefans_libs/database/userTable/action_group_list.pm blib/lib/stefans_libs/database/userTable/action_group_list.pm \
+	  lib/stefans_libs/database/variable_table.pm blib/lib/stefans_libs/database/variable_table.pm \
+	  lib/stefans_libs/database/lists/basic_list.pm blib/lib/stefans_libs/database/lists/basic_list.pm \
+	  lib/stefans_libs/fastaDB.pm blib/lib/stefans_libs/fastaDB.pm \
+	  lib/stefans_libs/plot/color.pm blib/lib/stefans_libs/plot/color.pm \
+	  lib/stefans_libs/Latex_Document.pm blib/lib/stefans_libs/Latex_Document.pm \
+	  lib/stefans_libs/file_readers/help_data.pm blib/lib/stefans_libs/file_readers/help_data.pm \
+	  lib/stefans_libs/Latex_Document/Figure.pm blib/lib/stefans_libs/Latex_Document/Figure.pm \
+	  lib/stefans_libs/Latex_Document/HTML_2_TEX.pm blib/lib/stefans_libs/Latex_Document/HTML_2_TEX.pm \
+	  lib/Stefans_Libs_Essentials.pm blib/lib/Stefans_Libs_Essentials.pm \
+	  lib/stefans_libs/database/userTable/roles.pm blib/lib/stefans_libs/database/userTable/roles.pm \
+	  lib/stefans_libs/fonts/LinLibertineFont/LinLibertineC-2.2.3.ttf blib/lib/stefans_libs/fonts/LinLibertineFont/LinLibertineC-2.2.3.ttf \
+	  lib/stefans_libs/database/userTable/role_list.pm blib/lib/stefans_libs/database/userTable/role_list.pm \
+	  lib/stefans_libs/database/userTable/CatalystUser.pm blib/lib/stefans_libs/database/userTable/CatalystUser.pm 
+	$(NOECHO) $(ABSPERLRUN) -MExtUtils::Install -e 'pm_to_blib({@ARGV}, '\''$(INST_LIB)/auto'\'', q[$(PM_FILTER)], '\''$(PERM_DIR)'\'')' -- \
+	  lib/stefans_libs/file_readers/cefFile.pm blib/lib/stefans_libs/file_readers/cefFile.pm \
+	  lib/stefans_libs/Latex_Document/Text.pm blib/lib/stefans_libs/Latex_Document/Text.pm \
+	  lib/stefans_libs/plot/figure.pm blib/lib/stefans_libs/plot/figure.pm \
+	  lib/stefans_libs/plot/Font.pm blib/lib/stefans_libs/plot/Font.pm \
+	  lib/stefans_libs/plot/axis.pm blib/lib/stefans_libs/plot/axis.pm \
+	  lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm blib/lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm \
+	  lib/stefans_libs/database/userTable.pm blib/lib/stefans_libs/database/userTable.pm \
+	  lib/stefans_libs/database/to_do_list.pm blib/lib/stefans_libs/database/to_do_list.pm \
+	  lib/stefans_libs/database/variable_table/linkage_info.pm blib/lib/stefans_libs/database/variable_table/linkage_info.pm \
+	  lib/stefans_libs/database/to_do_list/parent_child.pm blib/lib/stefans_libs/database/to_do_list/parent_child.pm 
 	$(NOECHO) $(TOUCH) pm_to_blib
 
 
