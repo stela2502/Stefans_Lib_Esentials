@@ -2379,6 +2379,35 @@ sub Add_Dataset {
 	  return scalar( @{ $self->{'data'} } );
 }
 
+=head2 merge_cols (  $self, $new_col, @cols  )
+
+merges a list of @cols column names into the column $new_col (join by  " " ).
+All @cols are dropped from the table.
+
+=cut
+
+sub uniq_in_array {
+	my $self= shift;
+	return do { my %seen; grep { !$seen{$_}++ } @_ }
+}
+
+sub merge_cols {
+	my ( $self, $new_col, @cols ) = @_;
+	my @new;
+	if ( defined $self->Header_Position( $new_col ) ){
+		unshift( @cols, $new_col );
+		@cols = $self->uniq_in_array ( @cols );
+	}
+	my @c = grep defined ,map{ $self->Header_Position($_) } @cols;
+	for ( my $i = 0; $i < $self->Lines(); $i ++ ){
+		$new[$i] = join(" ", $self->uniq_in_array ( grep defined ,@{@{$self->{'data'}}[$i]}[@c]));
+	}
+	$self->define_subset('drop this',\@cols );
+	$self = $self->drop_column('drop this');
+	$self->add_column( $new_col, \@new );
+	return $self;
+}
+
 sub is_empty {
 	  my ($self) = @_;
 	  return 1 if ( scalar( @{ $self->{'data'} } == 0 ) );
