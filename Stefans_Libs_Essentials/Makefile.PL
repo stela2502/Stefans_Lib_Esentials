@@ -1,29 +1,25 @@
 #!/usr/bin/env perl
 # IMPORTANT: if you delete this file your app will not work as
 # expected.  You have been warned.
-use inc::Module::Install 1.02;
-use Module::Install::Catalyst; # Complain loudly if you don't have
-                               # Catalyst::Devel installed or haven't said
-                               # 'make dist' to create a standalone tarball.
 
-name 'Stefans_Libs_Essentials';
-all_from 'lib/Stefans_Libs_Essentials.pm';
+use ExtUtils::MakeMaker;
 
+opendir( DIR, "bin/" ) or die "I could not open the bin folder\n$!\n";
 
-requires_external_bin('make');
-requires_external_bin( "pdflatex");
+WriteMakefile(
+	NAME         => "Stefans_Libs_Essentials",
+	VERSION_FROM => "lib/Stefans_Libs_Essentials.pm",
+	EXE_FILES    => [ map { "bin/$_" } grep '*.bin', readdir(DIR) ],
+	PREREQ_PM    => {
+		'DBI'                     => 0,
+		'DateTime::Format::MySQL' => 0,
+		'Statistics::Descriptive' => 0,
+		'Date::Simple'            => 0,
+		'Number::Format'          => 0,
+		'GD'                      => 0,
+		'SVG'                     => 0,
+		'GD::SVG'                 => '0.33',
+	  }
 
-requires 'DBI';
-requires 'DateTime::Format::MySQL';
-requires 'Statistics::Descriptive';
-requires 'Date::Simple';
-requires 'Number::Format';
-requires 'GD';
-requires 'SVG';
-requires 'GD::SVG' => '0.33';
-
-catalyst;
-
-install_script glob('bin/*.pl');
-auto_install;
-WriteAll;
+);
+closedir(DIR);
