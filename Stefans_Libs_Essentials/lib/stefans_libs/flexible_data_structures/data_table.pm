@@ -2215,6 +2215,25 @@ sub drop_subset {
 	  return 1;
 }
 
+=head2 drop_rows ( $where, $matchHash )
+
+Here you can drop rows from the table that match to a column entry.
+If you give a array of where like [ 'ColA', 'ColB'] the two column entries will be joined by one space and searched in the hash.
+If a column entry is found in the has the column is dropped.
+
+=cut
+
+sub drop_rows{
+	my ( $self, $where, $matchHash ) = @_;
+	my @pos = $self->Header_Position( $where );
+	for ( my $i = @{$self->{'data'}} -1; $i >= 0; $i-- ){
+		if ( $matchHash->{join(" ", @{@{$self->{'data'}}[$i]}[@pos])} ){ ## drop this
+			splice(@{$self->{'data'}}, $i, 1 );
+		}
+	}
+	return $self;
+}
+
 sub AddDataset {
 	  my $self = shift;
 	  return $self->Add_Dataset(@_);

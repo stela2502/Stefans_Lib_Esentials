@@ -1,7 +1,7 @@
 #! /usr/bin/perl
 use strict;
 use warnings;
-use Test::More tests => 5;
+use Test::More tests => 8;
 
 use FindBin;
 my $plugin_path = "$FindBin::Bin";
@@ -36,7 +36,16 @@ ok ( ! defined ( $data_table->Header_Position('J-GENE and allele')), "dropped on
 
 #print "\$exp = " . root->print_perl_var_def( {'data_table' => { %$data_table} } ) . ";\n";
 
-#print $data_table -> AsString();
+print $data_table -> AsString();
+
+my $tmp = $data_table -> copy();
+$tmp -> drop_rows( 'Sequence ID', {'MID10_9_JGYX58G01DW5NA_orig_bc=TCTCTATGCG_new_bc=T' => 1} );
+ok ($tmp->Rows() == 1, "dropped one row!" );
+is_deeply ( $tmp -> GetAsArray('Sequence ID'), ['MID10_4_JGYX58G01A93ZS_orig_bc=TTTCTATGCG_new_bc=T'], "Dropped the right (second) entry");
+
+$tmp = $data_table -> copy();
+$tmp -> drop_rows( 'Sequence ID', {'MID10_4_JGYX58G01A93ZS_orig_bc=TTTCTATGCG_new_bc=T' => 1} );
+is_deeply ( $tmp -> GetAsArray('Sequence ID'), ['MID10_9_JGYX58G01DW5NA_orig_bc=TCTCTATGCG_new_bc=T'], "Dropped the right (first) entry");
 
 
 #print "\$exp = " . root->print_perl_var_def( $obj->GetAsArray('fold change') ) . ";\n";
