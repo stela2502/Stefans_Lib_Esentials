@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/repos/!svn/ver/3/LabBook/lib/stefans_libs/database/scientistTable
+END
+action_group_list.pm
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/!svn/ver/3/LabBook/lib/stefans_libs/database/scientistTable/action_group_list.pm
+END
+role_list.pm
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/repos/!svn/ver/3/LabBook/lib/stefans_libs/database/scientistTable/role_list.pm
+END
+PW_table.pm
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/repos/!svn/ver/3/LabBook/lib/stefans_libs/database/scientistTable/PW_table.pm
+END
+CatalystUser.pm
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/repos/!svn/ver/3/LabBook/lib/stefans_libs/database/scientistTable/CatalystUser.pm
+END
+action_groups.pm
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/!svn/ver/3/LabBook/lib/stefans_libs/database/scientistTable/action_groups.pm
+END
+roles.pm
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/repos/!svn/ver/3/LabBook/lib/stefans_libs/database/scientistTable/roles.pm
+END
+scientificComunity.pm
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/repos/!svn/ver/3/LabBook/lib/stefans_libs/database/scientistTable/scientificComunity.pm
+END
