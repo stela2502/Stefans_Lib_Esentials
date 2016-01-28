@@ -93,9 +93,12 @@ sub helpString {
    				add:		create a new task
    				show_all:	show all tunfinished tasks for the user 
 				show_fin:	show all finished tasks for the user
+				show detailed :show summary and descr for each task
 				relocate:   <child id> (to) <master id> 
 				            link the child to the master
-				
+				            
+				finish:     as first optionf followed by the id to finish
+				            also use the descr to describe the outcome				
 				
    -help           :print this help
    -debug          :verbose output
@@ -182,7 +185,7 @@ elsif ( $options[0] =~ m /^finish/ ){
 		warn "Sorry - if you want to finish a task please give me the id as second option!\n"
 	}
 	else {
-	 	$db->UpdateDataset( { 'id' => $options[1], 'done' => 1} );
+	 	$db->UpdateDataset( { 'id' => $options[1], 'done' => 1, 'finalText' => $task } );
 	}
 	print $db->show( $master_id, { map { $_ => 1 } @options } );
 }

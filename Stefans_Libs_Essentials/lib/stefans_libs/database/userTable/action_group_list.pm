@@ -16,7 +16,7 @@ package action_group_list;
 #  along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 use stefans_libs::database::lists::basic_list;
-use stefans_libs::database::scientistTable::action_groups;
+use stefans_libs::database::userTable::action_groups;
 
 use base 'basic_list';
 

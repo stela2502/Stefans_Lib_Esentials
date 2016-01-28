@@ -77,6 +77,13 @@ sub  init_tableStructure {
                'description'  => 'describe the task',
           }
      );
+     push ( @{$hash->{'variables'}},  {
+               'name'         => 'finalText',
+               'type'         => 'TEXT',
+               'NULL'         => '1',
+               'description'  => 'sinal summary of the task',
+          }
+     );
      push(  @{$hash->{'variables'}},  {
                'name'         => 'path',
                'type'         => 'VARCHAR(255)',
@@ -147,7 +154,8 @@ sub show {
 	my ( $self, $id, $options ) = @_;
 	my $to_do_data;
 	$options ||= {};
-	
+	my $done = 0;
+	$done = 1 if $options->{'finished'};
 	if ( defined  $id ) {
 		$to_do_data = $self->get_data_table_4_search({
  			'search_columns' => [ ref($self).".id", 'summary', 'information', 'path', 'parent_id' ],
@@ -156,7 +164,7 @@ sub show {
  				['done', '=', 'my_value']
  			],
  			'order_by' => [  'send_time' ]
-		 }, $id , 0);
+		 }, $id , $done);
 	}
 	else {
 		$to_do_data = $self->get_data_table_4_search({
@@ -166,7 +174,7 @@ sub show {
  				['done', '=', 'my_value']
  			],
  			'order_by' => [ 'send_time' ]
-		 }, $self->{username} ||= $options->{'user'}, 0);
+		 }, $self->{username} ||= $options->{'user'}, $done);
 	}
 	print "Problematic search?: $self->{'complex_search'}\n" if ( $self->{'debug'});
 	return $self->to_string( $to_do_data, $options );
@@ -174,23 +182,30 @@ sub show {
 
 sub to_string {
 	my ( $self, $table, $options ) = @_;
-	$options->{'ind'} ||= 0;
 	my $st='';
+	$options->{'ind'} ||= 1;
 	my ($exclude,@tmp, @processed );
 	for ( my $i = 0; $i < $options->{'ind'}; $i++ ){
 		$st .= "\t";
 	}
 	my $str = '';
-	if ( $options->{'ind'}  == 0 ){
-		$str = "id\tinfo\n";
-	}
 	foreach my $hash  ( @{ $table->GetAll_AsHashArrayRef() } ) {
 		next if ( $exclude->{$hash->{ref($self).'.id'}} );
-		$str .= $hash->{ref($self).'.id'}."$st\t$hash->{'summary'}";
+		$str .= "ID:$st".$hash->{ref($self).'.id'}."\nSummay:$st$hash->{'summary'}";
 		if ( $options->{'detailed'} ) {
-			$str .= ":\t$hash->{'information'}\t$hash->{'path'}";
+			$str .= "\nTask:";
+			my $tmp = '';
+			foreach ( split ( " ",$hash->{'information'} )) {
+				if ( length($tmp) > 60 ) {
+					$str .= "$st$tmp\n";
+					$tmp = '';
+				}
+				$tmp .= "$_ ";
+			}
+			$str .= "\n"unless ( $str =~ m/\n$/);
+			$str .= "Path:$st$hash->{'path'}";
 		}
-		$str .= "\n";
+		$str .= "\n\n";
 		if ( $hash->{'parent_id'} > 0 && ! defined $options->{'no_child'} ) {
 			my $tmp = {%$options};
 			$tmp->{'ind'} = $options->{'ind'}+1;

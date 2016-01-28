@@ -1,1 +1,4 @@
 /.includepath
+lib/
+/t/data/output/
+.svn

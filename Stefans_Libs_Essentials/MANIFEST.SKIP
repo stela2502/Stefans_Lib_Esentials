@@ -7,3 +7,4 @@ output/
 .*tar.gz
 tmp/
 save.xls
+Makefile.old

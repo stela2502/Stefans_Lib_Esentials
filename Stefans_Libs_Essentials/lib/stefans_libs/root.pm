@@ -21,10 +21,6 @@ use strict;
 use Date::Simple;
 use Statistics::Descriptive;
 
-eval{
-#use DBD::DB2::Constants;
-#use DBD::DB2;
-};
 
 =for comment
 
