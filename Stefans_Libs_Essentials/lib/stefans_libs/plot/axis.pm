@@ -518,7 +518,7 @@ sub defineAxis {
 
 	#    print
 	#"defineAxis min = $min max = $max - modified (?) dimension = $dimension\n";
-
+	unless ( defined $self->{'no_rescale'}){
 	$add = 0
 	  if ( $min / $dimension == int( $min / $dimension )
 		|| $min / $dimension > int( $min / $dimension ) );
@@ -529,6 +529,7 @@ sub defineAxis {
 	  if ( $max / $dimension == int( $max / $dimension )
 		|| $max / $dimension < int( $max / $dimension ) );
 	$max = ( int( $max / $dimension ) + $add ) * $dimension;
+	}
 	$self->max_value($max);
 	$self->{dimension} = $dimension;
 
