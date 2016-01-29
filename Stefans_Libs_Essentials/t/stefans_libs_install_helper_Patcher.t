@@ -21,8 +21,17 @@ $obj->revert();
 is_deeply( @{$obj->{'data'}}[2], 'name HTpcrA', "revert pattern matching" );
 
 
-$obj = $obj -> new( $plugin_path."/data/upload.tt2" );
+$obj = $obj -> new( $plugin_path."/data/HTpcrA.pm" );
+my $install_path = 'nowhere';
+is_deeply( $obj->replace_string( "\\sroot =\\> '[\\/\\w]*'," , " root => '$install_path',\nhome => '$install_path',"), 1, "replace_string" );
+my $options = 'FAIL';
+my $OK2 = $obj -> replace_string("randomForest => 1,\\n\\s*ncore => \\d+,", "$options" );
 
+die $obj->{'str_rep'};
+
+
+
+$obj = $obj -> new( $plugin_path."/data/upload.tt2" );
 $obj->replace_string( "<tmpl_var field-(\\w*)>", ["[% form.field.",".field %]"] );
 
 my $i = 0;
