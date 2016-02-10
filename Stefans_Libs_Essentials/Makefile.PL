@@ -19,6 +19,7 @@ WriteMakefile(
 		'GD'                      => 0,
 		'SVG'                     => 0,
 		'GD::SVG'                 => '0.33',
+		'PDL' => 0,
 	  }
 
 );
