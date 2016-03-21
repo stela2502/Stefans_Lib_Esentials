@@ -151,7 +151,7 @@ sub read_file{
 		@line = $self->rline();
 		$self->{'samples'}->add_column( @line[$nrow_atr..$last_col]);	
 	}
-	Carp::confess ( "Read failed - the samples column '$samplesCol' could not be identified in the data!\n") unless ( defined $self->{'samples'}->Header_Position( $samplesCol ));
+	Carp::confess ( "Read failed - the samples column '$samplesCol' could not be identified in the data(!):\n".join("\n", @{$self->{'samples'}->{'header'}})."\n") unless ( defined $self->{'samples'}->Header_Position( $samplesCol ));
 	## the gene level annotation headers
 	@line= $self->rline();
 	$self->{'annotation'}->Add_2_Header( [@line[0..$nrow_atr-1]] );
