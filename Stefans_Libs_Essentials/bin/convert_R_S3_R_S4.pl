@@ -34,11 +34,12 @@ my $plugin_path = "$FindBin::Bin";
 
 my $VERSION = 'v1.0';
 
-my ( $help, $debug, $database, $R_source, $outfile );
+my ( $help, $debug, $database, $R_source,$classN, $outfile );
 
 Getopt::Long::GetOptions(
 	"-R_source=s" => \$R_source,
 	"-outfile=s"  => \$outfile,
+	"-className=s" => \$classN,
 
 	"-help"  => \$help,
 	"-debug" => \$debug
@@ -71,8 +72,9 @@ sub helpString {
  $errorMessage
  command line switches for convert_R_S3_R_S4.pl
 
-   -R_source       :<please add some info!>
-   -outfile       :<please add some info!>
+   -R_source    :the old function based lib file
+   -outfile     :the new S4isizde lib file
+   -className   :the class name for this file (in case the file name is not the class name)
 
    -help           :print this help
    -debug          :verbose output
@@ -87,6 +89,7 @@ $task_description .=
   'perl ' . root->perl_include() . ' ' . $plugin_path . '/convert_R_S3_R_S4.pl';
 $task_description .= " -R_source $R_source" if ( defined $R_source );
 $task_description .= " -outfile $outfile"   if ( defined $outfile );
+$task_description .= " -className $classN" if ( defined $classN);
 
 open( LOG, ">$outfile.log" ) or die $!;
 print LOG $task_description . "\n";
@@ -106,11 +109,12 @@ open( OUT, ">$outfile" ) or die $!;
 my ( $funN, $funArgs, $add, $bracket, $save, $man );
 $add     = 1;
 $bracket = 0;
+$classN ||= $fm->{'filename_core'};
 for ( my $i = 0 ; $i < @file ; $i++ ) {
 
 	if ( $bracket == 0 ) {
 		if ( $file[$i] =~ m/setClass/) {
-			$man = &populate_man( $fm->{'filename_core'}, $fm->{'filename_core'}, $man, '');
+			$man = &populate_man($classN , $classN, $man, '');
 			print OUT man2str( $man );
 			$man = undef;
 			print OUT $file[$i];
@@ -150,7 +154,7 @@ for ( my $i = 0 ; $i < @file ; $i++ ) {
 			# now I have function name and args in two variables.
 			$bracket =
 			  1;    ## I need to check whether the } does close the function!
-			$man = &populate_man( $funN, $fm->{'filename_core'}, $man, $funArgs);
+			$man = &populate_man( $funN, $classN, $man, $funArgs);
 			print OUT man2str( $man );
 			$man = undef;
 			print OUT "setGeneric('$funN', ## Name
