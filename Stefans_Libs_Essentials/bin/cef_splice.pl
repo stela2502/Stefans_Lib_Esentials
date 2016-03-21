@@ -119,7 +119,7 @@ close(LOG);
 ## Do whatever you want!
 
 my $obj = stefans_libs::file_readers::cefFile->new();
-$obj->read_file($infile);
+$obj->read_file($infile, $sampleNames);
 foreach my $what ( 'samples', 'annotation', 'data' ) {
 	$obj->export(
 		$what,
@@ -134,14 +134,15 @@ foreach my $what ( 'samples', 'annotation', 'data' ) {
 ## + read this into a fluidigm object for plotting
 
 open ( OUT, ">$outfile.readin.R" ) or die "Could not create R file \n$!\n";
-print OUT "source ('/home/slang/workspace/NGS_pipeline/root/R_libs/NGSexpressionSet.R')\n"
+print OUT "library (NGSexpressionSet)\n"
 . "dat <- read.delim('$outfile"."_data.xls' , header=T )\n"
 . "rownames(dat) <- dat[,1]\ndat <- dat[,-1]\n"
 . "Samples <- as.data.frame ( read.delim(file='$outfile"."_samples.xls', header=T ))\n"
 . "Samples\$origSampleName <- Samples\$$sampleNames\n"
 . "Samples\$$sampleNames <- make.names(Samples\$$sampleNames)\n"
 . "anno <- read.delim(file='$outfile"."_annotation.xls', header=T )\n"
-. "dat <- cbind(anno,dat)\n"
-. "OBJ <- createWorkingSet( dat, Samples, name='@{@{$obj->{'headers'}}[0]}[1]', namecol='$sampleNames', namerow= '$dataNames', usecol=NULL )\n"
-. "OBJ\n";
+#. "dat <- cbind(anno,dat)\n"
+. "OBJ <- SingleCellsNGS( dat, Samples, name='@{@{$obj->{'headers'}}[0]}[1]', namecol='$sampleNames', namerow= '$dataNames', usecol=NULL )\n"
+. "OBJ\n"
+. "save( OBJ, file='$outfile.RData')\n";
 close ( OUT );
