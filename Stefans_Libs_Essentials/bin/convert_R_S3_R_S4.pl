@@ -163,7 +163,7 @@ for ( my $i = 0 ; $i < @file ; $i++ ) {
 	}
 )
 
-setMethod('$funN', signature = c ('$fm->{filename_core}'),
+setMethod('$funN', signature = c ('$classN'),
 	definition = function $funArgs {\n";
 		}
 	}
