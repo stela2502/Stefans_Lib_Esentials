@@ -136,7 +136,7 @@ foreach my $what ( 'samples', 'annotation', 'data' ) {
 open ( OUT, ">$outfile.readin.R" ) or die "Could not create R file \n$!\n";
 print OUT "library (NGSexpressionSet)\n"
 . "dat <- read.delim('$outfile"."_data.xls' , header=T )\n"
-. "rownames(dat) <- dat[,1]\ndat <- dat[,-1]\n"
+. "rownames(dat) <- dat[,1]\n"
 . "Samples <- as.data.frame ( read.delim(file='$outfile"."_samples.xls', header=T ))\n"
 . "Samples\$origSampleName <- Samples\$$sampleNames\n"
 . "Samples\$$sampleNames <- make.names(Samples\$$sampleNames)\n"

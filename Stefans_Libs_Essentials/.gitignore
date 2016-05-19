@@ -1,4 +1,4 @@
 /.includepath
-lib/
+/blib/
 /t/data/output/
 .svn

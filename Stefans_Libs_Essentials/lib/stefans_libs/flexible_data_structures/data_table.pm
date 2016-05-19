@@ -728,6 +728,7 @@ sub print2file {
 	  or Carp::confess(
 		ref($self)
 		  . "::print2file -> I can not create the outfile '$outfile'\n$!\n" );
+	#print $subset;
 	print OUT $self->AsString($subset);
 	close(OUT);
 	return $outfile;
@@ -1195,6 +1196,7 @@ sub AsString {
 	my @col_format = map { $self->__col_format_is_string($_) }
 	  0 .. scalar( @{ @{ $self->{'data'} }[0] } ) - 1;
 	foreach my $data ( @{ $self->{'data'} } ) {
+		$data ||=[];
 		@line = @$data;
 		for ( my $i = 0 ; $i < $max_H ; $i++ ) {
 			unless ( defined $line[$i] ) {
