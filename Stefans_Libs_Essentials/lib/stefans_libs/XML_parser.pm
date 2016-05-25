@@ -37,6 +37,7 @@ sub new {
 		'deparse_level' => 2,
 		'drop_first'    => 2,
 		'debug'         => 0,
+		'done'          => {},
 	};
 
 	bless $self, $class if ( $class eq "stefans_libs::XML_parser" );
@@ -206,18 +207,6 @@ sub register_column {
 			  . "See file .emergencyBreak.xls\n";
 		}
 	}
-	## now I check, whether you probably should decrease the $entryID
-	#	elsif ( $entryID > 1
-	#		and !defined @{ @{ $data_table->{'data'} }[ $entryID - 2 ] }[$pos] )
-	#	{
-	#		## the last row column is empty!
-	#		#and therefore we should add this value to the last row intead!
-	#		print "Adding the value $value at one level below!\n"
-	#		  if ( $self->{'debug'} );
-	#		@{ @{ $data_table->{'data'} }[ $entryID - 2 ] }[$pos] =
-	#		  $value;
-	#		$delta = -1;
-	#	}
 	else {
 		@{ @{ $data_table->{'data'} }[ $data_table->Rows() - 1 ] }[$pos] =
 		  $value;
@@ -233,9 +222,9 @@ sub check_last_row {
 	sub check {
 		local $SIG{__WARN__} = sub { };
 		my $data_table = shift;
-		return !
-		  join( "", @{ @{ $data_table->{'data'} }[ $data_table->Rows() - 1 ] } )
-		  =~ m/\w/;
+		return !join( "",
+			@{ @{ $data_table->{'data'} }[ $data_table->Rows() - 1 ] } ) =~
+		  m/\w/;
 	}
 	if ( &check($data_table) ) {
 		splice( @{ $data_table->{'data'} }, $data_table->Rows() - 1, 1 );
@@ -260,18 +249,125 @@ sub write_files {
 	my ( $self, $fname, $drop ) = @_;
 	if ( !defined $drop ) { $drop = 1 }
 	my ( $this, $unique, $key, $tmp );
+	$self->drop_no_acc();
+	if ($drop) {
+		$self->drop_duplicates();
+	}
 	foreach my $name ( keys %{ $self->{'tables'} } ) {
 		## I want to get rid of duplicates first!
 		$this = $self->{'tables'}->{$name};
+		next if ( $this->Rows == 0 );
+		$tmp = $fname . "_" . $name . ".xls";
+		print join( " ", $tmp, $self->{'tables'}->{$name}->Rows, 'lines' )
+		  . "\n";
+		$self->{'tables'}->{$name}->write_file($tmp);
+	}
+}
 
-		my @acc_cols = grep ( /accession/, @{ $this->{'header'} } );
-		next if ( scalar(@acc_cols) == 0);
-	#	die "The acc cols:".join(", ",@acc_cols)."\n";
-		## identify all columns with no accession info in them and drop them!
-		$this->define_subset( 'accs', \@acc_cols );
-		{    ## just to separate the @data
+=head3 write_summary_file
+
+Here I try to identify all NCBI IDS and sum up a hopefully interesting and meaningful final data table
+
+=cut
+
+sub write_summary_file {
+	my ( $self, $fname ) = @_;
+	$self->create_subsets( 'accesion', 'accs' );
+	$self->drop_duplicates();
+	## now collect all IDS?
+	## there are IDs in the range of
+	## DRP DRR
+	## SRA SRR
+	## ERP ERR
+	## SRP SRR
+	## and in addition SAMN, GSE, GSM, PRINJA and so on....
+	my ($studyname) = grep ( 'STUDY', keys %{$self->{'tables'}} );
+	Carp::Confess ( "This dataset has no STUDY information" ) unless ( $studyname=~ m/\w/ and $self->{'tables'}->{$studyname}->Rows() > 0 );
+	
+	my ($runset) = grep ( 'RUN_SET', keys %{$self->{'tables'}} );
+	Carp::Confess ( "This dataset has no RUN_SET information" ) unless ( $runset=~ m/\w/ and $self->{'tables'}->{$runset}->Rows() > 0 );
+	
+	my ( $run_acc_cols, $run_uniqe, $run_hash ) = $self->_ids_link_to( $runset );
+	
+	if ( defined $run_hash ){
+		
+	}
+	
+	warn "Only the first STUDY will be used!\n" if ( $self->{'tables'}->{$studyname}->Rows > 1 );
+	## order that from bottome to top?!
+	
+
+}
+
+=head2 _ids_link_to ($self, $tname)
+
+This function is identifing all columns containing any NCBI IDs for each column.
+Afterwards it is identifing the column with the unique IDs.
+
+Returns a arrays ref of all ID column ID's, The unique column id and a hash UNIQUE_ID -> { otherID => 1 }
+
+=cut
+
+sub _ids_link_to{
+	my ( $self, $tname, $ret ) = @_;
+	Carp::confess ( "table $tname not defined !\n" ) unless ( defined $self->{'tables'} -> {$tname});
+	my ( @accCols, $line, $OK, $table, $uniqes );
+	$table = $self->{'tables'} -> {$tname};
+	$line = @{$table->{'data'}}[0];
+	for( my $i = 0; $i < @$line; $i ++ ) {
+		if ( @$line[$i] =~ m/^\w\w\w+\d\d\d+$/) {
+			$OK = 1;
+			map { $OK = 0 unless ( $_ =~ m/^\w\w\w+\d\d\d+$/); } @{ $table->GetAsArray( @{$table->{'header'}}[$i]) };
+			push( @accCols, $i ) if ( $OK );
+			
+			unless ( defined $uniques) {
+				$OK = 1;
+				$tmp = undef;
+				map { $OK = 0 if ( $tmp->{$_}); $tmp->{$_}=1; } @{ $table->GetAsArray( @{$table->{'header'}}[$i]) };
+				$uniques = $i if ( $OK );
+			}
+		}
+	}
+	if ( $uniques ) {
+		for ( my $i = 0; $i < $table->Rows(); $i ++ ){
+			$line =  @{$table->{'data'}}[$i];
+			unless ( ref($ret->{ @$line[$uniques] }) eq "HASH"){
+				$ret->{ @$line[$uniques] } = {};
+			}
+			map { $ret->{ @$line[$uniques] } ->{@$line[$_]} => @{$table->{'header'}}[$_] } @accCols;
+		}
+	}
+	else {
+		warn "Table $tname does not contain a uniue ID and is therefore useless here.\n" ;
+	}
+	return \@accCols, $uniques, $ret;
+}
+
+
+
+sub create_subsets {
+	my ( $self, $Colmatch, $name ) = @_;
+	$name ||= 'newColumn';
+	Carp::confess("I need a string to match the columns to\n")
+	  unless ( defined $Colmatch );
+	foreach my $this ( values %{ $self->{'tables'} } ) {
+		next if ( defined $this->HeaderPosition($name) );
+		my @acc_cols = grep ( /$Colmatch/, @{ $this->{'header'} } );
+		next if ( scalar(@acc_cols) == 0 );
+		$this->define_subset( $name, \@acc_cols );
+	}
+	$self;
+}
+
+sub drop_no_acc {
+	my ($self) = @_;
+	unless ( defined $self->{'done'}->{'drop_no_acc'} ) {
+		$self->create_subsets( 'accession', 'accs' );
+		local $SIG{__WARN__} = sub { };
+		foreach my $this ( values %{ $self->{'tables'} } ) {
+			## I want to get rid of duplicates first!
 			my @data;
-			local $SIG{__WARN__} = sub { };
+			next unless ( defined $this->HeaderPosition('accs') );
 			for ( my $i = $this->Rows() - 1 ; $i > -1 ; $i-- ) {
 				if (
 					join(
@@ -282,34 +378,36 @@ sub write_files {
 					unshift( @data, [ @{ @{ $this->{'data'} }[$i] } ] );
 				}
 			}
-			next if (scalar(@data) == 0 );
 			$this->{'data'} = \@data;
 		}
-
-		if ($drop) {
-			  warn "Dropping duplicates from file '$name'\n";
-			  my @data;
-			  for ( my $i = $this->Rows() - 1 ; $i > -1 ; $i-- ) {
-				  ## drop the duplicates
-				  @{ $this->{'data'} }[$i] ||= [];
-				  {
-					  local $SIG{__WARN__} = sub { };
-					  $tmp = join( '', @{ @{ $this->{'data'} }[$i] } );
-					  $key = md5_hex( Encode::encode_utf8($tmp) );
-				  }
-				  unless ( defined $unique->{$key} ) {
-					  unshift( @data, [ @{ @{ $this->{'data'} }[$i] } ] );
-					  $unique->{$key} = 1;
-				  }
-			  }
-
-			  $self->{'tables'}->{$name}->{'data'} = \@data;
-		}
-		$tmp = $fname . "_" . $name . ".xls";
-		print join( " ", $tmp, $self->{'tables'}->{$name}->Rows, 'lines' )
-		  . "\n";
-		$self->{'tables'}->{$name}->write_file($tmp);
+		$self->{'done'}->{'drop_no_acc'} = 1;
 	}
+	return $self;
+}
+
+sub drop_duplicates {
+	my ($self) = @_;
+	unless ( defined $self->{'done'}->{'drop_duplicates'} ) {
+		local $SIG{__WARN__} = sub { };
+		foreach my $this ( values %{ $self->{'tables'} } ) {
+			my @data;
+			for ( my $i = $this->Rows() - 1 ; $i > -1 ; $i-- ) {
+				## drop the duplicates
+				@{ $this->{'data'} }[$i] ||= [];
+				{
+					$tmp = join( '', @{ @{ $this->{'data'} }[$i] } );
+					$key = md5_hex( Encode::encode_utf8($tmp) );
+				}
+				unless ( defined $unique->{$key} ) {
+					unshift( @data, [ @{ @{ $this->{'data'} }[$i] } ] );
+					$unique->{$key} = 1;
+				}
+			}
+			$self->{'tables'}->{$name}->{'data'} = \@data;
+		}
+		$self->{'done'}->{'drop_duplicates'} = 1;
+	}
+	return $self;
 }
 
 1;
