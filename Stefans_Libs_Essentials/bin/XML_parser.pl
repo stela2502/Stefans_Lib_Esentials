@@ -168,137 +168,16 @@ my $IDS = stefans_libs::XML_parser->new( { debug => $debug } );
 $debug = 0;
 my $main_id = 1;
 
-print scalar( &parse( $xml, 'root' ) )
+print scalar( $IDS ->parse_NCBI ( $xml ) )
   . " entries analyzed.\n"
   . "Is the resulting table close to the required / wanted output?\n";
 
 ## now I expect to have multiple entries with an .<integer> ending. These should be sample specific and that is a problem!
 
 $IDS->write_files( $outfile, 1 );
+$IDS->write_summary_file ($outfile."_SUMMARY.xls" );
 
 print "Done!\n";
 
-sub parse {
-	my ( $hash, $area, $entryID, $new_line ) = @_;
-	$entryID  ||= 1;
-	$new_line ||= 0;
-	my ( $str, $keys, $delta, $tmp );
-	foreach ( @{ $options->{'ignore'} } ) {
-		return $delta if ( $area =~ m/$_/ );
-	}
-	$delta = 0;
-	if ( ref($hash) eq "ARRAY" ) {
-		foreach (@$hash) {
-			$delta = &parse( $_, $area, $entryID, 1 );
-			$entryID += $delta;
-		}
-	}
-	elsif ( ref($hash) eq "HASH" ) {
-		$str = lc( join( " ", sort keys %$hash ) );
-		if ( defined $options->{'inspect'} ){
-			$options->{'inspect'} = lc( $options->{'inspect'} );
-			if ( join(" ", lc(values %$hash), $str) =~ m/$options->{'inspect'}/ ){
-				print_and_die( $hash, "You have searched for the sring '$options->{'inspect'}':\n");
-			}
-		}
-		#If it is some numers - ignore that
-		if ( $str eq "count value" ) {
-			return 0;    ## I skip the crap!
-		}
-		if ( $str eq "tag value" || $str eq "tag units value" ) {
-			$keys = { map { lc($_) => $_ } keys %$hash };
-			@tmp = split( "-", $area );
-			pop(@tmp);
-			$area = join( "-", @tmp );
-			## Here I do not want to create a new entry!
-			$delta = $IDS->add_if_empty( "$area-" . $hash->{ $keys->{'tag'} },
-				$hash->{ $keys->{'value'} }, $entryID );
-		}
-		elsif ( $str =~ m/content/ and $str =~ m/namespace/ ) {
-			$delta = $IDS->add_if_empty( $area . ".$hash->{'namespace'}",
-				$hash->{'content'}, $entryID );
-		}
-		elsif ( $str eq 'refcenter refname' ) {
-			$delta = $IDS->add_if_empty( $area . ".$hash->{'refcenter'}",
-				$hash->{'refname'}, $entryID );
-		}
-		else {
-			## If I have an accession or PRIMARY_ID entry I want to process that first!
-			$tmp = 0;
-			my $overall_delta = 0;
-			foreach my $key (
-				sort {
-					my @a = split( "-", $a );
-					my @b = split( "-", $b );
-					lc( $a[$#a] ) cmp lc( $b[$#b] )
-				} keys %$hash
-			  )
-			{
-				print "$key  =>  $hash->{$key} on line $entryID\n" if ($debug and $tmp ++ == 0 );
-				## this might need a new line, but that is not 100% sure!
-				$str = 0;
-				foreach ( @{ $options->{'addMultiple'} } ) {
-					if ( $key =~ m/$_/ ) {
-						$delta =
-						  &parse( $hash->{$key}, "$area-$key", $entryID, 0 );
-						$str = 1;
-					}
-				}
-				if ( $str == 0 ) {
-					$delta = &parse( $hash->{$key}, "$area-$key", $entryID, 1 );
-				}
-#				$overall_delta = $delta unless ( $delta == 0);
-				( $entryID, $delta ) = __cleanup( $entryID, $delta );
-				print "\t\tafterwards we are on line $entryID\n" if ( $tmp == 1 and $debug );
-			}
-			$delta = $overall_delta; ## I need to report back if I (ever) changed my entryID!!
-		}
-	}
-	else {    ## some real data
 
-#		return 0 if ( defined $values -> { $hash } ) ;
-#		as the new column might come from a new hash, that might need merging to the last line - check that!
-		foreach ( @{$options->{'addMultiple'}}) {
-			if ( $area =~ m/$_/ ) {
-				$delta = $IDS->register_column( $area, $hash, $entryID, 0 );
-			}
-		}
-		if ( $area =~ m/accession$/ ) {
-			$delta = $IDS->register_column( $area, $hash, $entryID, 1 );
-		}
-		elsif ( $hash =~ m/^\w\w\w\d+$/ ) {    ## an accession!
-			$delta = $IDS->add_if_unequal( $area, $hash, $entryID );
-		}
-		else {
-			$delta = $IDS->register_column( $area, $hash, $entryID, 1 );
-		}
-	}
-
-	return
-	  $delta
-	  ;    ## we did add some data or respawned so if necessary update the id!
-}
-
-sub __cleanup {
-	my ( $entryID, $delta ) = @_;
-	$delta ||= 0;
-	$delta = 1  if ( $delta > 1 );
-	$delta = -1 if ( $delta < -1 );
-	$entryID += $delta;
-	return ( $entryID, $delta );
-}
-
-sub print_and_die {
-	my $xml = shift;
-	print Dumper($xml);
-	Carp::confess(shift);
-}
-
-sub print_debug {
-	my ( $hash, $area, $entryID, $new_line, $delta, $str ) = @_;
-	$str ||= '';
-	print
-	  "$str final delta = $delta for $area, line =$entryID, and hash $hash\n"
-	  if ($debug);
-}
 

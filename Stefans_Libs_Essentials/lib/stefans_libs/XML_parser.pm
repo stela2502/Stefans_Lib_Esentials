@@ -18,6 +18,7 @@ package stefans_libs::XML_parser;
 use Digest::MD5 qw(md5_hex);
 use stefans_libs::flexible_data_structures::data_table;
 use Encode;
+use Data::Dumper;
 
 =head 2 
 
@@ -124,8 +125,7 @@ sub add_if_empty {
 	$pos = $self->col_id_4_entry( $data_table, $column, $value, $entryID, 1 );
 	@{ $data_table->{'data'} }[ $entryID - 1 ] ||= [];
 	if ( !defined @{ @{ $data_table->{'data'} }[ $entryID - 1 ] }[$pos] ) {
-		@{ @{ $data_table->{'data'} }[ $entryID - 1 ] }[$pos] =
-		  $value;
+		@{ @{ $data_table->{'data'} }[ $entryID - 1 ] }[$pos] = $value;
 	}
 	return 0;
 }
@@ -154,8 +154,7 @@ sub add_if_unequal {
 		}
 	}
 	if ( !defined @{ @{ $data_table->{'data'} }[ $entryID - 1 ] }[$pos] ) {
-		@{ @{ $data_table->{'data'} }[ $entryID - 1 ] }[$pos] =
-		  $value;
+		@{ @{ $data_table->{'data'} }[ $entryID - 1 ] }[$pos] = $value;
 	}
 	return 0;
 }
@@ -256,7 +255,14 @@ sub write_files {
 	foreach my $name ( keys %{ $self->{'tables'} } ) {
 		## I want to get rid of duplicates first!
 		$this = $self->{'tables'}->{$name};
-		next if ( $this->Rows == 0 );
+		unless ( ref($this) eq "data_table" ) {
+			warn "the table '$name' is no data table! (" . ref($this) . ")\n";
+			next;
+		}
+		if ( $this->Rows == 0 ) {
+			warn "no data in table $name\n";
+			next;
+		}
 		$tmp = $fname . "_" . $name . ".xls";
 		print join( " ", $tmp, $self->{'tables'}->{$name}->Rows, 'lines' )
 		  . "\n";
@@ -281,22 +287,128 @@ sub write_summary_file {
 	## ERP ERR
 	## SRP SRR
 	## and in addition SAMN, GSE, GSM, PRINJA and so on....
-	my ($studyname) = grep ( 'STUDY', keys %{$self->{'tables'}} );
-	Carp::Confess ( "This dataset has no STUDY information" ) unless ( $studyname=~ m/\w/ and $self->{'tables'}->{$studyname}->Rows() > 0 );
-	
-	my ($runset) = grep ( 'RUN_SET', keys %{$self->{'tables'}} );
-	Carp::Confess ( "This dataset has no RUN_SET information" ) unless ( $runset=~ m/\w/ and $self->{'tables'}->{$runset}->Rows() > 0 );
-	
-	my ( $run_acc_cols, $run_uniqe, $run_hash ) = $self->_ids_link_to( $runset );
-	
-	if ( defined $run_hash ){
-		
+
+	my ($runset) = grep ( /RUN_SET/, keys %{ $self->{'tables'} } );
+
+	die "I have not identifies the interesting table in the list of tables: "
+	  . join( " ", keys %{ $self->{'tables'} } ) . "\n"
+	  unless ($runset);
+	unless ( $runset =~ m/\w/ and $self->{'tables'}->{$runset}->Rows() > 0 ) {
+		Carp::confess("This dataset has no RUN_SET information");
 	}
+	my ( $run_acc_cols, $informative, $run_uniqe, $run_hash, $table_rows, $tmp,
+		$thisTable, @value, $ret );
+	( $run_acc_cols, $informative, $run_uniqe, $run_hash ) =
+	  $self->_ids_link_to($runset);
+	$table_rows = $self->_populate_table_rows( $runset, $table_rows, $run_hash,
+			$informative );
+	$ret = $self->_table_rows_2_data_table( $table_rows );
+	print "I got ".$ret->Rows()." different data rows!\n";
+	if ( defined $run_hash ) {
+		## warn "$run_hash = " . root->print_perl_var_def({run_acc_col => $run_acc_cols,informative => $informative,run_uniq    => $run_uniqe, run_hash    => $run_hash}) . ";\n";
+		## now I need to create a table entry
+		
+		## now I need to get the information from all other tables into the table_rows, too
+
+	#	foreach my $table_name ( 'EXPERIMENT', 'SAMPLE', 'STUDY' ) {
+		foreach my $table_name ( keys %{$self->{'tables'}} ) {
+			next if ( $table_name eq $runset );
+			( $run_acc_cols, $informative, $run_uniqe, $tmp ) =
+			  $self->_ids_link_to( $table_name, $run_hash );
+			if ( defined $tmp ) {
+				$table_rows = $self->_populate_table_rows( $table_name, $table_rows, $tmp,
+					$informative );
+				$ret = $self->_table_rows_2_data_table( $table_rows );
+				print "I got ".$ret->Rows()." different data rows!\n";
+			}
+		}
+		$ret = $self->_table_rows_2_data_table( $table_rows ); 
+		$ret -> write_file( $fname );
+	}
+
 	
-	warn "Only the first STUDY will be used!\n" if ( $self->{'tables'}->{$studyname}->Rows > 1 );
-	## order that from bottome to top?!
+	return $ret;
 	
 
+}
+
+sub _table_rows_2_data_table {
+	my ( $self, $table_rows ) = @_;
+	my $data_table = data_table->new();
+	foreach ( sort keys(%$table_rows) ) {
+
+#my @colnames = sort { if ( length($a) <=> length($b) ) { $a cmp $b} else {length($a) <=> length($b) }}  keys %$_;
+
+		my @colnames = sort keys %{ $table_rows->{$_} };
+		$data_table->Add_2_Header( \@colnames );
+		$data_table->Add_Dataset( $table_rows->{$_} );
+	}
+	return $data_table;
+}
+
+=head2 _populate_table_rows ( $self, $tname, $table_rows, $run_hash, $informative)
+
+Tries to identify as much information from all tables and merges it into the table rows hashes
+
+=cut
+
+sub _populate_table_rows {
+	my ( $self, $tname, $table_rows, $run_hash, $informative ) = @_;
+	my ( $this_Table, $tmp, $value );
+
+	$thisTable = $self->{'tables'}->{$tname};
+	my @accs = keys %$run_hash;
+	@accs = keys %$table_rows if ( defined $table_rows );
+	foreach my $acc ( sort @accs ) {
+		$table_rows->{$acc} ||= {};
+		foreach ( keys %{ $run_hash->{$acc} } ) {
+			if ( $_ =~ m/^([[:alpha:]]+)\d/ ) {
+				$table_rows->{$acc}->{$1} = $_;
+			}
+
+		}
+		## now add the probably interesting columns...
+	  INFORMATION: foreach my $col (@$informative) {
+			unless ( defined $run_hash->{$acc}->{'rowid'} ){
+				warn "No data added for acc $acc and $tname as the rowid was unknown!\n";
+				next;
+			}
+			$tmp = @{ $thisTable->{'header'} }[$col];
+			$value =
+			  @{ @{ $thisTable->{'data'} }[ $run_hash->{$acc}->{'rowid'} ] }
+			  [$col];
+		#	print "The value for acc $acc and column $col in file $tname = $value\n";
+			if ( $tmp =~ m/SUBMITTER_ID/ ) {
+				my $id = 0;
+				unless ( defined $table_rows->{$acc}->{"SUBMITTER_IDS_$id"} ) {
+					$table_rows->{$acc}->{"SUBMITTER_IDS_$id"} = $value;
+				}
+				else {
+					while ( defined $table_rows->{$acc}->{"SUBMITTER_IDS_$id"} )
+					{
+						if ( $table_rows->{$acc}->{"SUBMITTER_IDS_$id"} eq
+							$value )
+						{
+							next INFORMATION;
+						}
+						elsif (
+							defined $table_rows->{$acc}->{"SUBMITTER_IDS_$id"} )
+						{
+							$id++;
+							next;
+						}
+						else {
+							$table_rows->{$acc}->{"SUBMITTER_IDS_$id"} = $value;
+						}
+					}
+				}
+			}
+			else {
+				$table_rows->{$acc}->{$tmp} = $value;
+			}
+		}
+	}
+	return $table_rows;
 }
 
 =head2 _ids_link_to ($self, $tname)
@@ -309,57 +421,143 @@ the unique column id and a hash UNIQUE_ID -> { otherID => 'Colname' }
 
 =cut
 
-sub _ids_link_to{
+sub _ids_link_to {
 	my ( $self, $tname, $ret ) = @_;
-	Carp::confess ( "table $tname not defined !\n" ) unless ( defined $self->{'tables'} -> {$tname});
-	my ( @accCols, $line, $OK, $table, $uniqes, $tmp,@informative );
-	$table = $self->{'tables'} -> {$tname};
-	$line = @{$table->{'data'}}[0];
-	for( my $i = 0; $i < @$line; $i ++ ) {
-		if ( @$line[$i] =~ m/^\w\w\w+\d\d\d+$/) {
-			$OK = 1;
-			map { $OK = 0 unless ( $_ =~ m/^\w\w\w+\d\d\d+$/); } @{ $table->GetAsArray( @{$table->{'header'}}[$i]) };
-			push( @accCols, $i ) if ( $OK );
-			
-			unless ( defined $uniques) {
+	Carp::confess("table $tname not defined !\n")
+	  unless ( defined $self->{'tables'}->{$tname} );
+	my ( @accCols, $line, $OK, $table, $uniqes, $tmp, @informative );
+	$table = $self->{'tables'}->{$tname};
+	if ( ref($table) eq "data_table" ) {
+		$line = @{ $table->{'data'} }[0];
+		for ( my $i = 0 ; $i < @$line ; $i++ ) {
+			if ( @$line[$i] =~ m/^[[:alpha:]][[:alpha:]][[:alpha:]]+\d\d\d+$/ )
+			{
+
+				#warn "I found an acc in column $i:  @$line[$i]\n";
 				$OK = 1;
-				$tmp = undef;
-				map { $OK = 0 if ( $tmp->{$_}); $tmp->{$_}=1; } @{ $table->GetAsArray( @{$table->{'header'}}[$i]) };
-				$uniques = $i if ( $OK );
-			}
-		}elsif ( @$line[$i] =~ m/[\d\w]/ ) {
-			## check whether this data could be usedful in the summary table
-			$OK = 0;
-			if ( $table->Rows() == 1 and $_ =~m/[\d\w]/ ) {
-				$OK = 1;
-			}else {
-				$tmp = undef;
-				map { if ( ! $_ =~m/[\w\d]/) { $OK = -1 ; last } $tmp->{$_}=1 } @{ $table->GetAsArray( @{$table->{'header'}}[$i]) };
-				if ( $OK == 0 and scalar( keys %$tmp ) > 1 ){
-					$OK =1;
-				}else {
-					$OK = 0;
+				map {
+					unless (
+						$_ =~ m/^[[:alpha:]][[:alpha:]][[:alpha:]]+\d\d\d+$/ )
+					{
+						$OK = 0;
+						print  "the entry $_ in line $i failed the requirements!\n" if ( $self->{'debug'});
+					}
+				} @{ $table->GetAsArray( @{ $table->{'header'} }[$i] ) };
+				push( @accCols, $i ) if ($OK);
+
+				unless ( defined $uniques ) {
+					$OK  = 1;
+					$tmp = undef;
+					map { $OK = 0 if ( $tmp->{$_} ); $tmp->{$_} = 1; }
+					  @{ $table->GetAsArray( @{ $table->{'header'} }[$i] ) };
+					$uniques = $i if ($OK);
 				}
 			}
-			push ( @informative, $i ) if ( $OK );	
-		}
-	}
-	if ( $uniques ) {
-		for ( my $i = 0; $i < $table->Rows(); $i ++ ){
-			$line =  @{$table->{'data'}}[$i];
-			unless ( ref($ret->{ @$line[$uniques] }) eq "HASH"){
-				$ret->{ @$line[$uniques] } = {};
+			elsif ( @$line[$i] =~ m/[\d\w]/ ) {
+				## check whether this data could be usedful in the summary table
+				$OK = 0;
+				if ( $table->Rows() == 1 ) {
+					$OK = 1;
+				}
+				else {
+					$tmp = undef;
+					map {
+						if ( !$_ =~ m/[\w\d]/ )
+						{
+
+							#	warn "123121: Empty entry in column $i\n";
+							$OK = -1;
+							last;
+						}
+						$tmp->{$_} = 1
+					} @{ $table->GetAsArray( @{ $table->{'header'} }[$i] ) };
+					if ( $OK == 0 and scalar( keys %$tmp ) > 1 ) {
+						$OK = 1;
+					}
+					else {
+						$OK = 0;
+					}
+				}
+				push( @informative, $i ) if ($OK);
 			}
-			map { $ret->{ @$line[$uniques] } ->{@$line[$_]} => @{$table->{'header'}}[$_] } @accCols;
+		}
+		if ( defined $uniques ) {
+			my $add = 1;
+			if ( ref($ret) eq "HASH" ) {
+				print "ret has been initialized before!\n";
+				map { delete( $ret->{$_}->{'rowid'} ); } keys %$ret;
+				$add = 0;
+			}
+			my @accs;
+			for ( my $i = 0 ; $i < $table->Rows() ; $i++ ) {
+				$line = @{ $table->{'data'} }[$i];
+				if ($add) {
+					unless ( ref( $ret->{ @$line[$uniques] } ) eq "HASH" ) {
+						@accs = ( @$line[$uniques] );
+						$ret->{ @$line[$uniques] } = {};
+					}
+				}
+				else {
+					## I need to identify the most likely interesting entry in the $ret hash!
+					@accs = $self->identify_accs( $ret, @$line[@accCols] );
+				}
+				foreach my $acc (@accs) {
+					$ret->{$acc}->{'rowid'} = $i;
+					#$ret->{$acc}->{'accs'} = [ sort @$line[@accCols]];
+					map {
+						$ret->{$acc}->{ @$line[$_] } =
+						  @{ $table->{'header'} }[$_]
+					} @accCols;
+				}
+
+			}
+		}
+		else {
+			warn
+"Table $tname does not contain a uniue ID and is therefore useless here?\n";
+			if ( ref($ret) eq "HASH" ) {
+				my @accs;
+				for ( my $i = 0 ; $i < $table->Rows() ; $i++ ) {
+					$line = @{ $table->{'data'} }[$i];
+					## I need to identify the most likely interesting entry in the $ret hash!
+					my @accs = $self->identify_accs( $ret, @$line[@accCols] );
+
+					foreach my $acc (@accs) {
+						$ret->{$acc}->{'rowid'} = $i;
+						map {
+							$ret->{$acc}->{ @$line[$_] } =
+							  @{ $table->{'header'} }[$_]
+						} @accCols;
+					}
+
+				}
+
+				#$ret = undef;
+			}
 		}
 	}
-	else {
-		warn "Table $tname does not contain a uniue ID and is therefore useless here.\n" ;
-	}
-	return \@accCols, ,\@informative, $uniques, $ret;
+	return \@accCols,, \@informative, $uniques, $ret;
 }
 
-
+sub identify_accs {
+	my ( $self, $ret, @options ) = @_;
+	my ( $keys, $tmp );
+	foreach my $search (@options) {
+		foreach my $acc ( keys %$ret ) {
+			$tmp = join( " ", keys %{ $ret->{$acc} } );
+			if ( $tmp =~ m/$search/ ) {
+				$keys->{$acc} ||= 0;
+				$keys->{$acc}++;
+			}
+		}
+	}
+	my $max = 0;
+	map { $max = $_ if $_ > $max } values %$keys;
+	return () if ( $max == 0 );
+	map { delete( $keys->{$_} ) unless ( $keys->{$_} == $max ) }
+	  keys %$keys;
+	return ( keys %$keys );
+}
 
 sub create_subsets {
 	my ( $self, $Colmatch, $name ) = @_;
@@ -367,7 +565,8 @@ sub create_subsets {
 	Carp::confess("I need a string to match the columns to\n")
 	  unless ( defined $Colmatch );
 	foreach my $this ( values %{ $self->{'tables'} } ) {
-		next if ( defined $this->HeaderPosition($name) );
+		next unless ( ref($this) eq "data_table" );
+		next if ( defined $this->Header_Position($name) );
 		my @acc_cols = grep ( /$Colmatch/, @{ $this->{'header'} } );
 		next if ( scalar(@acc_cols) == 0 );
 		$this->define_subset( $name, \@acc_cols );
@@ -381,9 +580,10 @@ sub drop_no_acc {
 		$self->create_subsets( 'accession', 'accs' );
 		local $SIG{__WARN__} = sub { };
 		foreach my $this ( values %{ $self->{'tables'} } ) {
+			next unless ( ref($this) eq "data_table" );
 			## I want to get rid of duplicates first!
 			my @data;
-			next unless ( defined $this->HeaderPosition('accs') );
+			next unless ( defined $this->Header_Position('accs') );
 			for ( my $i = $this->Rows() - 1 ; $i > -1 ; $i-- ) {
 				if (
 					join(
@@ -424,6 +624,144 @@ sub drop_duplicates {
 		$self->{'done'}->{'drop_duplicates'} = 1;
 	}
 	return $self;
+}
+
+sub parse_NCBI {
+	my ( $self, $hash, $area, $entryID, $new_line ) = @_;
+	$entryID  ||= 1;
+	$new_line ||= 0;
+	$area     ||= '';
+	my ( $str, $keys, $delta, $tmp );
+	foreach ( @{ $options->{'ignore'} } ) {
+		return $delta if ( $area =~ m/$_/ );
+	}
+	$delta = 0;
+	if ( ref($hash) eq "ARRAY" ) {
+		foreach (@$hash) {
+			$delta = $self->parse_NCBI( $_, $area, $entryID, 1 );
+			$entryID += $delta;
+		}
+	}
+	elsif ( ref($hash) eq "HASH" ) {
+		$str = lc( join( " ", sort keys %$hash ) );
+		if ( defined $options->{'inspect'} ) {
+			$options->{'inspect'} = lc( $options->{'inspect'} );
+			if (
+				join( " ", lc( values %$hash ), $str ) =~
+				m/$options->{'inspect'}/ )
+			{
+				$self->print_and_die( $hash,
+					"You have searched for the sring '$options->{'inspect'}':\n"
+				);
+			}
+		}
+
+		#If it is some numers - ignore that
+		if ( $str eq "count value" ) {
+			return 0;    ## I skip the crap!
+		}
+		if ( $str eq "tag value" || $str eq "tag units value" ) {
+			$keys = { map { lc($_) => $_ } keys %$hash };
+			@tmp = split( "-", $area );
+			pop(@tmp);
+			$area = join( "-", @tmp );
+			## Here I do not want to create a new entry!
+			$delta = $self->add_if_empty( "$area-" . $hash->{ $keys->{'tag'} },
+				$hash->{ $keys->{'value'} }, $entryID );
+		}
+		elsif ( $str =~ m/content/ and $str =~ m/namespace/ ) {
+			$delta = $self->add_if_empty( $area . ".$hash->{'namespace'}",
+				$hash->{'content'}, $entryID );
+		}
+		elsif ( $str eq 'refcenter refname' ) {
+			$delta = $self->add_if_empty( $area . ".$hash->{'refcenter'}",
+				$hash->{'refname'}, $entryID );
+		}
+		else {
+			## If I have an accession or PRIMARY_ID entry I want to process that first!
+			$tmp = 0;
+			my $overall_delta = 0;
+			foreach my $key (
+				sort {
+					my @a = split( "-", $a );
+					my @b = split( "-", $b );
+					lc( $a[$#a] ) cmp lc( $b[$#b] )
+				} keys %$hash
+			  )
+			{
+				print "$key  =>  $hash->{$key} on line $entryID\n"
+				  if ( $debug and $tmp++ == 0 );
+				## this might need a new line, but that is not 100% sure!
+				$str = 0;
+				foreach ( @{ $options->{'addMultiple'} } ) {
+					if ( $key =~ m/$_/ ) {
+						$delta =
+						  $self->parse_NCBI( $hash->{$key}, "$area-$key",
+							$entryID, 0 );
+						$str = 1;
+					}
+				}
+				if ( $str == 0 ) {
+					$delta =
+					  $self->parse_NCBI( $hash->{$key}, "$area-$key", $entryID,
+						1 );
+				}
+
+				#				$overall_delta = $delta unless ( $delta == 0);
+				( $entryID, $delta ) = $self->__cleanup( $entryID, $delta );
+				print "\t\tafterwards we are on line $entryID\n"
+				  if ( $tmp == 1 and $debug );
+			}
+			$delta = $overall_delta
+			  ;    ## I need to report back if I (ever) changed my entryID!!
+		}
+	}
+	else {         ## some real data
+
+#		return 0 if ( defined $values -> { $hash } ) ;
+#		as the new column might come from a new hash, that might need merging to the last line - check that!
+		foreach ( @{ $options->{'addMultiple'} } ) {
+			if ( $area =~ m/$_/ ) {
+				$delta = $self->register_column( $area, $hash, $entryID, 0 );
+			}
+		}
+		if ( $area =~ m/accession$/ ) {
+			$delta = $self->register_column( $area, $hash, $entryID, 1 );
+		}
+		elsif ( $hash =~ m/^\w\w\w\d+$/ ) {    ## an accession!
+			$delta = $self->add_if_unequal( $area, $hash, $entryID );
+		}
+		else {
+			$delta = $self->register_column( $area, $hash, $entryID, 1 );
+		}
+	}
+
+	return
+	  $delta
+	  ;    ## we did add some data or respawned so if necessary update the id!
+}
+
+sub __cleanup {
+	my ( $self, $entryID, $delta ) = @_;
+	$delta ||= 0;
+	$delta = 1  if ( $delta > 1 );
+	$delta = -1 if ( $delta < -1 );
+	$entryID += $delta;
+	return ( $entryID, $delta );
+}
+
+sub print_and_die {
+	my ( $self, $xml ) = @_;
+	print Dumper($xml);
+	Carp::confess(shift);
+}
+
+sub print_debug {
+	my ( $self, $hash, $area, $entryID, $new_line, $delta, $str ) = @_;
+	$str ||= '';
+	print
+	  "$str final delta = $delta for $area, line =$entryID, and hash $hash\n"
+	  if ($debug);
 }
 
 1;
