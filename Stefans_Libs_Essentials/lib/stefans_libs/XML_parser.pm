@@ -304,14 +304,15 @@ sub write_summary_file {
 This function is identifing all columns containing any NCBI IDs for each column.
 Afterwards it is identifing the column with the unique IDs.
 
-Returns a arrays ref of all ID column ID's, The unique column id and a hash UNIQUE_ID -> { otherID => 1 }
+Returns an arrays ref of all ID column ID's, an array ref of all informatics volumns, 
+the unique column id and a hash UNIQUE_ID -> { otherID => 'Colname' }
 
 =cut
 
 sub _ids_link_to{
 	my ( $self, $tname, $ret ) = @_;
 	Carp::confess ( "table $tname not defined !\n" ) unless ( defined $self->{'tables'} -> {$tname});
-	my ( @accCols, $line, $OK, $table, $uniqes );
+	my ( @accCols, $line, $OK, $table, $uniqes, $tmp,@informative );
 	$table = $self->{'tables'} -> {$tname};
 	$line = @{$table->{'data'}}[0];
 	for( my $i = 0; $i < @$line; $i ++ ) {
@@ -326,6 +327,21 @@ sub _ids_link_to{
 				map { $OK = 0 if ( $tmp->{$_}); $tmp->{$_}=1; } @{ $table->GetAsArray( @{$table->{'header'}}[$i]) };
 				$uniques = $i if ( $OK );
 			}
+		}elsif ( @$line[$i] =~ m/[\d\w]/ ) {
+			## check whether this data could be usedful in the summary table
+			$OK = 0;
+			if ( $table->Rows() == 1 and $_ =~m/[\d\w]/ ) {
+				$OK = 1;
+			}else {
+				$tmp = undef;
+				map { if ( ! $_ =~m/[\w\d]/) { $OK = -1 ; last } $tmp->{$_}=1 } @{ $table->GetAsArray( @{$table->{'header'}}[$i]) };
+				if ( $OK == 0 and scalar( keys %$tmp ) > 1 ){
+					$OK =1;
+				}else {
+					$OK = 0;
+				}
+			}
+			push ( @informative, $i ) if ( $OK );	
 		}
 	}
 	if ( $uniques ) {
@@ -340,7 +356,7 @@ sub _ids_link_to{
 	else {
 		warn "Table $tname does not contain a uniue ID and is therefore useless here.\n" ;
 	}
-	return \@accCols, $uniques, $ret;
+	return \@accCols, ,\@informative, $uniques, $ret;
 }
 
 
