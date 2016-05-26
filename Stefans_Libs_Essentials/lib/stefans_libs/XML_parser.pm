@@ -18,6 +18,7 @@ package stefans_libs::XML_parser;
 use Digest::MD5 qw(md5_hex);
 use stefans_libs::flexible_data_structures::data_table;
 use Encode;
+use strict;
 use Data::Dumper;
 
 =head 2 
@@ -87,7 +88,7 @@ sub col_id_4_entry {
 	if ( !defined $pos ) {
 		($pos) = $data_table->Add_2_Header($column);
 	}
-
+	my @tmp;
 	if ( !$new_line ) {
 		@{ $data_table->{'data'} }[ $entryID - 1 ] = []
 		  unless ( defined @{ $data_table->{'data'} }[ $entryID - 1 ] );
@@ -122,7 +123,8 @@ sub add_if_empty {
 	my ( $data_table, $column ) =
 	  $self->table_and_colname( $orig_column, $entryID );
 	$entryID = $data_table->Rows();
-	$pos = $self->col_id_4_entry( $data_table, $column, $value, $entryID, 1 );
+	my $pos =
+	  $self->col_id_4_entry( $data_table, $column, $value, $entryID, 1 );
 	@{ $data_table->{'data'} }[ $entryID - 1 ] ||= [];
 	if ( !defined @{ @{ $data_table->{'data'} }[ $entryID - 1 ] }[$pos] ) {
 		@{ @{ $data_table->{'data'} }[ $entryID - 1 ] }[$pos] = $value;
@@ -135,7 +137,8 @@ sub add_if_unequal {
 	my ( $data_table, $column ) =
 	  $self->table_and_colname( $orig_column, $entryID );
 	$entryID = $data_table->Rows();
-	$pos = $self->col_id_4_entry( $data_table, $column, $value, $entryID, 1 );
+	my $pos =
+	  $self->col_id_4_entry( $data_table, $column, $value, $entryID, 1 );
 	unless ( defined @{ $data_table->{'data'} }[ $entryID - 1 ] ) {
 		@{ $data_table->{'data'} }[ $entryID - 1 ] ||= [];
 		@{ @{ $data_table->{'data'} }[ $entryID - 1 ] }[$pos] = $value;
@@ -164,7 +167,7 @@ sub register_column {
 	  @_;
 	$new_line        ||= 0;
 	$prohibitDeepRec ||= 0;
-	my ( $data_table, $pos, $delta );
+	my ( $data_table, $pos, $delta, $column );
 	$delta = 0;    ## the default no change to the entryID necessary
 
 	( $data_table, $column ) =
@@ -198,7 +201,6 @@ sub register_column {
 		}
 		else {
 			return 0;    ## most likely crap anyhow!
-			$data_table->write_file("$outfile.emergencyBreak");
 			die "even the next 3 lines were not free - why? $entryID/"
 			  . $data_table->Rows()
 			  . " $pos $orig_column $value $prohibitDeepRec\n"
@@ -296,40 +298,107 @@ sub write_summary_file {
 	unless ( $runset =~ m/\w/ and $self->{'tables'}->{$runset}->Rows() > 0 ) {
 		Carp::confess("This dataset has no RUN_SET information");
 	}
-	my ( $run_acc_cols, $informative, $run_uniqe, $run_hash, $table_rows, $tmp,
-		$thisTable, @value, $ret );
+	my (
+		$run_acc_cols, $informative, $run_uniqe,
+		$run_hash,     $table_rows,  $tmp,
+		$thisTable,    @value,       $ret
+	);
 	( $run_acc_cols, $informative, $run_uniqe, $run_hash ) =
 	  $self->_ids_link_to($runset);
-	$table_rows = $self->_populate_table_rows( $runset, $table_rows, $run_hash,
-			$informative );
-	$ret = $self->_table_rows_2_data_table( $table_rows );
-	print "I got ".$ret->Rows()." different data rows!\n";
+	$table_rows =
+	  $self->_populate_table_rows( $runset, $table_rows, $run_hash,
+		$informative );
+	$ret = $self->_table_rows_2_data_table($table_rows);
 	if ( defined $run_hash ) {
 		## warn "$run_hash = " . root->print_perl_var_def({run_acc_col => $run_acc_cols,informative => $informative,run_uniq    => $run_uniqe, run_hash    => $run_hash}) . ";\n";
 		## now I need to create a table entry
-		
+
 		## now I need to get the information from all other tables into the table_rows, too
 
-	#	foreach my $table_name ( 'EXPERIMENT', 'SAMPLE', 'STUDY' ) {
-		foreach my $table_name ( keys %{$self->{'tables'}} ) {
+		foreach my $table_name ( 'EXPERIMENT', 'SAMPLE', 'STUDY' ) {
+
+			#	foreach my $table_name ( keys %{$self->{'tables'}} ) {
 			next if ( $table_name eq $runset );
 			( $run_acc_cols, $informative, $run_uniqe, $tmp ) =
 			  $self->_ids_link_to( $table_name, $run_hash );
 			if ( defined $tmp ) {
-				$table_rows = $self->_populate_table_rows( $table_name, $table_rows, $tmp,
+				$table_rows =
+				  $self->_populate_table_rows( $table_name, $table_rows, $tmp,
 					$informative );
-				$ret = $self->_table_rows_2_data_table( $table_rows );
-				print "I got ".$ret->Rows()." different data rows!\n";
+				$ret = $self->_table_rows_2_data_table($table_rows);
 			}
 		}
-		$ret = $self->_table_rows_2_data_table( $table_rows ); 
-		$ret -> write_file( $fname );
+		$ret = $self->_table_rows_2_data_table($table_rows);
+		## now I only need to create the wget download for the NCBI sra files
+
+# /sra/sra-instant/reads/ByRun/sra/{SRR|ERR|DRR}/<first 6 characters of accession>/<accession>/<accession>.sra
+		my ( @accession_col, @sample_col );
+
+		$self->check_accessions( \@accession_col, \@sample_col, $ret, 'SRR', 'SRA',
+			'SRP' );
+		$self->check_accessions( \@accession_col, \@sample_col, $ret, 'ERR', 'ERP' );
+		$self->check_accessions( \@accession_col, \@sample_col, $ret, 'DRR', 'DRP' );
+		
+		$ret->write_file($fname);
 	}
 
-	
 	return $ret;
-	
 
+}
+
+sub check_accessions {
+	my ( $self, $accession_col, $sample_col, $ret, $acc, @sample ) = @_;
+
+	my $add = scalar(@$accession_col);
+	for ( ; $add > 0 ; $add-- ) {
+		last if ( defined @$accession_col[$add] );
+	}
+	( @$accession_col[$add] ) = $ret->Header_Position($acc);
+	if ( defined @$accession_col[$add] ) {
+		foreach (@sample) {
+			unless ( defined @$sample_col[$add] ) {
+				( @$sample_col[$add] ) = $ret->Header_Position($_);
+			}
+		}
+	}
+	unless ( defined @$sample_col[$add] ) {
+		@$accession_col[$add] = undef;
+	}
+	else {
+		my ($download_col) = $ret->Add_2_Header('Download');
+		my $serv = "ftp://ftp-trace.ncbi.nih.gov";
+		my ( $sra, $srr );
+		for ( my $i = 0 ; $i < $ret->Rows() ; $i++ ) {
+			for ( my $a = 0 ; $a < 3 ; $a++ ) {
+				print "I try id $a\n";
+				next unless ( defined @$accession_col[$a] );
+				$srr = @{ @{ $ret->{'data'} }[$i] }[ @$accession_col[$a] ];
+				$sra = @{ @{ $ret->{'data'} }[$i] }[ @$sample_col[$a] ];
+				print
+"sra (@$sample_col[$a]) =$sra and srr (@$accession_col[$a]) = $srr \n";
+				if ( $self->is_acc($sra) and $self->is_acc($srr) ) {
+					@{ @{ $ret->{'data'} }[$i] }[$download_col] =
+					    "wget -O '" 
+					  . $srr 
+					  . ".sra' '"
+					  . join( "/",
+						$serv,
+						"sra/sra-instant/reads/ByRun/sra",
+						substr( $srr, 0, 3 ),
+						substr( $srr, 0, 6 ),
+						$srr, $srr . '.sra' )
+					  . "'";
+					last;
+				}
+
+			}
+		}
+	}
+}
+
+sub is_acc {
+	my ( $self, $acc ) = @_;
+	return $acc =~ m/^[[:alpha:]][[:alpha:]][[:alpha:]]+\d\d\d+$/;
 }
 
 sub _table_rows_2_data_table {
@@ -354,7 +423,7 @@ Tries to identify as much information from all tables and merges it into the tab
 
 sub _populate_table_rows {
 	my ( $self, $tname, $table_rows, $run_hash, $informative ) = @_;
-	my ( $this_Table, $tmp, $value );
+	my ( $thisTable, $tmp, $value );
 
 	$thisTable = $self->{'tables'}->{$tname};
 	my @accs = keys %$run_hash;
@@ -369,15 +438,17 @@ sub _populate_table_rows {
 		}
 		## now add the probably interesting columns...
 	  INFORMATION: foreach my $col (@$informative) {
-			unless ( defined $run_hash->{$acc}->{'rowid'} ){
-				warn "No data added for acc $acc and $tname as the rowid was unknown!\n";
+			unless ( defined $run_hash->{$acc}->{'rowid'} ) {
+				warn
+"No data added for acc $acc and $tname as the rowid was unknown!\n";
 				next;
 			}
 			$tmp = @{ $thisTable->{'header'} }[$col];
 			$value =
 			  @{ @{ $thisTable->{'data'} }[ $run_hash->{$acc}->{'rowid'} ] }
 			  [$col];
-		#	print "The value for acc $acc and column $col in file $tname = $value\n";
+
+	 #	print "The value for acc $acc and column $col in file $tname = $value\n";
 			if ( $tmp =~ m/SUBMITTER_ID/ ) {
 				my $id = 0;
 				unless ( defined $table_rows->{$acc}->{"SUBMITTER_IDS_$id"} ) {
@@ -425,7 +496,7 @@ sub _ids_link_to {
 	my ( $self, $tname, $ret ) = @_;
 	Carp::confess("table $tname not defined !\n")
 	  unless ( defined $self->{'tables'}->{$tname} );
-	my ( @accCols, $line, $OK, $table, $uniqes, $tmp, @informative );
+	my ( @accCols, $line, $OK, $table, $uniques, $tmp, @informative );
 	$table = $self->{'tables'}->{$tname};
 	if ( ref($table) eq "data_table" ) {
 		$line = @{ $table->{'data'} }[0];
@@ -440,7 +511,9 @@ sub _ids_link_to {
 						$_ =~ m/^[[:alpha:]][[:alpha:]][[:alpha:]]+\d\d\d+$/ )
 					{
 						$OK = 0;
-						print  "the entry $_ in line $i failed the requirements!\n" if ( $self->{'debug'});
+						print
+						  "the entry $_ in line $i failed the requirements!\n"
+						  if ( $self->{'debug'} );
 					}
 				} @{ $table->GetAsArray( @{ $table->{'header'} }[$i] ) };
 				push( @accCols, $i ) if ($OK);
@@ -503,6 +576,7 @@ sub _ids_link_to {
 				}
 				foreach my $acc (@accs) {
 					$ret->{$acc}->{'rowid'} = $i;
+
 					#$ret->{$acc}->{'accs'} = [ sort @$line[@accCols]];
 					map {
 						$ret->{$acc}->{ @$line[$_] } =
@@ -603,6 +677,7 @@ sub drop_no_acc {
 
 sub drop_duplicates {
 	my ($self) = @_;
+	my ( $tmp, $key, $unique );
 	unless ( defined $self->{'done'}->{'drop_duplicates'} ) {
 		local $SIG{__WARN__} = sub { };
 		foreach my $this ( values %{ $self->{'tables'} } ) {
@@ -619,7 +694,8 @@ sub drop_duplicates {
 					$unique->{$key} = 1;
 				}
 			}
-			$self->{'tables'}->{$name}->{'data'} = \@data;
+
+			#$self->{'tables'}->{$name}->{'data'} = \@data;
 		}
 		$self->{'done'}->{'drop_duplicates'} = 1;
 	}
@@ -627,11 +703,11 @@ sub drop_duplicates {
 }
 
 sub parse_NCBI {
-	my ( $self, $hash, $area, $entryID, $new_line ) = @_;
+	my ( $self, $hash, $area, $entryID, $new_line, $options ) = @_;
 	$entryID  ||= 1;
 	$new_line ||= 0;
 	$area     ||= '';
-	my ( $str, $keys, $delta, $tmp );
+	my ( $str, $keys, $delta, $tmp, @tmp );
 	foreach ( @{ $options->{'ignore'} } ) {
 		return $delta if ( $area =~ m/$_/ );
 	}
@@ -690,7 +766,7 @@ sub parse_NCBI {
 			  )
 			{
 				print "$key  =>  $hash->{$key} on line $entryID\n"
-				  if ( $debug and $tmp++ == 0 );
+				  if ( $self->{'debug'} and $tmp++ == 0 );
 				## this might need a new line, but that is not 100% sure!
 				$str = 0;
 				foreach ( @{ $options->{'addMultiple'} } ) {
@@ -710,7 +786,7 @@ sub parse_NCBI {
 				#				$overall_delta = $delta unless ( $delta == 0);
 				( $entryID, $delta ) = $self->__cleanup( $entryID, $delta );
 				print "\t\tafterwards we are on line $entryID\n"
-				  if ( $tmp == 1 and $debug );
+				  if ( $tmp == 1 and $self->{'debug'} );
 			}
 			$delta = $overall_delta
 			  ;    ## I need to report back if I (ever) changed my entryID!!
@@ -761,7 +837,7 @@ sub print_debug {
 	$str ||= '';
 	print
 	  "$str final delta = $delta for $area, line =$entryID, and hash $hash\n"
-	  if ($debug);
+	  if ( $self->{'debug'} );
 }
 
 1;
