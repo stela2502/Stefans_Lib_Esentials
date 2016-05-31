@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use XML::Simple;
 
-use Test::More tests => 24;
+use Test::More tests => 27;
 BEGIN { use_ok 'stefans_libs::XML_parser' }
 
 use FindBin;
@@ -315,7 +315,7 @@ print $value;
 
 foreach (
 	'STUDY',        'RUN_SET', 'Pool', 'EXPERIMENT',
-	'Organization', 'SAMPLE',  'SUBMISSION'
+	'Organization', 'SAMPLE',  'SUBMISSION', 'SUMMARY'
   )
 {
 	unlink("$plugin_path/data/output/PRJEB7858_$_.xls")
@@ -326,13 +326,21 @@ system($value );
 
 foreach (
 	'STUDY',        'RUN_SET', 'Pool', 'EXPERIMENT',
-	'Organization', 'SAMPLE',  'SUBMISSION'
+	'Organization', 'SAMPLE',  'SUBMISSION', 'SUMMARY'
   )
 {
 	$value = "$plugin_path/data/output/PRJEB7858_$_.xls";
 
 	#ok( -f $value , "table '$value' was created" );
 	ok( -f $value, "table '$_' was created" );
+}
+
+if ( -f"$plugin_path/data/output/PRJEB7858_SUMMARY.xls" ) {
+	my $data_table = data_table->new({'filename' => "$plugin_path/data/output/PRJEB7858_SUMMARY.xls"} );
+	ok ( defined $data_table->Header_Position('Download'), 'Download column created');
+	my $OK = 1;
+	map { $OK = 0 unless ( $_ =~ m/wget/ ) } @{ $data_table->GetAsArray('Download')};
+	ok ( $OK, "wget command in every Download cell" );
 }
 
 #print "\$exp = ".root->print_perl_var_def($value ).";\n";

@@ -330,14 +330,9 @@ sub write_summary_file {
 		}
 		$ret = $self->_table_rows_2_data_table($table_rows);
 		## now I only need to create the wget download for the NCBI sra files
-
-# /sra/sra-instant/reads/ByRun/sra/{SRR|ERR|DRR}/<first 6 characters of accession>/<accession>/<accession>.sra
-		my ( @accession_col, @sample_col );
-
-		$self->check_accessions( \@accession_col, \@sample_col, $ret, 'SRR', 'SRA',
-			'SRP' );
-		$self->check_accessions( \@accession_col, \@sample_col, $ret, 'ERR', 'ERP' );
-		$self->check_accessions( \@accession_col, \@sample_col, $ret, 'DRR', 'DRP' );
+		$self->create_download_column( $ret, 'SRR', 'SRA', 'SRP' );
+		$self->create_download_column( $ret, 'ERR', 'ERP' );
+		$self->create_download_column( $ret, 'DRR', 'DRP' );
 		
 		$ret->write_file($fname);
 	}
@@ -346,10 +341,17 @@ sub write_summary_file {
 
 }
 
-sub check_accessions {
-	my ( $self, $accession_col, $sample_col, $ret, $acc, @sample ) = @_;
-
-	my $add = scalar(@$accession_col);
+sub create_download_column {
+	my ( $self,  $ret, $acc, @sample ) = @_;
+	
+	if ( defined $ret->Header_Position('Download') ) {
+		my $OK = 1;
+		map { $OK =0 unless ( $_ =~ m/wget/ ); } @{$ret->GetAsArray('Download')};
+		return $ret if ( $OK );
+	}
+	my $accession_col = [];
+	my $sample_col = [];
+	my $add = 0;
 	for ( ; $add > 0 ; $add-- ) {
 		last if ( defined @$accession_col[$add] );
 	}
@@ -365,12 +367,12 @@ sub check_accessions {
 		@$accession_col[$add] = undef;
 	}
 	else {
+		# /sra/sra-instant/reads/ByRun/sra/{SRR|ERR|DRR}/<first 6 characters of accession>/<accession>/<accession>.sra
 		my ($download_col) = $ret->Add_2_Header('Download');
 		my $serv = "ftp://ftp-trace.ncbi.nih.gov";
 		my ( $sra, $srr );
 		for ( my $i = 0 ; $i < $ret->Rows() ; $i++ ) {
 			for ( my $a = 0 ; $a < 3 ; $a++ ) {
-				print "I try id $a\n";
 				next unless ( defined @$accession_col[$a] );
 				$srr = @{ @{ $ret->{'data'} }[$i] }[ @$accession_col[$a] ];
 				$sra = @{ @{ $ret->{'data'} }[$i] }[ @$sample_col[$a] ];
@@ -394,6 +396,7 @@ sub check_accessions {
 			}
 		}
 	}
+	return $ret;
 }
 
 sub is_acc {
@@ -557,7 +560,6 @@ sub _ids_link_to {
 		if ( defined $uniques ) {
 			my $add = 1;
 			if ( ref($ret) eq "HASH" ) {
-				print "ret has been initialized before!\n";
 				map { delete( $ret->{$_}->{'rowid'} ); } keys %$ret;
 				$add = 0;
 			}

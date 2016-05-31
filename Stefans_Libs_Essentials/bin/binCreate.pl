@@ -73,16 +73,25 @@ if ( -f "$path/$exec_name" && !$force ) {
 }
 
 my (
-	$add_2_variable_def, $add_2_variable_read,
-	$add_2_help_string,  $task_string
+	$add_2_variable_def, $add_2_variable_read, $add_2_help_string,
+	$task_string,        $options_string,
 );
 
-$add_2_variable_def = $add_2_variable_read = $add_2_help_string = '';
+$add_2_variable_def = $add_2_variable_read = $add_2_help_string =
+  $options_string = '';
 $task_string =
-"\$task_description .= 'perl '.root->perl_include().' '.\$plugin_path .'/$exec_name';\n";
+"\$task_description .= 'perl '.\$plugin_path .'/$exec_name';\n";
 my $error_check = '';
 my $log_str     = '';
 foreach my $variableStr (@commandLineSwitches) {
+	if ( $variableStr eq "options#array" ) {
+		$add_2_variable_def .= ", \$options";
+		$options_string = join( "\n",
+			"for ( my \$i = 0 ; \$i < \@options ; \$i += 2 ) {"
+			  , "\t\$options[ \$i + 1 ] =~ s/\\n/ /g;"
+			  , "\t\$options->{ \$options[\$i] } = \$options[ \$i + 1 ];",
+			"}" );
+	}
 	if ( lc($variableStr) eq "outfile" ) {
 		$log_str =
 		    "open ( LOG , \">\$outfile.log\") or die \$!;\n"
@@ -99,11 +108,14 @@ foreach my $variableStr (@commandLineSwitches) {
 	if ( $variableStr =~ s/#array// ) {
 		$add_2_variable_def .= ", \@$variableStr";
 		$add_2_variable_read .=
-		  "	 \"-$variableStr=s{,}\"    => \\\@$variableStr,\n";
+		  "       \"-$variableStr=s{,}\"    => \\\@$variableStr,\n";
 		$add_2_help_string .=
-"   -$variableStr       :<please add some info!> you can specify more entries to that\n";
+"       -$variableStr     :<please add some info!> you can specify more entries to that\n";
+		if ( $variableStr eq "options" ){
+			$add_2_help_string .="                         format: key_1 value_1 key_2 value_2 ... key_n value_n\n";
+		}
 		$task_string .=
-"\$task_description .= ' -$variableStr '.join( ' ', \@$variableStr ) if ( defined \$$variableStr"
+"\$task_description .= '       -$variableStr \"'.join( '\" \"', \@$variableStr ).'\"' if ( defined \$$variableStr"
 		  . "[0]);\n";
 		$error_check .=
 		    "unless ( defined \$$variableStr" . "[0]" . ") {\n"
@@ -115,9 +127,9 @@ foreach my $variableStr (@commandLineSwitches) {
 		$add_2_variable_read .=
 		  "	 \"-$variableStr=s\"    => \\\$$variableStr,\n";
 		$add_2_help_string .=
-		  "   -$variableStr       :<please add some info!>\n";
+		  "       -$variableStr       :<please add some info!>\n";
 		$task_string .=
-"\$task_description .= \" -$variableStr \$$variableStr\" if (defined \$$variableStr);\n";
+"\$task_description .= \" -$variableStr '\$$variableStr'\" if (defined \$$variableStr);\n";
 		$error_check .=
 		    "unless ( defined \$$variableStr) {\n"
 		  . "	\$error .= \"the cmd line switch -$variableStr is undefined!\\n\";\n"
@@ -143,7 +155,15 @@ my $string = "#! /usr/bin/perl -w
 #  You should have received a copy of the GNU General Public License 
 #  along with this program; if not, see <http://www.gnu.org/licenses/>.
 
-=head1 EXECUTABLE
+=head1  SYNOPSIS
+
+    EXECUTABLE
+$add_2_help_string
+
+       -help           :print this help
+       -debug          :verbose output
+   
+=head1 DESCRIPTION
 
 INFO_STR
 
@@ -152,6 +172,8 @@ To get further help use 'EXECUTABLE -help' at the comman line.
 =cut
 
 use Getopt::Long;
+use Pod::Usage;
+
 use strict;
 use warnings;
 
@@ -180,23 +202,15 @@ if ( \$help ){
 }
 
 if ( \$error =~ m/\\w/ ){
-	print helpString(\$error ) ;
+	helpString(\$error ) ;
 	exit;
 }
 
 sub helpString {
 	my \$errorMessage = shift;
 	\$errorMessage = ' ' unless ( defined \$errorMessage); 
- 	return \"
- \$errorMessage
- command line switches for EXECUTABLE
-
-$add_2_help_string
-   -help           :print this help
-   -debug          :verbose output
-   
-
-\"; 
+	print \"\$errorMessage.\\n\";
+	pod2usage(q(-verbose) => 1);
 }
 
 
@@ -204,6 +218,7 @@ my ( \$task_description);
 
 $task_string
 
+$options_string
 $log_str
 ## Do whatever you want!
 
