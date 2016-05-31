@@ -12,6 +12,7 @@ WriteMakefile(
 	EXE_FILES    => [ map {"bin/$_" } grep !/^\./,  grep '*.pl', readdir(DIR) ],
 	PREREQ_PM    => {
 		'DBI'                     => 0,
+		'Pod::Usage'			  => 0,
 		'DateTime::Format::MySQL' => 0,
 		'Statistics::Descriptive' => 0,
 		'Date::Simple'            => 0,
