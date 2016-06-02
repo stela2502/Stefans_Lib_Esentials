@@ -168,9 +168,9 @@ $add_2_help_string
    
 =head1 DESCRIPTION
 
-INFO_STR
+  INFO_STR
 
-To get further help use 'EXECUTABLE -help' at the comman line.
+  To get further help use 'EXECUTABLE -help' at the comman line.
 
 =cut
 
