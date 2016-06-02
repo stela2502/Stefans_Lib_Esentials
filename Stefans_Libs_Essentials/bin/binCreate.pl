@@ -115,7 +115,7 @@ foreach my $variableStr (@commandLineSwitches) {
 			$add_2_help_string .="                         format: key_1 value_1 key_2 value_2 ... key_n value_n\n";
 		}
 		$task_string .=
-"\$task_description .= '       -$variableStr \"'.join( '\" \"', \@$variableStr ).'\"' if ( defined \$$variableStr"
+"\$task_description .= ' -$variableStr \"'.join( '\" \"', \@$variableStr ).'\"' if ( defined \$$variableStr"
 		  . "[0]);\n";
 		$error_check .=
 		    "unless ( defined \$$variableStr" . "[0]" . ") {\n"

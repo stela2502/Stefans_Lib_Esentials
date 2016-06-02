@@ -746,7 +746,7 @@ sub printEntry {
 			$max = 20;
 			foreach my $value1 (@$value) {
 				$string .=
-				  printEntry( $value1, undef, $i + 1, $maxDepth, $string )
+				  printEntry( $value1, undef, $i + 1, $maxDepth, $string )."\n"
 				  if ( defined $value1 );
 				last if ( $max-- == 0 );
 			}
