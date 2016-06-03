@@ -343,5 +343,18 @@ if ( -f"$plugin_path/data/output/PRJEB7858_SUMMARY.xls" ) {
 	ok ( $OK, "wget command in every Download cell" );
 }
 
+
+##################################################################################
+### establish the method of a summary table on $plugin_path/data/SRP001371.xml ###
+##################################################################################
+
+$IDX = stefans_libs::XML_parser->new();
+$xml = XMLin("$plugin_path/data/SRP001371.xml");
+$IDX ->parse_NCBI( $xml );
+
+$IDX->write_summary_file ("$plugin_path/data/output/SRP001371_SUMMARY.xls" );
+
+
+
 #print "\$exp = ".root->print_perl_var_def($value ).";\n";
 

@@ -309,28 +309,22 @@ sub write_summary_file {
 	  $self->_populate_table_rows( $runset, $table_rows, $run_hash,
 		$informative );
 	$ret = $self->_table_rows_2_data_table($table_rows);
+	
 	if ( defined $run_hash ) {
-		## warn "$run_hash = " . root->print_perl_var_def({run_acc_col => $run_acc_cols,informative => $informative,run_uniq    => $run_uniqe, run_hash    => $run_hash}) . ";\n";
-		## now I need to create a table entry
-
-		## now I need to get the information from all other tables into the table_rows, too
-
-		foreach my $table_name ( 'EXPERIMENT', 'SAMPLE', 'STUDY' ) {
-
-			#	foreach my $table_name ( keys %{$self->{'tables'}} ) {
-			next if ( $table_name eq $runset );
-			( $run_acc_cols, $informative, $run_uniqe, $tmp ) =
+		foreach my $table_name ( 'Pool', 'EXPERIMENT', 'SAMPLE', 'STUDY' ) {
+			( $run_acc_cols, $informative, $run_uniqe, $run_hash ) =
 			  $self->_ids_link_to( $table_name, $run_hash );
+			Carp::confess ( "\$run_hash = " . root->print_perl_var_def( $run_hash ) . ";\n"."Total rows in table: ". $self->{'tables'}->{$table_name}->Rows()."\n");
 			if ( defined $tmp ) {
 				$table_rows =
-				  $self->_populate_table_rows( $table_name, $table_rows, $tmp,
+				  $self->_populate_table_rows( $table_name, $table_rows, $run_hash,
 					$informative );
 				$ret = $self->_table_rows_2_data_table($table_rows);
 			}
 		}
 		$ret = $self->_table_rows_2_data_table($table_rows);
 		## now I only need to create the wget download for the NCBI sra files
-		$self->create_download_column( $ret, 'SRR', 'SRA', 'SRP' );
+		$self->create_download_column( $ret, 'SRR', 'SRA', 'SRP', 'SRX' );
 		$self->create_download_column( $ret, 'ERR', 'ERP' );
 		$self->create_download_column( $ret, 'DRR', 'DRP' );
 		
@@ -376,8 +370,7 @@ sub create_download_column {
 				next unless ( defined @$accession_col[$a] );
 				$srr = @{ @{ $ret->{'data'} }[$i] }[ @$accession_col[$a] ];
 				$sra = @{ @{ $ret->{'data'} }[$i] }[ @$sample_col[$a] ];
-				print
-"sra (@$sample_col[$a]) =$sra and srr (@$accession_col[$a]) = $srr \n";
+				#print "sra (@$sample_col[$a]) =$sra and srr (@$accession_col[$a]) = $srr \n";
 				if ( $self->is_acc($sra) and $self->is_acc($srr) ) {
 					@{ @{ $ret->{'data'} }[$i] }[$download_col] =
 					    "wget -O '" 
@@ -408,9 +401,6 @@ sub _table_rows_2_data_table {
 	my ( $self, $table_rows ) = @_;
 	my $data_table = data_table->new();
 	foreach ( sort keys(%$table_rows) ) {
-
-#my @colnames = sort { if ( length($a) <=> length($b) ) { $a cmp $b} else {length($a) <=> length($b) }}  keys %$_;
-
 		my @colnames = sort keys %{ $table_rows->{$_} };
 		$data_table->Add_2_Header( \@colnames );
 		$data_table->Add_Dataset( $table_rows->{$_} );
@@ -442,11 +432,14 @@ sub _populate_table_rows {
 		## now add the probably interesting columns...
 	  INFORMATION: foreach my $col (@$informative) {
 			unless ( defined $run_hash->{$acc}->{'rowid'} ) {
-				warn
-"No data added for acc $acc and $tname as the rowid was unknown!\n";
+				Carp::confess ( "\$exp = " . root->print_perl_var_def( $run_hash->{$acc} ) . ";\n".
+"No data added for acc $acc and $tname as the rowid was unknown!\n");
 				next;
 			}
 			$tmp = @{ $thisTable->{'header'} }[$col];
+			unless ( defined @{ $thisTable->{'data'} }[ $run_hash->{$acc}->{'rowid'} ] ){
+				Carp::confess( $thisTable->AsString(). root->print_perl_var_def($run_hash->{$acc} ). "max rows: ".$thisTable->Rows(). "\nThe row rowid was not defined in the table!\n" ); 
+			}
 			$value =
 			  @{ @{ $thisTable->{'data'} }[ $run_hash->{$acc}->{'rowid'} ] }
 			  [$col];
