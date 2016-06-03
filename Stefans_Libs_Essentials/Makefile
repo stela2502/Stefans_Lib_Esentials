@@ -1,7 +1,7 @@
 # This Makefile is for the Stefans_Libs_Essentials extension to perl.
 #
 # It was generated automatically by MakeMaker version
-# 6.72 (Revision: 67200) from the contents of
+# 7.0401 (Revision: 70401) from the contents of
 # Makefile.PL. Don't edit this file, edit Makefile.PL instead.
 #
 #       ANY CHANGES MADE HERE WILL BE LOST!
@@ -13,9 +13,9 @@
 
 #     BUILD_REQUIRES => {  }
 #     CONFIGURE_REQUIRES => {  }
-#     EXE_FILES => [q[bin/update_S4_documentation.pl], q[bin/cef_splice.pl], q[bin/convert_R_S4_list_accessors.pl], q[bin/binCreate.pl], q[bin/create_variable_table_class.pl], q[bin/AddUser.pl], q[bin/XML_parser.pl], q[bin/tasks.pl], q[bin/convert_R_S3_R_S4.pl], q[bin/cef_join.pl], q[bin/bib_create.pl], q[bin/add_column_to_table.pl]]
+#     EXE_FILES => [q[bin/cef_join.pl], q[bin/convert_R_S4_list_accessors.pl], q[bin/convert_R_S3_R_S4.pl], q[bin/cef_splice.pl], q[bin/add_column_to_table.pl], q[bin/bib_create.pl], q[bin/AddUser.pl], q[bin/update_S4_documentation.pl], q[bin/tasks.pl], q[bin/binCreate.pl], q[bin/create_variable_table_class.pl], q[bin/convert_R_S4_FileMess_into_function.pl], q[bin/XML_parser.pl]]
 #     NAME => q[Stefans_Libs_Essentials]
-#     PREREQ_PM => { DateTime::Format::MySQL=>q[0], Date::Simple=>q[0], Statistics::Descriptive=>q[0], DBI=>q[0], SVG=>q[0], PDL=>q[0], Pod::Usage=>q[0], Number::Format=>q[0], GD::SVG=>q[0.33], GD=>q[0] }
+#     PREREQ_PM => { DBI=>q[0], Date::Simple=>q[0], DateTime::Format::MySQL=>q[0], GD=>q[0], GD::SVG=>q[0.33], Number::Format=>q[0], PDL=>q[0], Pod::Usage=>q[0], SVG=>q[0], Statistics::Descriptive=>q[0] }
 #     TEST_REQUIRES => {  }
 #     VERSION_FROM => q[lib/Stefans_Libs_Essentials.pm]
 
@@ -24,30 +24,30 @@
 
 # --- MakeMaker const_config section:
 
-# These definitions are from config.sh (via /usr/lib64/perl5/Config.pm).
+# These definitions are from config.sh (via /usr/lib/x86_64-linux-gnu/perl/5.22/Config.pm).
 # They may have been overridden via Makefile.PL or on the command line.
 AR = ar
-CC = gcc
+CC = x86_64-linux-gnu-gcc
 CCCDLFLAGS = -fPIC
-CCDLFLAGS = -Wl,--enable-new-dtags
+CCDLFLAGS = -Wl,-E
 DLEXT = so
 DLSRC = dl_dlopen.xs
 EXE_EXT = 
 FULL_AR = /usr/bin/ar
-LD = gcc
-LDDLFLAGS = -shared -O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -m64 -mtune=generic -Wl,-z,relro 
-LDFLAGS =  -fstack-protector
-LIBC = 
+LD = x86_64-linux-gnu-gcc
+LDDLFLAGS = -shared -L/usr/local/lib -fstack-protector-strong
+LDFLAGS =  -fstack-protector-strong -L/usr/local/lib
+LIBC = libc-2.21.so
 LIB_EXT = .a
 OBJ_EXT = .o
 OSNAME = linux
-OSVERS = 3.19.1-201.fc21.x86_64
+OSVERS = 3.16.0
 RANLIB = :
-SITELIBEXP = /usr/local/share/perl5
-SITEARCHEXP = /usr/local/lib64/perl5
+SITELIBEXP = /usr/local/share/perl/5.22.1
+SITEARCHEXP = /usr/local/lib/x86_64-linux-gnu/perl/5.22.1
 SO = so
-VENDORARCHEXP = /usr/lib64/perl5/vendor_perl
-VENDORLIBEXP = /usr/share/perl5/vendor_perl
+VENDORARCHEXP = /usr/lib/x86_64-linux-gnu/perl5/5.22
+VENDORLIBEXP = /usr/share/perl5
 
 
 # --- MakeMaker constants section:
@@ -69,7 +69,7 @@ INST_BIN = blib/bin
 INST_LIB = blib/lib
 INST_MAN1DIR = blib/man1
 INST_MAN3DIR = blib/man3
-MAN1EXT = 1
+MAN1EXT = 1p
 MAN3EXT = 3pm
 INSTALLDIRS = site
 DESTDIR = 
@@ -77,17 +77,17 @@ PREFIX = $(SITEPREFIX)
 PERLPREFIX = /usr
 SITEPREFIX = /usr/local
 VENDORPREFIX = /usr
-INSTALLPRIVLIB = /usr/share/perl5
+INSTALLPRIVLIB = /usr/share/perl/5.22
 DESTINSTALLPRIVLIB = $(DESTDIR)$(INSTALLPRIVLIB)
-INSTALLSITELIB = /usr/local/share/perl5
+INSTALLSITELIB = /usr/local/share/perl/5.22.1
 DESTINSTALLSITELIB = $(DESTDIR)$(INSTALLSITELIB)
-INSTALLVENDORLIB = /usr/share/perl5/vendor_perl
+INSTALLVENDORLIB = /usr/share/perl5
 DESTINSTALLVENDORLIB = $(DESTDIR)$(INSTALLVENDORLIB)
-INSTALLARCHLIB = /usr/lib64/perl5
+INSTALLARCHLIB = /usr/lib/x86_64-linux-gnu/perl/5.22
 DESTINSTALLARCHLIB = $(DESTDIR)$(INSTALLARCHLIB)
-INSTALLSITEARCH = /usr/local/lib64/perl5
+INSTALLSITEARCH = /usr/local/lib/x86_64-linux-gnu/perl/5.22.1
 DESTINSTALLSITEARCH = $(DESTDIR)$(INSTALLSITEARCH)
-INSTALLVENDORARCH = /usr/lib64/perl5/vendor_perl
+INSTALLVENDORARCH = /usr/lib/x86_64-linux-gnu/perl5/5.22
 DESTINSTALLVENDORARCH = $(DESTDIR)$(INSTALLVENDORARCH)
 INSTALLBIN = /usr/bin
 DESTINSTALLBIN = $(DESTDIR)$(INSTALLBIN)
@@ -103,26 +103,28 @@ INSTALLVENDORSCRIPT = /usr/bin
 DESTINSTALLVENDORSCRIPT = $(DESTDIR)$(INSTALLVENDORSCRIPT)
 INSTALLMAN1DIR = /usr/share/man/man1
 DESTINSTALLMAN1DIR = $(DESTDIR)$(INSTALLMAN1DIR)
-INSTALLSITEMAN1DIR = /usr/local/share/man/man1
+INSTALLSITEMAN1DIR = /usr/local/man/man1
 DESTINSTALLSITEMAN1DIR = $(DESTDIR)$(INSTALLSITEMAN1DIR)
 INSTALLVENDORMAN1DIR = /usr/share/man/man1
 DESTINSTALLVENDORMAN1DIR = $(DESTDIR)$(INSTALLVENDORMAN1DIR)
 INSTALLMAN3DIR = /usr/share/man/man3
 DESTINSTALLMAN3DIR = $(DESTDIR)$(INSTALLMAN3DIR)
-INSTALLSITEMAN3DIR = /usr/local/share/man/man3
+INSTALLSITEMAN3DIR = /usr/local/man/man3
 DESTINSTALLSITEMAN3DIR = $(DESTDIR)$(INSTALLSITEMAN3DIR)
 INSTALLVENDORMAN3DIR = /usr/share/man/man3
 DESTINSTALLVENDORMAN3DIR = $(DESTDIR)$(INSTALLVENDORMAN3DIR)
-PERL_LIB = /usr/share/perl5
-PERL_ARCHLIB = /usr/lib64/perl5
+PERL_LIB = /usr/share/perl/5.22
+PERL_ARCHLIB = /usr/lib/x86_64-linux-gnu/perl/5.22
+PERL_ARCHLIBDEP = /usr/lib/x86_64-linux-gnu/perl/5.22
 LIBPERL_A = libperl.a
 FIRST_MAKEFILE = Makefile
 MAKEFILE_OLD = Makefile.old
 MAKE_APERL_FILE = Makefile.aperl
 PERLMAINCC = $(CC)
-PERL_INC = /usr/lib64/perl5/CORE
-PERL = /usr/bin/perl
-FULLPERL = /usr/bin/perl
+PERL_INC = /usr/lib/x86_64-linux-gnu/perl/5.22/CORE
+PERL_INCDEP = /usr/lib/x86_64-linux-gnu/perl/5.22/CORE
+PERL = "/usr/bin/perl"
+FULLPERL = "/usr/bin/perl"
 ABSPERL = $(PERL)
 PERLRUN = $(PERL)
 FULLPERLRUN = $(FULLPERL)
@@ -135,9 +137,9 @@ PERM_DIR = 755
 PERM_RW = 644
 PERM_RWX = 755
 
-MAKEMAKER   = /usr/share/perl5/vendor_perl/ExtUtils/MakeMaker.pm
-MM_VERSION  = 6.72
-MM_REVISION = 67200
+MAKEMAKER   = /usr/share/perl/5.22/ExtUtils/MakeMaker.pm
+MM_VERSION  = 7.0401
+MM_REVISION = 70401
 
 # FULLEXT = Pathname for extension directory (eg Foo/Bar/Oracle).
 # BASEEXT = Basename part of FULLEXT. May be just equal FULLEXT. (eg Oracle)
@@ -167,6 +169,7 @@ MAN1PODS = bin/AddUser.pl \
 	bin/cef_join.pl \
 	bin/cef_splice.pl \
 	bin/convert_R_S3_R_S4.pl \
+	bin/convert_R_S4_FileMess_into_function.pl \
 	bin/convert_R_S4_list_accessors.pl \
 	bin/create_variable_table_class.pl \
 	bin/tasks.pl \
@@ -179,6 +182,7 @@ MAN3PODS = lib/Stefans_Libs_Essentials.pm \
 	lib/stefans_libs/Latex_Document/Section.pm \
 	lib/stefans_libs/Latex_Document/Text.pm \
 	lib/stefans_libs/XML_parser.pm \
+	lib/stefans_libs/XML_parser/TableInformation.pm \
 	lib/stefans_libs/database/lists/list_using_table.pm \
 	lib/stefans_libs/database/userTable.pm \
 	lib/stefans_libs/database/variable_table.pm \
@@ -197,7 +201,7 @@ MAN3PODS = lib/Stefans_Libs_Essentials.pm \
 	lib/stefans_libs/root.pm
 
 # Where is the Config information that we are using/depend on
-CONFIGDEP = $(PERL_ARCHLIB)$(DFSEP)Config.pm $(PERL_INC)$(DFSEP)config.h
+CONFIGDEP = $(PERL_ARCHLIBDEP)$(DFSEP)Config.pm $(PERL_INCDEP)$(DFSEP)config.h
 
 # Where to build things
 INST_LIBDIR      = $(INST_LIB)
@@ -213,6 +217,7 @@ INST_BOOT        =
 # Extra linker info
 EXPORT_LIST        = 
 PERL_ARCHIVE       = 
+PERL_ARCHIVEDEP    = 
 PERL_ARCHIVE_AFTER = 
 
 
@@ -224,6 +229,7 @@ TO_INST_PM = lib/Stefans_Libs_Essentials.pm \
 	lib/stefans_libs/Latex_Document/Section.pm \
 	lib/stefans_libs/Latex_Document/Text.pm \
 	lib/stefans_libs/XML_parser.pm \
+	lib/stefans_libs/XML_parser/TableInformation.pm \
 	lib/stefans_libs/database/lists/basic_list.pm \
 	lib/stefans_libs/database/lists/list_using_table.pm \
 	lib/stefans_libs/database/to_do_list.pm \
@@ -257,84 +263,86 @@ TO_INST_PM = lib/Stefans_Libs_Essentials.pm \
 
 PM_TO_BLIB = lib/Stefans_Libs_Essentials.pm \
 	blib/lib/Stefans_Libs_Essentials.pm \
-	lib/stefans_libs/XML_parser.pm \
-	blib/lib/stefans_libs/XML_parser.pm \
+	lib/stefans_libs/Latex_Document.pm \
+	blib/lib/stefans_libs/Latex_Document.pm \
+	lib/stefans_libs/Latex_Document/Chapter.pm \
+	blib/lib/stefans_libs/Latex_Document/Chapter.pm \
 	lib/stefans_libs/Latex_Document/Figure.pm \
 	blib/lib/stefans_libs/Latex_Document/Figure.pm \
-	lib/stefans_libs/database/userTable/role_list.pm \
-	blib/lib/stefans_libs/database/userTable/role_list.pm \
-	lib/stefans_libs/database/to_do_list.pm \
-	blib/lib/stefans_libs/database/to_do_list.pm \
-	lib/stefans_libs/fonts/LinLibertineFont/LinLibertineC-2.2.3.ttf \
-	blib/lib/stefans_libs/fonts/LinLibertineFont/LinLibertineC-2.2.3.ttf \
-	lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm \
-	blib/lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm \
-	lib/stefans_libs/plot/figure.pm \
-	blib/lib/stefans_libs/plot/figure.pm \
+	lib/stefans_libs/Latex_Document/HTML_2_TEX.pm \
+	blib/lib/stefans_libs/Latex_Document/HTML_2_TEX.pm \
+	lib/stefans_libs/Latex_Document/Section.pm \
+	blib/lib/stefans_libs/Latex_Document/Section.pm \
+	lib/stefans_libs/Latex_Document/Text.pm \
+	blib/lib/stefans_libs/Latex_Document/Text.pm \
+	lib/stefans_libs/XML_parser.pm \
+	blib/lib/stefans_libs/XML_parser.pm \
+	lib/stefans_libs/XML_parser/TableInformation.pm \
+	blib/lib/stefans_libs/XML_parser/TableInformation.pm \
 	lib/stefans_libs/database/lists/basic_list.pm \
 	blib/lib/stefans_libs/database/lists/basic_list.pm \
+	lib/stefans_libs/database/lists/list_using_table.pm \
+	blib/lib/stefans_libs/database/lists/list_using_table.pm \
+	lib/stefans_libs/database/to_do_list.pm \
+	blib/lib/stefans_libs/database/to_do_list.pm \
+	lib/stefans_libs/database/to_do_list/parent_child.pm \
+	blib/lib/stefans_libs/database/to_do_list/parent_child.pm \
+	lib/stefans_libs/database/userTable.pm \
+	blib/lib/stefans_libs/database/userTable.pm \
 	lib/stefans_libs/database/userTable/CatalystUser.pm \
 	blib/lib/stefans_libs/database/userTable/CatalystUser.pm \
-	lib/stefans_libs/plot/color.pm \
-	blib/lib/stefans_libs/plot/color.pm \
-	lib/stefans_libs/file_readers/help_data.pm \
-	blib/lib/stefans_libs/file_readers/help_data.pm \
-	lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm \
-	blib/lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm \
 	lib/stefans_libs/database/userTable/action_group_list.pm \
 	blib/lib/stefans_libs/database/userTable/action_group_list.pm \
+	lib/stefans_libs/database/userTable/action_groups.pm \
+	blib/lib/stefans_libs/database/userTable/action_groups.pm \
+	lib/stefans_libs/database/userTable/role_list.pm \
+	blib/lib/stefans_libs/database/userTable/role_list.pm \
+	lib/stefans_libs/database/userTable/roles.pm \
+	blib/lib/stefans_libs/database/userTable/roles.pm \
+	lib/stefans_libs/database/userTable/temporary_banned.pm \
+	blib/lib/stefans_libs/database/userTable/temporary_banned.pm \
+	lib/stefans_libs/database/variable_table.pm \
+	blib/lib/stefans_libs/database/variable_table.pm \
+	lib/stefans_libs/database/variable_table/linkage_info.pm \
+	blib/lib/stefans_libs/database/variable_table/linkage_info.pm \
+	lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm \
+	blib/lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm \
+	lib/stefans_libs/database/variable_table/queryInterface.pm \
+	blib/lib/stefans_libs/database/variable_table/queryInterface.pm \
+	lib/stefans_libs/fastaDB.pm \
+	blib/lib/stefans_libs/fastaDB.pm \
+	lib/stefans_libs/file_readers/cefFile.pm \
+	blib/lib/stefans_libs/file_readers/cefFile.pm \
+	lib/stefans_libs/file_readers/help_data.pm \
+	blib/lib/stefans_libs/file_readers/help_data.pm \
+	lib/stefans_libs/flexible_data_structures/data_table.pm \
+	blib/lib/stefans_libs/flexible_data_structures/data_table.pm \
+	lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm \
+	blib/lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm \
+	lib/stefans_libs/fonts/LinLibertineFont/LinLibertineC-2.2.3.ttf \
+	blib/lib/stefans_libs/fonts/LinLibertineFont/LinLibertineC-2.2.3.ttf \
+	lib/stefans_libs/install_helper.pm \
+	blib/lib/stefans_libs/install_helper.pm \
 	lib/stefans_libs/install_helper/Patcher.pm \
 	blib/lib/stefans_libs/install_helper/Patcher.pm \
 	lib/stefans_libs/plot/Font.pm \
 	blib/lib/stefans_libs/plot/Font.pm \
-	lib/stefans_libs/Latex_Document/HTML_2_TEX.pm \
-	blib/lib/stefans_libs/Latex_Document/HTML_2_TEX.pm \
-	lib/stefans_libs/plot/simpleBarGraph.pm \
-	blib/lib/stefans_libs/plot/simpleBarGraph.pm \
-	lib/stefans_libs/Latex_Document/Text.pm \
-	blib/lib/stefans_libs/Latex_Document/Text.pm \
-	lib/stefans_libs/root.pm \
-	blib/lib/stefans_libs/root.pm \
-	lib/stefans_libs/database/variable_table/queryInterface.pm \
-	blib/lib/stefans_libs/database/variable_table/queryInterface.pm \
-	lib/stefans_libs/database/userTable/roles.pm \
-	blib/lib/stefans_libs/database/userTable/roles.pm \
 	lib/stefans_libs/plot/axis.pm \
 	blib/lib/stefans_libs/plot/axis.pm \
-	lib/stefans_libs/file_readers/cefFile.pm \
-	blib/lib/stefans_libs/file_readers/cefFile.pm \
-	lib/stefans_libs/flexible_data_structures/data_table.pm \
-	blib/lib/stefans_libs/flexible_data_structures/data_table.pm \
-	lib/stefans_libs/database/userTable/action_groups.pm \
-	blib/lib/stefans_libs/database/userTable/action_groups.pm \
-	lib/stefans_libs/install_helper.pm \
-	blib/lib/stefans_libs/install_helper.pm \
-	lib/stefans_libs/Latex_Document.pm \
-	blib/lib/stefans_libs/Latex_Document.pm \
-	lib/stefans_libs/fastaDB.pm \
-	blib/lib/stefans_libs/fastaDB.pm \
-	lib/stefans_libs/database/lists/list_using_table.pm \
-	blib/lib/stefans_libs/database/lists/list_using_table.pm \
-	lib/stefans_libs/database/userTable.pm \
-	blib/lib/stefans_libs/database/userTable.pm \
-	lib/stefans_libs/database/userTable/temporary_banned.pm \
-	blib/lib/stefans_libs/database/userTable/temporary_banned.pm \
-	lib/stefans_libs/database/to_do_list/parent_child.pm \
-	blib/lib/stefans_libs/database/to_do_list/parent_child.pm \
-	lib/stefans_libs/Latex_Document/Section.pm \
-	blib/lib/stefans_libs/Latex_Document/Section.pm \
-	lib/stefans_libs/database/variable_table/linkage_info.pm \
-	blib/lib/stefans_libs/database/variable_table/linkage_info.pm \
-	lib/stefans_libs/database/variable_table.pm \
-	blib/lib/stefans_libs/database/variable_table.pm \
-	lib/stefans_libs/Latex_Document/Chapter.pm \
-	blib/lib/stefans_libs/Latex_Document/Chapter.pm \
+	lib/stefans_libs/plot/color.pm \
+	blib/lib/stefans_libs/plot/color.pm \
+	lib/stefans_libs/plot/figure.pm \
+	blib/lib/stefans_libs/plot/figure.pm \
+	lib/stefans_libs/plot/simpleBarGraph.pm \
+	blib/lib/stefans_libs/plot/simpleBarGraph.pm \
 	lib/stefans_libs/plot/simpleWhiskerPlot.pm \
-	blib/lib/stefans_libs/plot/simpleWhiskerPlot.pm
+	blib/lib/stefans_libs/plot/simpleWhiskerPlot.pm \
+	lib/stefans_libs/root.pm \
+	blib/lib/stefans_libs/root.pm
 
 
 # --- MakeMaker platform_constants section:
-MM_Unix_VERSION = 6.72
+MM_Unix_VERSION = 7.0401
 PERL_MALLOC_DEF = -DPERL_EXTMALLOC_DEF -Dmalloc=Perl_malloc -Dfree=Perl_mfree -Drealloc=Perl_realloc -Dcalloc=Perl_calloc
 
 
@@ -376,6 +384,7 @@ MACROSTART =
 MACROEND = 
 USEMAKEFILE = -f
 FIXIN = $(ABSPERLRUN) -MExtUtils::MY -e 'MY->fixin(shift)' --
+CP_NONEMPTY = $(ABSPERLRUN) -MExtUtils::Command::MM -e 'cp_nonempty' --
 
 
 # --- MakeMaker makemakerdflt section:
@@ -424,6 +433,7 @@ DISTVNAME = Stefans_Libs_Essentials-1.01
 
 PASTHRU = LIBPERL_A="$(LIBPERL_A)"\
 	LINKTYPE="$(LINKTYPE)"\
+	LD="$(LD)"\
 	PREFIX="$(PREFIX)"
 
 
@@ -520,15 +530,15 @@ linkext :: $(LINKTYPE)
 # --- MakeMaker dlsyms section:
 
 
-# --- MakeMaker dynamic section:
-
-dynamic :: $(FIRST_MAKEFILE) $(INST_DYNAMIC) $(INST_BOOT)
-	$(NOECHO) $(NOOP)
-
-
 # --- MakeMaker dynamic_bs section:
 
 BOOTSTRAP =
+
+
+# --- MakeMaker dynamic section:
+
+dynamic :: $(FIRST_MAKEFILE) $(BOOTSTRAP) $(INST_DYNAMIC)
+	$(NOECHO) $(NOOP)
 
 
 # --- MakeMaker dynamic_lib section:
@@ -552,80 +562,85 @@ POD2MAN = $(POD2MAN_EXE)
 
 
 manifypods : pure_all  \
-	bin/update_S4_documentation.pl \
-	bin/tasks.pl \
+	bin/AddUser.pl \
+	bin/XML_parser.pl \
+	bin/add_column_to_table.pl \
+	bin/bib_create.pl \
 	bin/binCreate.pl \
 	bin/cef_join.pl \
-	bin/convert_R_S4_list_accessors.pl \
-	bin/bib_create.pl \
-	bin/XML_parser.pl \
-	bin/convert_R_S3_R_S4.pl \
-	bin/create_variable_table_class.pl \
-	bin/AddUser.pl \
 	bin/cef_splice.pl \
-	bin/add_column_to_table.pl \
-	lib/stefans_libs/plot/figure.pm \
-	lib/stefans_libs/fastaDB.pm \
-	lib/stefans_libs/install_helper/Patcher.pm \
-	lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm \
-	lib/stefans_libs/database/lists/list_using_table.pm \
-	lib/stefans_libs/Latex_Document/Figure.pm \
+	bin/convert_R_S3_R_S4.pl \
+	bin/convert_R_S4_FileMess_into_function.pl \
+	bin/convert_R_S4_list_accessors.pl \
+	bin/create_variable_table_class.pl \
+	bin/tasks.pl \
+	bin/update_S4_documentation.pl \
 	lib/Stefans_Libs_Essentials.pm \
-	lib/stefans_libs/XML_parser.pm \
-	lib/stefans_libs/install_helper.pm \
-	lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm \
 	lib/stefans_libs/Latex_Document.pm \
-	lib/stefans_libs/plot/axis.pm \
-	lib/stefans_libs/database/variable_table.pm \
 	lib/stefans_libs/Latex_Document/Chapter.pm \
+	lib/stefans_libs/Latex_Document/Figure.pm \
+	lib/stefans_libs/Latex_Document/HTML_2_TEX.pm \
+	lib/stefans_libs/Latex_Document/Section.pm \
+	lib/stefans_libs/Latex_Document/Text.pm \
+	lib/stefans_libs/XML_parser.pm \
+	lib/stefans_libs/XML_parser/TableInformation.pm \
+	lib/stefans_libs/database/lists/list_using_table.pm \
+	lib/stefans_libs/database/userTable.pm \
+	lib/stefans_libs/database/variable_table.pm \
+	lib/stefans_libs/database/variable_table/linkage_info.pm \
+	lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm \
+	lib/stefans_libs/database/variable_table/queryInterface.pm \
+	lib/stefans_libs/fastaDB.pm \
 	lib/stefans_libs/file_readers/cefFile.pm \
 	lib/stefans_libs/flexible_data_structures/data_table.pm \
+	lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm \
+	lib/stefans_libs/install_helper.pm \
+	lib/stefans_libs/install_helper/Patcher.pm \
+	lib/stefans_libs/plot/axis.pm \
+	lib/stefans_libs/plot/figure.pm \
 	lib/stefans_libs/plot/simpleWhiskerPlot.pm \
-	lib/stefans_libs/database/userTable.pm \
-	lib/stefans_libs/Latex_Document/HTML_2_TEX.pm \
-	lib/stefans_libs/root.pm \
-	lib/stefans_libs/Latex_Document/Text.pm \
-	lib/stefans_libs/database/variable_table/linkage_info.pm \
-	lib/stefans_libs/Latex_Document/Section.pm \
-	lib/stefans_libs/database/variable_table/queryInterface.pm
-	$(NOECHO) $(POD2MAN) --section=1 --perm_rw=$(PERM_RW) \
-	  bin/update_S4_documentation.pl $(INST_MAN1DIR)/update_S4_documentation.pl.$(MAN1EXT) \
-	  bin/tasks.pl $(INST_MAN1DIR)/tasks.pl.$(MAN1EXT) \
+	lib/stefans_libs/root.pm
+	$(NOECHO) $(POD2MAN) --section=$(MAN1EXT) --perm_rw=$(PERM_RW) -u \
+	  bin/AddUser.pl $(INST_MAN1DIR)/AddUser.pl.$(MAN1EXT) \
+	  bin/XML_parser.pl $(INST_MAN1DIR)/XML_parser.pl.$(MAN1EXT) \
+	  bin/add_column_to_table.pl $(INST_MAN1DIR)/add_column_to_table.pl.$(MAN1EXT) \
+	  bin/bib_create.pl $(INST_MAN1DIR)/bib_create.pl.$(MAN1EXT) \
 	  bin/binCreate.pl $(INST_MAN1DIR)/binCreate.pl.$(MAN1EXT) \
 	  bin/cef_join.pl $(INST_MAN1DIR)/cef_join.pl.$(MAN1EXT) \
-	  bin/convert_R_S4_list_accessors.pl $(INST_MAN1DIR)/convert_R_S4_list_accessors.pl.$(MAN1EXT) \
-	  bin/bib_create.pl $(INST_MAN1DIR)/bib_create.pl.$(MAN1EXT) \
-	  bin/XML_parser.pl $(INST_MAN1DIR)/XML_parser.pl.$(MAN1EXT) \
-	  bin/convert_R_S3_R_S4.pl $(INST_MAN1DIR)/convert_R_S3_R_S4.pl.$(MAN1EXT) \
-	  bin/create_variable_table_class.pl $(INST_MAN1DIR)/create_variable_table_class.pl.$(MAN1EXT) \
-	  bin/AddUser.pl $(INST_MAN1DIR)/AddUser.pl.$(MAN1EXT) \
 	  bin/cef_splice.pl $(INST_MAN1DIR)/cef_splice.pl.$(MAN1EXT) \
-	  bin/add_column_to_table.pl $(INST_MAN1DIR)/add_column_to_table.pl.$(MAN1EXT) 
-	$(NOECHO) $(POD2MAN) --section=3 --perm_rw=$(PERM_RW) \
-	  lib/stefans_libs/plot/figure.pm $(INST_MAN3DIR)/stefans_libs::plot::figure.$(MAN3EXT) \
-	  lib/stefans_libs/fastaDB.pm $(INST_MAN3DIR)/stefans_libs::fastaDB.$(MAN3EXT) \
-	  lib/stefans_libs/install_helper/Patcher.pm $(INST_MAN3DIR)/stefans_libs::install_helper::Patcher.$(MAN3EXT) \
-	  lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm $(INST_MAN3DIR)/stefans_libs::database::variable_table::linkage_info::table_script_generator.$(MAN3EXT) \
-	  lib/stefans_libs/database/lists/list_using_table.pm $(INST_MAN3DIR)/stefans_libs::database::lists::list_using_table.$(MAN3EXT) \
-	  lib/stefans_libs/Latex_Document/Figure.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document::Figure.$(MAN3EXT) \
+	  bin/convert_R_S3_R_S4.pl $(INST_MAN1DIR)/convert_R_S3_R_S4.pl.$(MAN1EXT) \
+	  bin/convert_R_S4_FileMess_into_function.pl $(INST_MAN1DIR)/convert_R_S4_FileMess_into_function.pl.$(MAN1EXT) \
+	  bin/convert_R_S4_list_accessors.pl $(INST_MAN1DIR)/convert_R_S4_list_accessors.pl.$(MAN1EXT) \
+	  bin/create_variable_table_class.pl $(INST_MAN1DIR)/create_variable_table_class.pl.$(MAN1EXT) \
+	  bin/tasks.pl $(INST_MAN1DIR)/tasks.pl.$(MAN1EXT) \
+	  bin/update_S4_documentation.pl $(INST_MAN1DIR)/update_S4_documentation.pl.$(MAN1EXT) 
+	$(NOECHO) $(POD2MAN) --section=$(MAN3EXT) --perm_rw=$(PERM_RW) -u \
 	  lib/Stefans_Libs_Essentials.pm $(INST_MAN3DIR)/Stefans_Libs_Essentials.$(MAN3EXT) \
-	  lib/stefans_libs/XML_parser.pm $(INST_MAN3DIR)/stefans_libs::XML_parser.$(MAN3EXT) \
-	  lib/stefans_libs/install_helper.pm $(INST_MAN3DIR)/stefans_libs::install_helper.$(MAN3EXT) \
-	  lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm $(INST_MAN3DIR)/stefans_libs::flexible_data_structures::data_table::arraySorter.$(MAN3EXT) \
 	  lib/stefans_libs/Latex_Document.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document.$(MAN3EXT) \
-	  lib/stefans_libs/plot/axis.pm $(INST_MAN3DIR)/stefans_libs::plot::axis.$(MAN3EXT) \
-	  lib/stefans_libs/database/variable_table.pm $(INST_MAN3DIR)/stefans_libs::database::variable_table.$(MAN3EXT) \
 	  lib/stefans_libs/Latex_Document/Chapter.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document::Chapter.$(MAN3EXT) \
+	  lib/stefans_libs/Latex_Document/Figure.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document::Figure.$(MAN3EXT) \
+	  lib/stefans_libs/Latex_Document/HTML_2_TEX.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document::HTML_2_TEX.$(MAN3EXT) \
+	  lib/stefans_libs/Latex_Document/Section.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document::Section.$(MAN3EXT) \
+	  lib/stefans_libs/Latex_Document/Text.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document::Text.$(MAN3EXT) \
+	  lib/stefans_libs/XML_parser.pm $(INST_MAN3DIR)/stefans_libs::XML_parser.$(MAN3EXT) \
+	  lib/stefans_libs/XML_parser/TableInformation.pm $(INST_MAN3DIR)/stefans_libs::XML_parser::TableInformation.$(MAN3EXT) \
+	  lib/stefans_libs/database/lists/list_using_table.pm $(INST_MAN3DIR)/stefans_libs::database::lists::list_using_table.$(MAN3EXT) \
+	  lib/stefans_libs/database/userTable.pm $(INST_MAN3DIR)/stefans_libs::database::userTable.$(MAN3EXT) \
+	  lib/stefans_libs/database/variable_table.pm $(INST_MAN3DIR)/stefans_libs::database::variable_table.$(MAN3EXT) \
+	  lib/stefans_libs/database/variable_table/linkage_info.pm $(INST_MAN3DIR)/stefans_libs::database::variable_table::linkage_info.$(MAN3EXT) \
+	  lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm $(INST_MAN3DIR)/stefans_libs::database::variable_table::linkage_info::table_script_generator.$(MAN3EXT) \
+	  lib/stefans_libs/database/variable_table/queryInterface.pm $(INST_MAN3DIR)/stefans_libs::database::variable_table::queryInterface.$(MAN3EXT) \
+	  lib/stefans_libs/fastaDB.pm $(INST_MAN3DIR)/stefans_libs::fastaDB.$(MAN3EXT) \
 	  lib/stefans_libs/file_readers/cefFile.pm $(INST_MAN3DIR)/stefans_libs::file_readers::cefFile.$(MAN3EXT) \
 	  lib/stefans_libs/flexible_data_structures/data_table.pm $(INST_MAN3DIR)/stefans_libs::flexible_data_structures::data_table.$(MAN3EXT) \
-	  lib/stefans_libs/plot/simpleWhiskerPlot.pm $(INST_MAN3DIR)/stefans_libs::plot::simpleWhiskerPlot.$(MAN3EXT) \
-	  lib/stefans_libs/database/userTable.pm $(INST_MAN3DIR)/stefans_libs::database::userTable.$(MAN3EXT) \
-	  lib/stefans_libs/Latex_Document/HTML_2_TEX.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document::HTML_2_TEX.$(MAN3EXT) \
-	  lib/stefans_libs/root.pm $(INST_MAN3DIR)/stefans_libs::root.$(MAN3EXT) \
-	  lib/stefans_libs/Latex_Document/Text.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document::Text.$(MAN3EXT) \
-	  lib/stefans_libs/database/variable_table/linkage_info.pm $(INST_MAN3DIR)/stefans_libs::database::variable_table::linkage_info.$(MAN3EXT) \
-	  lib/stefans_libs/Latex_Document/Section.pm $(INST_MAN3DIR)/stefans_libs::Latex_Document::Section.$(MAN3EXT) \
-	  lib/stefans_libs/database/variable_table/queryInterface.pm $(INST_MAN3DIR)/stefans_libs::database::variable_table::queryInterface.$(MAN3EXT) 
+	  lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm $(INST_MAN3DIR)/stefans_libs::flexible_data_structures::data_table::arraySorter.$(MAN3EXT) \
+	  lib/stefans_libs/install_helper.pm $(INST_MAN3DIR)/stefans_libs::install_helper.$(MAN3EXT) \
+	  lib/stefans_libs/install_helper/Patcher.pm $(INST_MAN3DIR)/stefans_libs::install_helper::Patcher.$(MAN3EXT) \
+	  lib/stefans_libs/plot/axis.pm $(INST_MAN3DIR)/stefans_libs::plot::axis.$(MAN3EXT) \
+	  lib/stefans_libs/plot/figure.pm $(INST_MAN3DIR)/stefans_libs::plot::figure.$(MAN3EXT) \
+	  lib/stefans_libs/plot/simpleWhiskerPlot.pm $(INST_MAN3DIR)/stefans_libs::plot::simpleWhiskerPlot.$(MAN3EXT) 
+	$(NOECHO) $(POD2MAN) --section=$(MAN3EXT) --perm_rw=$(PERM_RW) -u \
+	  lib/stefans_libs/root.pm $(INST_MAN3DIR)/stefans_libs::root.$(MAN3EXT) 
 
 
 
@@ -635,25 +650,74 @@ manifypods : pure_all  \
 
 # --- MakeMaker installbin section:
 
-EXE_FILES = bin/update_S4_documentation.pl bin/cef_splice.pl bin/convert_R_S4_list_accessors.pl bin/binCreate.pl bin/create_variable_table_class.pl bin/AddUser.pl bin/XML_parser.pl bin/tasks.pl bin/convert_R_S3_R_S4.pl bin/cef_join.pl bin/bib_create.pl bin/add_column_to_table.pl
+EXE_FILES = bin/cef_join.pl bin/convert_R_S4_list_accessors.pl bin/convert_R_S3_R_S4.pl bin/cef_splice.pl bin/add_column_to_table.pl bin/bib_create.pl bin/AddUser.pl bin/update_S4_documentation.pl bin/tasks.pl bin/binCreate.pl bin/create_variable_table_class.pl bin/convert_R_S4_FileMess_into_function.pl bin/XML_parser.pl
 
-pure_all :: $(INST_SCRIPT)/cef_join.pl $(INST_SCRIPT)/convert_R_S4_list_accessors.pl $(INST_SCRIPT)/bib_create.pl $(INST_SCRIPT)/convert_R_S3_R_S4.pl $(INST_SCRIPT)/XML_parser.pl $(INST_SCRIPT)/AddUser.pl $(INST_SCRIPT)/create_variable_table_class.pl $(INST_SCRIPT)/add_column_to_table.pl $(INST_SCRIPT)/cef_splice.pl $(INST_SCRIPT)/update_S4_documentation.pl $(INST_SCRIPT)/tasks.pl $(INST_SCRIPT)/binCreate.pl
+pure_all :: $(INST_SCRIPT)/XML_parser.pl $(INST_SCRIPT)/add_column_to_table.pl $(INST_SCRIPT)/convert_R_S3_R_S4.pl $(INST_SCRIPT)/cef_join.pl $(INST_SCRIPT)/convert_R_S4_FileMess_into_function.pl $(INST_SCRIPT)/create_variable_table_class.pl $(INST_SCRIPT)/binCreate.pl $(INST_SCRIPT)/tasks.pl $(INST_SCRIPT)/cef_splice.pl $(INST_SCRIPT)/convert_R_S4_list_accessors.pl $(INST_SCRIPT)/bib_create.pl $(INST_SCRIPT)/update_S4_documentation.pl $(INST_SCRIPT)/AddUser.pl
 	$(NOECHO) $(NOOP)
 
 realclean ::
 	$(RM_F) \
-	  $(INST_SCRIPT)/cef_join.pl $(INST_SCRIPT)/convert_R_S4_list_accessors.pl \
-	  $(INST_SCRIPT)/bib_create.pl $(INST_SCRIPT)/convert_R_S3_R_S4.pl \
-	  $(INST_SCRIPT)/XML_parser.pl $(INST_SCRIPT)/AddUser.pl \
-	  $(INST_SCRIPT)/create_variable_table_class.pl $(INST_SCRIPT)/add_column_to_table.pl \
-	  $(INST_SCRIPT)/cef_splice.pl $(INST_SCRIPT)/update_S4_documentation.pl \
-	  $(INST_SCRIPT)/tasks.pl $(INST_SCRIPT)/binCreate.pl 
+	  $(INST_SCRIPT)/XML_parser.pl $(INST_SCRIPT)/add_column_to_table.pl \
+	  $(INST_SCRIPT)/convert_R_S3_R_S4.pl $(INST_SCRIPT)/cef_join.pl \
+	  $(INST_SCRIPT)/convert_R_S4_FileMess_into_function.pl $(INST_SCRIPT)/create_variable_table_class.pl \
+	  $(INST_SCRIPT)/binCreate.pl $(INST_SCRIPT)/tasks.pl \
+	  $(INST_SCRIPT)/cef_splice.pl $(INST_SCRIPT)/convert_R_S4_list_accessors.pl \
+	  $(INST_SCRIPT)/bib_create.pl $(INST_SCRIPT)/update_S4_documentation.pl \
+	  $(INST_SCRIPT)/AddUser.pl 
+
+$(INST_SCRIPT)/XML_parser.pl : bin/XML_parser.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
+	$(NOECHO) $(RM_F) $(INST_SCRIPT)/XML_parser.pl
+	$(CP) bin/XML_parser.pl $(INST_SCRIPT)/XML_parser.pl
+	$(FIXIN) $(INST_SCRIPT)/XML_parser.pl
+	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/XML_parser.pl
+
+$(INST_SCRIPT)/add_column_to_table.pl : bin/add_column_to_table.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
+	$(NOECHO) $(RM_F) $(INST_SCRIPT)/add_column_to_table.pl
+	$(CP) bin/add_column_to_table.pl $(INST_SCRIPT)/add_column_to_table.pl
+	$(FIXIN) $(INST_SCRIPT)/add_column_to_table.pl
+	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/add_column_to_table.pl
+
+$(INST_SCRIPT)/convert_R_S3_R_S4.pl : bin/convert_R_S3_R_S4.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
+	$(NOECHO) $(RM_F) $(INST_SCRIPT)/convert_R_S3_R_S4.pl
+	$(CP) bin/convert_R_S3_R_S4.pl $(INST_SCRIPT)/convert_R_S3_R_S4.pl
+	$(FIXIN) $(INST_SCRIPT)/convert_R_S3_R_S4.pl
+	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/convert_R_S3_R_S4.pl
 
 $(INST_SCRIPT)/cef_join.pl : bin/cef_join.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
 	$(NOECHO) $(RM_F) $(INST_SCRIPT)/cef_join.pl
 	$(CP) bin/cef_join.pl $(INST_SCRIPT)/cef_join.pl
 	$(FIXIN) $(INST_SCRIPT)/cef_join.pl
 	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/cef_join.pl
+
+$(INST_SCRIPT)/convert_R_S4_FileMess_into_function.pl : bin/convert_R_S4_FileMess_into_function.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
+	$(NOECHO) $(RM_F) $(INST_SCRIPT)/convert_R_S4_FileMess_into_function.pl
+	$(CP) bin/convert_R_S4_FileMess_into_function.pl $(INST_SCRIPT)/convert_R_S4_FileMess_into_function.pl
+	$(FIXIN) $(INST_SCRIPT)/convert_R_S4_FileMess_into_function.pl
+	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/convert_R_S4_FileMess_into_function.pl
+
+$(INST_SCRIPT)/create_variable_table_class.pl : bin/create_variable_table_class.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
+	$(NOECHO) $(RM_F) $(INST_SCRIPT)/create_variable_table_class.pl
+	$(CP) bin/create_variable_table_class.pl $(INST_SCRIPT)/create_variable_table_class.pl
+	$(FIXIN) $(INST_SCRIPT)/create_variable_table_class.pl
+	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/create_variable_table_class.pl
+
+$(INST_SCRIPT)/binCreate.pl : bin/binCreate.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
+	$(NOECHO) $(RM_F) $(INST_SCRIPT)/binCreate.pl
+	$(CP) bin/binCreate.pl $(INST_SCRIPT)/binCreate.pl
+	$(FIXIN) $(INST_SCRIPT)/binCreate.pl
+	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/binCreate.pl
+
+$(INST_SCRIPT)/tasks.pl : bin/tasks.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
+	$(NOECHO) $(RM_F) $(INST_SCRIPT)/tasks.pl
+	$(CP) bin/tasks.pl $(INST_SCRIPT)/tasks.pl
+	$(FIXIN) $(INST_SCRIPT)/tasks.pl
+	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/tasks.pl
+
+$(INST_SCRIPT)/cef_splice.pl : bin/cef_splice.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
+	$(NOECHO) $(RM_F) $(INST_SCRIPT)/cef_splice.pl
+	$(CP) bin/cef_splice.pl $(INST_SCRIPT)/cef_splice.pl
+	$(FIXIN) $(INST_SCRIPT)/cef_splice.pl
+	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/cef_splice.pl
 
 $(INST_SCRIPT)/convert_R_S4_list_accessors.pl : bin/convert_R_S4_list_accessors.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
 	$(NOECHO) $(RM_F) $(INST_SCRIPT)/convert_R_S4_list_accessors.pl
@@ -667,59 +731,17 @@ $(INST_SCRIPT)/bib_create.pl : bin/bib_create.pl $(FIRST_MAKEFILE) $(INST_SCRIPT
 	$(FIXIN) $(INST_SCRIPT)/bib_create.pl
 	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/bib_create.pl
 
-$(INST_SCRIPT)/convert_R_S3_R_S4.pl : bin/convert_R_S3_R_S4.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
-	$(NOECHO) $(RM_F) $(INST_SCRIPT)/convert_R_S3_R_S4.pl
-	$(CP) bin/convert_R_S3_R_S4.pl $(INST_SCRIPT)/convert_R_S3_R_S4.pl
-	$(FIXIN) $(INST_SCRIPT)/convert_R_S3_R_S4.pl
-	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/convert_R_S3_R_S4.pl
-
-$(INST_SCRIPT)/XML_parser.pl : bin/XML_parser.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
-	$(NOECHO) $(RM_F) $(INST_SCRIPT)/XML_parser.pl
-	$(CP) bin/XML_parser.pl $(INST_SCRIPT)/XML_parser.pl
-	$(FIXIN) $(INST_SCRIPT)/XML_parser.pl
-	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/XML_parser.pl
-
-$(INST_SCRIPT)/AddUser.pl : bin/AddUser.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
-	$(NOECHO) $(RM_F) $(INST_SCRIPT)/AddUser.pl
-	$(CP) bin/AddUser.pl $(INST_SCRIPT)/AddUser.pl
-	$(FIXIN) $(INST_SCRIPT)/AddUser.pl
-	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/AddUser.pl
-
-$(INST_SCRIPT)/create_variable_table_class.pl : bin/create_variable_table_class.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
-	$(NOECHO) $(RM_F) $(INST_SCRIPT)/create_variable_table_class.pl
-	$(CP) bin/create_variable_table_class.pl $(INST_SCRIPT)/create_variable_table_class.pl
-	$(FIXIN) $(INST_SCRIPT)/create_variable_table_class.pl
-	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/create_variable_table_class.pl
-
-$(INST_SCRIPT)/add_column_to_table.pl : bin/add_column_to_table.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
-	$(NOECHO) $(RM_F) $(INST_SCRIPT)/add_column_to_table.pl
-	$(CP) bin/add_column_to_table.pl $(INST_SCRIPT)/add_column_to_table.pl
-	$(FIXIN) $(INST_SCRIPT)/add_column_to_table.pl
-	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/add_column_to_table.pl
-
-$(INST_SCRIPT)/cef_splice.pl : bin/cef_splice.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
-	$(NOECHO) $(RM_F) $(INST_SCRIPT)/cef_splice.pl
-	$(CP) bin/cef_splice.pl $(INST_SCRIPT)/cef_splice.pl
-	$(FIXIN) $(INST_SCRIPT)/cef_splice.pl
-	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/cef_splice.pl
-
 $(INST_SCRIPT)/update_S4_documentation.pl : bin/update_S4_documentation.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
 	$(NOECHO) $(RM_F) $(INST_SCRIPT)/update_S4_documentation.pl
 	$(CP) bin/update_S4_documentation.pl $(INST_SCRIPT)/update_S4_documentation.pl
 	$(FIXIN) $(INST_SCRIPT)/update_S4_documentation.pl
 	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/update_S4_documentation.pl
 
-$(INST_SCRIPT)/tasks.pl : bin/tasks.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
-	$(NOECHO) $(RM_F) $(INST_SCRIPT)/tasks.pl
-	$(CP) bin/tasks.pl $(INST_SCRIPT)/tasks.pl
-	$(FIXIN) $(INST_SCRIPT)/tasks.pl
-	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/tasks.pl
-
-$(INST_SCRIPT)/binCreate.pl : bin/binCreate.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
-	$(NOECHO) $(RM_F) $(INST_SCRIPT)/binCreate.pl
-	$(CP) bin/binCreate.pl $(INST_SCRIPT)/binCreate.pl
-	$(FIXIN) $(INST_SCRIPT)/binCreate.pl
-	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/binCreate.pl
+$(INST_SCRIPT)/AddUser.pl : bin/AddUser.pl $(FIRST_MAKEFILE) $(INST_SCRIPT)$(DFSEP).exists $(INST_BIN)$(DFSEP).exists
+	$(NOECHO) $(RM_F) $(INST_SCRIPT)/AddUser.pl
+	$(CP) bin/AddUser.pl $(INST_SCRIPT)/AddUser.pl
+	$(FIXIN) $(INST_SCRIPT)/AddUser.pl
+	-$(NOECHO) $(CHMOD) $(PERM_RWX) $(INST_SCRIPT)/AddUser.pl
 
 
 
@@ -739,25 +761,25 @@ clean_subdirs :
 
 clean :: clean_subdirs
 	- $(RM_F) \
-	  core.[0-9][0-9][0-9][0-9] $(INST_ARCHAUTODIR)/extralibs.ld \
-	  MYMETA.json core.[0-9] \
-	  $(INST_ARCHAUTODIR)/extralibs.all perl$(EXE_EXT) \
-	  perl lib$(BASEEXT).def \
-	  MYMETA.yml mon.out \
-	  core.[0-9][0-9] *$(OBJ_EXT) \
-	  core.[0-9][0-9][0-9][0-9][0-9] pm_to_blib \
-	  perl.exe perlmain.c \
-	  *$(LIB_EXT) *perl.core \
-	  core.*perl.*.? pm_to_blib.ts \
-	  $(MAKE_APERL_FILE) $(BASEEXT).def \
-	  $(BASEEXT).exp $(BASEEXT).bso \
-	  core.[0-9][0-9][0-9] blibdirs.ts \
-	  so_locations $(BOOTSTRAP) \
-	  tmon.out core \
-	  $(BASEEXT).x 
+	  $(BASEEXT).bso $(BASEEXT).def \
+	  $(BASEEXT).exp $(BASEEXT).x \
+	  $(BOOTSTRAP) $(INST_ARCHAUTODIR)/extralibs.all \
+	  $(INST_ARCHAUTODIR)/extralibs.ld $(MAKE_APERL_FILE) \
+	  *$(LIB_EXT) *$(OBJ_EXT) \
+	  *perl.core MYMETA.json \
+	  MYMETA.yml blibdirs.ts \
+	  core core.*perl.*.? \
+	  core.[0-9] core.[0-9][0-9] \
+	  core.[0-9][0-9][0-9] core.[0-9][0-9][0-9][0-9] \
+	  core.[0-9][0-9][0-9][0-9][0-9] lib$(BASEEXT).def \
+	  mon.out perl \
+	  perl$(EXE_EXT) perl.exe \
+	  perlmain.c pm_to_blib \
+	  pm_to_blib.ts so_locations \
+	  tmon.out 
 	- $(RM_RF) \
 	  blib 
-	- $(NOECHO) $(RM_F) $(MAKEFILE_OLD)
+	  $(NOECHO) $(RM_F) $(MAKEFILE_OLD)
 	- $(MV) $(FIRST_MAKEFILE) $(MAKEFILE_OLD) $(DEV_NULL)
 
 
@@ -770,7 +792,7 @@ realclean_subdirs :
 # Delete temporary files (via clean) and also delete dist files
 realclean purge ::  clean realclean_subdirs
 	- $(RM_F) \
-	  $(FIRST_MAKEFILE) $(MAKEFILE_OLD) 
+	  $(MAKEFILE_OLD) $(FIRST_MAKEFILE) 
 	- $(RM_RF) \
 	  $(DISTVNAME) 
 
@@ -787,7 +809,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) 'configure_requires:' >> META_new.yml
 	$(NOECHO) $(ECHO) '  ExtUtils::MakeMaker: '\''0'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) 'dynamic_config: 1' >> META_new.yml
-	$(NOECHO) $(ECHO) 'generated_by: '\''ExtUtils::MakeMaker version 6.72, CPAN::Meta::Converter version 2.132140'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) 'generated_by: '\''ExtUtils::MakeMaker version 7.0401, CPAN::Meta::Converter version 2.150001'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) 'license: unknown' >> META_new.yml
 	$(NOECHO) $(ECHO) 'meta-spec:' >> META_new.yml
 	$(NOECHO) $(ECHO) '  url: http://module-build.sourceforge.net/META-spec-v1.4.html' >> META_new.yml
@@ -817,7 +839,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '      "unknown"' >> META_new.json
 	$(NOECHO) $(ECHO) '   ],' >> META_new.json
 	$(NOECHO) $(ECHO) '   "dynamic_config" : 1,' >> META_new.json
-	$(NOECHO) $(ECHO) '   "generated_by" : "ExtUtils::MakeMaker version 6.72, CPAN::Meta::Converter version 2.132140",' >> META_new.json
+	$(NOECHO) $(ECHO) '   "generated_by" : "ExtUtils::MakeMaker version 7.0401, CPAN::Meta::Converter version 2.150001",' >> META_new.json
 	$(NOECHO) $(ECHO) '   "license" : [' >> META_new.json
 	$(NOECHO) $(ECHO) '      "unknown"' >> META_new.json
 	$(NOECHO) $(ECHO) '   ],' >> META_new.json
@@ -1002,88 +1024,65 @@ doc__install : doc_site_install
 	$(NOECHO) $(ECHO) INSTALLDIRS not defined, defaulting to INSTALLDIRS=site
 
 pure_perl_install :: all
-	$(NOECHO) $(MOD_INSTALL) \
-		read $(PERL_ARCHLIB)/auto/$(FULLEXT)/.packlist \
-		write $(DESTINSTALLARCHLIB)/auto/$(FULLEXT)/.packlist \
-		$(INST_LIB) $(DESTINSTALLPRIVLIB) \
-		$(INST_ARCHLIB) $(DESTINSTALLARCHLIB) \
-		$(INST_BIN) $(DESTINSTALLBIN) \
-		$(INST_SCRIPT) $(DESTINSTALLSCRIPT) \
-		$(INST_MAN1DIR) $(DESTINSTALLMAN1DIR) \
-		$(INST_MAN3DIR) $(DESTINSTALLMAN3DIR)
+	$(NOECHO) umask 022; $(MOD_INSTALL) \
+		"$(INST_LIB)" "$(DESTINSTALLPRIVLIB)" \
+		"$(INST_ARCHLIB)" "$(DESTINSTALLARCHLIB)" \
+		"$(INST_BIN)" "$(DESTINSTALLBIN)" \
+		"$(INST_SCRIPT)" "$(DESTINSTALLSCRIPT)" \
+		"$(INST_MAN1DIR)" "$(DESTINSTALLMAN1DIR)" \
+		"$(INST_MAN3DIR)" "$(DESTINSTALLMAN3DIR)"
 	$(NOECHO) $(WARN_IF_OLD_PACKLIST) \
-		$(SITEARCHEXP)/auto/$(FULLEXT)
+		"$(SITEARCHEXP)/auto/$(FULLEXT)"
 
 
 pure_site_install :: all
-	$(NOECHO) $(MOD_INSTALL) \
-		read $(SITEARCHEXP)/auto/$(FULLEXT)/.packlist \
-		write $(DESTINSTALLSITEARCH)/auto/$(FULLEXT)/.packlist \
-		$(INST_LIB) $(DESTINSTALLSITELIB) \
-		$(INST_ARCHLIB) $(DESTINSTALLSITEARCH) \
-		$(INST_BIN) $(DESTINSTALLSITEBIN) \
-		$(INST_SCRIPT) $(DESTINSTALLSITESCRIPT) \
-		$(INST_MAN1DIR) $(DESTINSTALLSITEMAN1DIR) \
-		$(INST_MAN3DIR) $(DESTINSTALLSITEMAN3DIR)
+	$(NOECHO) umask 02; $(MOD_INSTALL) \
+		read "$(SITEARCHEXP)/auto/$(FULLEXT)/.packlist" \
+		write "$(DESTINSTALLSITEARCH)/auto/$(FULLEXT)/.packlist" \
+		"$(INST_LIB)" "$(DESTINSTALLSITELIB)" \
+		"$(INST_ARCHLIB)" "$(DESTINSTALLSITEARCH)" \
+		"$(INST_BIN)" "$(DESTINSTALLSITEBIN)" \
+		"$(INST_SCRIPT)" "$(DESTINSTALLSITESCRIPT)" \
+		"$(INST_MAN1DIR)" "$(DESTINSTALLSITEMAN1DIR)" \
+		"$(INST_MAN3DIR)" "$(DESTINSTALLSITEMAN3DIR)"
 	$(NOECHO) $(WARN_IF_OLD_PACKLIST) \
-		$(PERL_ARCHLIB)/auto/$(FULLEXT)
+		"$(PERL_ARCHLIB)/auto/$(FULLEXT)"
 
 pure_vendor_install :: all
-	$(NOECHO) $(MOD_INSTALL) \
-		read $(VENDORARCHEXP)/auto/$(FULLEXT)/.packlist \
-		write $(DESTINSTALLVENDORARCH)/auto/$(FULLEXT)/.packlist \
-		$(INST_LIB) $(DESTINSTALLVENDORLIB) \
-		$(INST_ARCHLIB) $(DESTINSTALLVENDORARCH) \
-		$(INST_BIN) $(DESTINSTALLVENDORBIN) \
-		$(INST_SCRIPT) $(DESTINSTALLVENDORSCRIPT) \
-		$(INST_MAN1DIR) $(DESTINSTALLVENDORMAN1DIR) \
-		$(INST_MAN3DIR) $(DESTINSTALLVENDORMAN3DIR)
+	$(NOECHO) umask 022; $(MOD_INSTALL) \
+		"$(INST_LIB)" "$(DESTINSTALLVENDORLIB)" \
+		"$(INST_ARCHLIB)" "$(DESTINSTALLVENDORARCH)" \
+		"$(INST_BIN)" "$(DESTINSTALLVENDORBIN)" \
+		"$(INST_SCRIPT)" "$(DESTINSTALLVENDORSCRIPT)" \
+		"$(INST_MAN1DIR)" "$(DESTINSTALLVENDORMAN1DIR)" \
+		"$(INST_MAN3DIR)" "$(DESTINSTALLVENDORMAN3DIR)"
+
 
 doc_perl_install :: all
-	$(NOECHO) $(ECHO) Appending installation info to $(DESTINSTALLARCHLIB)/perllocal.pod
-	-$(NOECHO) $(MKPATH) $(DESTINSTALLARCHLIB)
-	-$(NOECHO) $(DOC_INSTALL) \
-		"Module" "$(NAME)" \
-		"installed into" "$(INSTALLPRIVLIB)" \
-		LINKTYPE "$(LINKTYPE)" \
-		VERSION "$(VERSION)" \
-		EXE_FILES "$(EXE_FILES)" \
-		>> $(DESTINSTALLARCHLIB)/perllocal.pod
 
 doc_site_install :: all
-	$(NOECHO) $(ECHO) Appending installation info to $(DESTINSTALLARCHLIB)/perllocal.pod
-	-$(NOECHO) $(MKPATH) $(DESTINSTALLARCHLIB)
-	-$(NOECHO) $(DOC_INSTALL) \
+	$(NOECHO) $(ECHO) Appending installation info to "$(DESTINSTALLSITEARCH)/perllocal.pod"
+	-$(NOECHO) umask 02; $(MKPATH) "$(DESTINSTALLSITEARCH)"
+	-$(NOECHO) umask 02; $(DOC_INSTALL) \
 		"Module" "$(NAME)" \
-		"installed into" "$(INSTALLSITELIB)" \
+		"installed into" $(INSTALLSITELIB) \
 		LINKTYPE "$(LINKTYPE)" \
 		VERSION "$(VERSION)" \
 		EXE_FILES "$(EXE_FILES)" \
-		>> $(DESTINSTALLARCHLIB)/perllocal.pod
+		>> "$(DESTINSTALLSITEARCH)/perllocal.pod"
 
 doc_vendor_install :: all
-	$(NOECHO) $(ECHO) Appending installation info to $(DESTINSTALLARCHLIB)/perllocal.pod
-	-$(NOECHO) $(MKPATH) $(DESTINSTALLARCHLIB)
-	-$(NOECHO) $(DOC_INSTALL) \
-		"Module" "$(NAME)" \
-		"installed into" "$(INSTALLVENDORLIB)" \
-		LINKTYPE "$(LINKTYPE)" \
-		VERSION "$(VERSION)" \
-		EXE_FILES "$(EXE_FILES)" \
-		>> $(DESTINSTALLARCHLIB)/perllocal.pod
 
 
 uninstall :: uninstall_from_$(INSTALLDIRS)dirs
 	$(NOECHO) $(NOOP)
 
 uninstall_from_perldirs ::
-	$(NOECHO) $(UNINSTALL) $(PERL_ARCHLIB)/auto/$(FULLEXT)/.packlist
 
 uninstall_from_sitedirs ::
-	$(NOECHO) $(UNINSTALL) $(SITEARCHEXP)/auto/$(FULLEXT)/.packlist
+	$(NOECHO) $(UNINSTALL) "$(SITEARCHEXP)/auto/$(FULLEXT)/.packlist"
 
 uninstall_from_vendordirs ::
-	$(NOECHO) $(UNINSTALL) $(VENDORARCHEXP)/auto/$(FULLEXT)/.packlist
 
 
 # --- MakeMaker force section:
@@ -1115,7 +1114,7 @@ $(FIRST_MAKEFILE) : Makefile.PL $(CONFIGDEP)
 
 # --- MakeMaker makeaperl section ---
 MAP_TARGET    = perl
-FULLPERL      = /usr/bin/perl
+FULLPERL      = "/usr/bin/perl"
 
 $(MAP_TARGET) :: static $(MAKE_APERL_FILE)
 	$(MAKE) $(USEMAKEFILE) $(MAKE_APERL_FILE) $@
@@ -1123,7 +1122,7 @@ $(MAP_TARGET) :: static $(MAKE_APERL_FILE)
 $(MAKE_APERL_FILE) : $(FIRST_MAKEFILE) pm_to_blib
 	$(NOECHO) $(ECHO) Writing \"$(MAKE_APERL_FILE)\" for this $(MAP_TARGET)
 	$(NOECHO) $(PERLRUNINST) \
-		Makefile.PL DIR= \
+		Makefile.PL DIR="" \
 		MAKEFILE=$(MAKE_APERL_FILE) LINKTYPE=static \
 		MAKEAPERL=1 NORECURS=1 CCCDLFLAGS=
 
@@ -1173,7 +1172,7 @@ ppd :
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Pod::Usage" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="SVG::" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Statistics::Descriptive" />' >> $(DISTNAME).ppd
-	$(NOECHO) $(ECHO) '        <ARCHITECTURE NAME="x86_64-linux-thread-multi-5.18" />' >> $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '        <ARCHITECTURE NAME="x86_64-linux-gnu-thread-multi-5.22" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <CODEBASE HREF="" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    </IMPLEMENTATION>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '</SOFTPKG>' >> $(DISTNAME).ppd
@@ -1184,44 +1183,45 @@ ppd :
 pm_to_blib : $(FIRST_MAKEFILE) $(TO_INST_PM)
 	$(NOECHO) $(ABSPERLRUN) -MExtUtils::Install -e 'pm_to_blib({@ARGV}, '\''$(INST_LIB)/auto'\'', q[$(PM_FILTER)], '\''$(PERM_DIR)'\'')' -- \
 	  lib/Stefans_Libs_Essentials.pm blib/lib/Stefans_Libs_Essentials.pm \
-	  lib/stefans_libs/XML_parser.pm blib/lib/stefans_libs/XML_parser.pm \
+	  lib/stefans_libs/Latex_Document.pm blib/lib/stefans_libs/Latex_Document.pm \
+	  lib/stefans_libs/Latex_Document/Chapter.pm blib/lib/stefans_libs/Latex_Document/Chapter.pm \
 	  lib/stefans_libs/Latex_Document/Figure.pm blib/lib/stefans_libs/Latex_Document/Figure.pm \
-	  lib/stefans_libs/database/userTable/role_list.pm blib/lib/stefans_libs/database/userTable/role_list.pm \
-	  lib/stefans_libs/database/to_do_list.pm blib/lib/stefans_libs/database/to_do_list.pm \
-	  lib/stefans_libs/fonts/LinLibertineFont/LinLibertineC-2.2.3.ttf blib/lib/stefans_libs/fonts/LinLibertineFont/LinLibertineC-2.2.3.ttf \
-	  lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm blib/lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm \
-	  lib/stefans_libs/plot/figure.pm blib/lib/stefans_libs/plot/figure.pm \
+	  lib/stefans_libs/Latex_Document/HTML_2_TEX.pm blib/lib/stefans_libs/Latex_Document/HTML_2_TEX.pm \
+	  lib/stefans_libs/Latex_Document/Section.pm blib/lib/stefans_libs/Latex_Document/Section.pm \
+	  lib/stefans_libs/Latex_Document/Text.pm blib/lib/stefans_libs/Latex_Document/Text.pm \
+	  lib/stefans_libs/XML_parser.pm blib/lib/stefans_libs/XML_parser.pm \
+	  lib/stefans_libs/XML_parser/TableInformation.pm blib/lib/stefans_libs/XML_parser/TableInformation.pm \
 	  lib/stefans_libs/database/lists/basic_list.pm blib/lib/stefans_libs/database/lists/basic_list.pm \
+	  lib/stefans_libs/database/lists/list_using_table.pm blib/lib/stefans_libs/database/lists/list_using_table.pm \
+	  lib/stefans_libs/database/to_do_list.pm blib/lib/stefans_libs/database/to_do_list.pm \
+	  lib/stefans_libs/database/to_do_list/parent_child.pm blib/lib/stefans_libs/database/to_do_list/parent_child.pm \
+	  lib/stefans_libs/database/userTable.pm blib/lib/stefans_libs/database/userTable.pm \
 	  lib/stefans_libs/database/userTable/CatalystUser.pm blib/lib/stefans_libs/database/userTable/CatalystUser.pm \
-	  lib/stefans_libs/plot/color.pm blib/lib/stefans_libs/plot/color.pm \
-	  lib/stefans_libs/file_readers/help_data.pm blib/lib/stefans_libs/file_readers/help_data.pm \
-	  lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm blib/lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm \
 	  lib/stefans_libs/database/userTable/action_group_list.pm blib/lib/stefans_libs/database/userTable/action_group_list.pm \
+	  lib/stefans_libs/database/userTable/action_groups.pm blib/lib/stefans_libs/database/userTable/action_groups.pm \
+	  lib/stefans_libs/database/userTable/role_list.pm blib/lib/stefans_libs/database/userTable/role_list.pm \
+	  lib/stefans_libs/database/userTable/roles.pm blib/lib/stefans_libs/database/userTable/roles.pm \
+	  lib/stefans_libs/database/userTable/temporary_banned.pm blib/lib/stefans_libs/database/userTable/temporary_banned.pm \
+	  lib/stefans_libs/database/variable_table.pm blib/lib/stefans_libs/database/variable_table.pm \
+	  lib/stefans_libs/database/variable_table/linkage_info.pm blib/lib/stefans_libs/database/variable_table/linkage_info.pm \
+	  lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm blib/lib/stefans_libs/database/variable_table/linkage_info/table_script_generator.pm \
+	  lib/stefans_libs/database/variable_table/queryInterface.pm blib/lib/stefans_libs/database/variable_table/queryInterface.pm \
+	  lib/stefans_libs/fastaDB.pm blib/lib/stefans_libs/fastaDB.pm \
+	  lib/stefans_libs/file_readers/cefFile.pm blib/lib/stefans_libs/file_readers/cefFile.pm 
+	$(NOECHO) $(ABSPERLRUN) -MExtUtils::Install -e 'pm_to_blib({@ARGV}, '\''$(INST_LIB)/auto'\'', q[$(PM_FILTER)], '\''$(PERM_DIR)'\'')' -- \
+	  lib/stefans_libs/file_readers/help_data.pm blib/lib/stefans_libs/file_readers/help_data.pm \
+	  lib/stefans_libs/flexible_data_structures/data_table.pm blib/lib/stefans_libs/flexible_data_structures/data_table.pm \
+	  lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm blib/lib/stefans_libs/flexible_data_structures/data_table/arraySorter.pm \
+	  lib/stefans_libs/fonts/LinLibertineFont/LinLibertineC-2.2.3.ttf blib/lib/stefans_libs/fonts/LinLibertineFont/LinLibertineC-2.2.3.ttf \
+	  lib/stefans_libs/install_helper.pm blib/lib/stefans_libs/install_helper.pm \
 	  lib/stefans_libs/install_helper/Patcher.pm blib/lib/stefans_libs/install_helper/Patcher.pm \
 	  lib/stefans_libs/plot/Font.pm blib/lib/stefans_libs/plot/Font.pm \
-	  lib/stefans_libs/Latex_Document/HTML_2_TEX.pm blib/lib/stefans_libs/Latex_Document/HTML_2_TEX.pm \
-	  lib/stefans_libs/plot/simpleBarGraph.pm blib/lib/stefans_libs/plot/simpleBarGraph.pm \
-	  lib/stefans_libs/Latex_Document/Text.pm blib/lib/stefans_libs/Latex_Document/Text.pm \
-	  lib/stefans_libs/root.pm blib/lib/stefans_libs/root.pm \
-	  lib/stefans_libs/database/variable_table/queryInterface.pm blib/lib/stefans_libs/database/variable_table/queryInterface.pm \
-	  lib/stefans_libs/database/userTable/roles.pm blib/lib/stefans_libs/database/userTable/roles.pm \
 	  lib/stefans_libs/plot/axis.pm blib/lib/stefans_libs/plot/axis.pm \
-	  lib/stefans_libs/file_readers/cefFile.pm blib/lib/stefans_libs/file_readers/cefFile.pm \
-	  lib/stefans_libs/flexible_data_structures/data_table.pm blib/lib/stefans_libs/flexible_data_structures/data_table.pm \
-	  lib/stefans_libs/database/userTable/action_groups.pm blib/lib/stefans_libs/database/userTable/action_groups.pm \
-	  lib/stefans_libs/install_helper.pm blib/lib/stefans_libs/install_helper.pm \
-	  lib/stefans_libs/Latex_Document.pm blib/lib/stefans_libs/Latex_Document.pm 
-	$(NOECHO) $(ABSPERLRUN) -MExtUtils::Install -e 'pm_to_blib({@ARGV}, '\''$(INST_LIB)/auto'\'', q[$(PM_FILTER)], '\''$(PERM_DIR)'\'')' -- \
-	  lib/stefans_libs/fastaDB.pm blib/lib/stefans_libs/fastaDB.pm \
-	  lib/stefans_libs/database/lists/list_using_table.pm blib/lib/stefans_libs/database/lists/list_using_table.pm \
-	  lib/stefans_libs/database/userTable.pm blib/lib/stefans_libs/database/userTable.pm \
-	  lib/stefans_libs/database/userTable/temporary_banned.pm blib/lib/stefans_libs/database/userTable/temporary_banned.pm \
-	  lib/stefans_libs/database/to_do_list/parent_child.pm blib/lib/stefans_libs/database/to_do_list/parent_child.pm \
-	  lib/stefans_libs/Latex_Document/Section.pm blib/lib/stefans_libs/Latex_Document/Section.pm \
-	  lib/stefans_libs/database/variable_table/linkage_info.pm blib/lib/stefans_libs/database/variable_table/linkage_info.pm \
-	  lib/stefans_libs/database/variable_table.pm blib/lib/stefans_libs/database/variable_table.pm \
-	  lib/stefans_libs/Latex_Document/Chapter.pm blib/lib/stefans_libs/Latex_Document/Chapter.pm \
-	  lib/stefans_libs/plot/simpleWhiskerPlot.pm blib/lib/stefans_libs/plot/simpleWhiskerPlot.pm 
+	  lib/stefans_libs/plot/color.pm blib/lib/stefans_libs/plot/color.pm \
+	  lib/stefans_libs/plot/figure.pm blib/lib/stefans_libs/plot/figure.pm \
+	  lib/stefans_libs/plot/simpleBarGraph.pm blib/lib/stefans_libs/plot/simpleBarGraph.pm \
+	  lib/stefans_libs/plot/simpleWhiskerPlot.pm blib/lib/stefans_libs/plot/simpleWhiskerPlot.pm \
+	  lib/stefans_libs/root.pm blib/lib/stefans_libs/root.pm 
 	$(NOECHO) $(TOUCH) pm_to_blib
 
 

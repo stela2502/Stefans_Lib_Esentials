@@ -543,8 +543,11 @@ sub GetAsPDL {
 sub get_column_entries {
 	my ( $self, $col_name ) = @_;
 	my @col_ids = $self->Header_Position($col_name);
+	unless ( defined $col_ids[0] and $col_name =~ m/^\d+$/ ) {
+		@col_ids = ($col_name);
+	}
 	Carp::confess(
-"The column '$col_name' does not exist in this table - you can not get data from that column!\n"
+"The column '$col_name' / '@{$self->{'header'}}[$col_name]' does not exist in this table - you can not get data from that column!\n"
 		  . join( ", ", @col_ids ) . "\n"
 		  . join( ", ", @{ $self->{'header'} } )
 		  . "\n" )

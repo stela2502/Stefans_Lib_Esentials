@@ -130,32 +130,35 @@ print "We created the test file '". &createTestFile (join("/", @test_path), $lib
 
 sub createLibFile {
 	my ( $libFile, $package ) = @_;
-	open( OUT, ">$libFile" ) or die "konnte $libFile nicht anlegen!\n";
+	open( OUT, ">$libFile" ) or die "konnte $libFile nicht anlegen!\n$!\n";
 	#$package =~ s/::/_/g;
 	my $package_whole = $libFile;
 	$package_whole =~ s/\//::/g;
 	print OUT
 
 	  "package $package;
-#  Copyright (C) " . root->Today() . " Stefan Lang
-
-#  This program is free software; you can redistribute it 
-#  and/or modify it under the terms of the GNU General Public License 
-#  as published by the Free Software Foundation; 
-#  either version 3 of the License, or (at your option) any later version.
-
-#  This program is distributed in the hope that it will be useful, 
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-#  See the GNU General Public License for more details.
-
-#  You should have received a copy of the GNU General Public License 
-#  along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #use FindBin;
 #use lib \"\$FindBin::Bin/../lib/\";
 use strict;
 use warnings;
+
+=head1 LICENCE
+
+  Copyright (C) " . root->Today() . " Stefan Lang
+
+  This program is free software; you can redistribute it 
+  and/or modify it under the terms of the GNU General Public License 
+  as published by the Free Software Foundation; 
+  either version 3 of the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful, 
+  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+  See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License 
+  along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 
 =for comment
@@ -179,20 +182,24 @@ $pod
 
 =head1 METHODS
 
-=head2 new
+=head2 new ( \$hash )
 
 new returns a new object reference of the class $package.
+All entries of the hash will be copied into the objects hash - be careful t use that right!
 
 =cut
 
 sub new{
 
-	my ( \$class ) = \@_;
+	my ( \$class, \$hash ) = \@_;
 
 	my ( \$self );
 
 	\$self = {
   	};
+  	foreach ( keys \%{\$hash} ) {
+  		\$self-> {\$_} = \$hash->{\$_};
+  	}
 
   	bless \$self, \$class  if ( \$class eq \"$package\" );
 
@@ -209,7 +216,7 @@ return $libFile;
 sub createTestFile {
 	my ( $testPath, $includeStr, $package ) = @_;
 
-	if ( -f "$testPath/$package.t" ) {
+	if ( -f "$testPath/$package.t" and ! $force ) {
 		print "test file is already present ($testPath/$package.t)\n";
 		return "$testPath/$package.t";
 	}
@@ -224,11 +231,11 @@ use Test::More tests => 2;
 BEGIN { use_ok '$includeStr' }
 
 use FindBin;
-my \$plugin_path = '\$FindBin::Bin';
+my \$plugin_path = \"\$FindBin::Bin\";
 
 my ( \$value, \@values, \$exp );
-my \$$package = $includeStr -> new();
-is_deeply ( ref(\$$package) , '$includeStr', 'simple test of function $includeStr -> new()' );
+my \$OBJ = $includeStr -> new({'debug' => 1});
+is_deeply ( ref(\$OBJ) , '$includeStr', 'simple test of function $includeStr -> new() ');
 
 #print \"\\\$exp = \".root->print_perl_var_def(\$value ).\";\\n\";
 \n\n";

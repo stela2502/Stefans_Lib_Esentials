@@ -20,6 +20,7 @@ use stefans_libs::flexible_data_structures::data_table;
 use Encode;
 use strict;
 use Data::Dumper;
+use stefans_libs::XML_parser::TableInformation;
 
 =head 2 
 
@@ -272,6 +273,26 @@ sub write_files {
 	}
 }
 
+=head3 load_set( @files )
+
+This function is used to debug the summary file creation.
+This function has to become way more efficient.
+
+=cut
+
+sub load_set {
+	my ($self, @files ) = @_;
+	my (@tmp, $fm);
+	foreach my $file ( @files ) {
+		$fm = root->filemap( $file );
+		next if ( $fm->{'filename_core'} =~ m/SUMMARY.xls$/ );
+		@tmp = split( "_", $fm->{'filename_core'} );
+		shift( @tmp );
+		$self->{'tables'}->{ join("_", @tmp) } = data_table->new({filename => $file } ) ;
+	}
+	return $self;
+}
+
 =head3 write_summary_file
 
 Here I try to identify all NCBI IDS and sum up a hopefully interesting and meaningful final data table
@@ -298,31 +319,19 @@ sub write_summary_file {
 	unless ( $runset =~ m/\w/ and $self->{'tables'}->{$runset}->Rows() > 0 ) {
 		Carp::confess("This dataset has no RUN_SET information");
 	}
-	my (
-		$run_acc_cols, $informative, $run_uniqe,
-		$run_hash,     $table_rows,  $tmp,
-		$thisTable,    @value,       $ret
-	);
-	( $run_acc_cols, $informative, $run_uniqe, $run_hash ) =
-	  $self->_ids_link_to($runset);
-	$table_rows =
-	  $self->_populate_table_rows( $runset, $table_rows, $run_hash,
-		$informative );
-	$ret = $self->_table_rows_2_data_table($table_rows);
 	
-	if ( defined $run_hash ) {
-		foreach my $table_name ( 'Pool', 'EXPERIMENT', 'SAMPLE', 'STUDY' ) {
-			( $run_acc_cols, $informative, $run_uniqe, $run_hash ) =
-			  $self->_ids_link_to( $table_name, $run_hash );
-			Carp::confess ( "\$run_hash = " . root->print_perl_var_def( $run_hash ) . ";\n"."Total rows in table: ". $self->{'tables'}->{$table_name}->Rows()."\n");
-			if ( defined $tmp ) {
-				$table_rows =
-				  $self->_populate_table_rows( $table_name, $table_rows, $run_hash,
-					$informative );
-				$ret = $self->_table_rows_2_data_table($table_rows);
-			}
-		}
-		$ret = $self->_table_rows_2_data_table($table_rows);
+	my ( $table_name, $summary_hash,$ret );
+	
+	foreach ('RUN_SET', 'Pool', 'EXPERIMENT', 'SAMPLE', 'STUDY' ){
+		($table_name) =  grep ( /RUN_SET/, keys %{ $self->{'tables'} } );
+		Carp::confess("This dataset has no $_ information") unless (  $table_name =~ m/\w/ and $self->{'tables'}->{$table_name}->Rows() > 0  );
+		$summary_hash = stefans_libs::XML_parser::TableInformation->new( { 'data_table' => $self->{'tables'}->{$table_name} })->get_all_data( $summary_hash );
+	}
+	
+	
+	if ( defined $summary_hash ) {
+		my $obj =  stefans_libs::XML_parser::TableInformation->new();
+		$ret = $obj->hash_of_hashes_2_data_table($summary_hash);
 		## now I only need to create the wget download for the NCBI sra files
 		$self->create_download_column( $ret, 'SRR', 'SRA', 'SRP', 'SRX' );
 		$self->create_download_column( $ret, 'ERR', 'ERP' );
@@ -390,242 +399,6 @@ sub create_download_column {
 		}
 	}
 	return $ret;
-}
-
-sub is_acc {
-	my ( $self, $acc ) = @_;
-	return $acc =~ m/^[[:alpha:]][[:alpha:]][[:alpha:]]+\d\d\d+$/;
-}
-
-sub _table_rows_2_data_table {
-	my ( $self, $table_rows ) = @_;
-	my $data_table = data_table->new();
-	foreach ( sort keys(%$table_rows) ) {
-		my @colnames = sort keys %{ $table_rows->{$_} };
-		$data_table->Add_2_Header( \@colnames );
-		$data_table->Add_Dataset( $table_rows->{$_} );
-	}
-	return $data_table;
-}
-
-=head2 _populate_table_rows ( $self, $tname, $table_rows, $run_hash, $informative)
-
-Tries to identify as much information from all tables and merges it into the table rows hashes
-
-=cut
-
-sub _populate_table_rows {
-	my ( $self, $tname, $table_rows, $run_hash, $informative ) = @_;
-	my ( $thisTable, $tmp, $value );
-
-	$thisTable = $self->{'tables'}->{$tname};
-	my @accs = keys %$run_hash;
-	@accs = keys %$table_rows if ( defined $table_rows );
-	foreach my $acc ( sort @accs ) {
-		$table_rows->{$acc} ||= {};
-		foreach ( keys %{ $run_hash->{$acc} } ) {
-			if ( $_ =~ m/^([[:alpha:]]+)\d/ ) {
-				$table_rows->{$acc}->{$1} = $_;
-			}
-
-		}
-		## now add the probably interesting columns...
-	  INFORMATION: foreach my $col (@$informative) {
-			unless ( defined $run_hash->{$acc}->{'rowid'} ) {
-				Carp::confess ( "\$exp = " . root->print_perl_var_def( $run_hash->{$acc} ) . ";\n".
-"No data added for acc $acc and $tname as the rowid was unknown!\n");
-				next;
-			}
-			$tmp = @{ $thisTable->{'header'} }[$col];
-			unless ( defined @{ $thisTable->{'data'} }[ $run_hash->{$acc}->{'rowid'} ] ){
-				Carp::confess( $thisTable->AsString(). root->print_perl_var_def($run_hash->{$acc} ). "max rows: ".$thisTable->Rows(). "\nThe row rowid was not defined in the table!\n" ); 
-			}
-			$value =
-			  @{ @{ $thisTable->{'data'} }[ $run_hash->{$acc}->{'rowid'} ] }
-			  [$col];
-
-	 #	print "The value for acc $acc and column $col in file $tname = $value\n";
-			if ( $tmp =~ m/SUBMITTER_ID/ ) {
-				my $id = 0;
-				unless ( defined $table_rows->{$acc}->{"SUBMITTER_IDS_$id"} ) {
-					$table_rows->{$acc}->{"SUBMITTER_IDS_$id"} = $value;
-				}
-				else {
-					while ( defined $table_rows->{$acc}->{"SUBMITTER_IDS_$id"} )
-					{
-						if ( $table_rows->{$acc}->{"SUBMITTER_IDS_$id"} eq
-							$value )
-						{
-							next INFORMATION;
-						}
-						elsif (
-							defined $table_rows->{$acc}->{"SUBMITTER_IDS_$id"} )
-						{
-							$id++;
-							next;
-						}
-						else {
-							$table_rows->{$acc}->{"SUBMITTER_IDS_$id"} = $value;
-						}
-					}
-				}
-			}
-			else {
-				$table_rows->{$acc}->{$tmp} = $value;
-			}
-		}
-	}
-	return $table_rows;
-}
-
-=head2 _ids_link_to ($self, $tname)
-
-This function is identifing all columns containing any NCBI IDs for each column.
-Afterwards it is identifing the column with the unique IDs.
-
-Returns an arrays ref of all ID column ID's, an array ref of all informatics volumns, 
-the unique column id and a hash UNIQUE_ID -> { otherID => 'Colname' }
-
-=cut
-
-sub _ids_link_to {
-	my ( $self, $tname, $ret ) = @_;
-	Carp::confess("table $tname not defined !\n")
-	  unless ( defined $self->{'tables'}->{$tname} );
-	my ( @accCols, $line, $OK, $table, $uniques, $tmp, @informative );
-	$table = $self->{'tables'}->{$tname};
-	if ( ref($table) eq "data_table" ) {
-		$line = @{ $table->{'data'} }[0];
-		for ( my $i = 0 ; $i < @$line ; $i++ ) {
-			if ( @$line[$i] =~ m/^[[:alpha:]][[:alpha:]][[:alpha:]]+\d\d\d+$/ )
-			{
-
-				#warn "I found an acc in column $i:  @$line[$i]\n";
-				$OK = 1;
-				map {
-					unless (
-						$_ =~ m/^[[:alpha:]][[:alpha:]][[:alpha:]]+\d\d\d+$/ )
-					{
-						$OK = 0;
-						print
-						  "the entry $_ in line $i failed the requirements!\n"
-						  if ( $self->{'debug'} );
-					}
-				} @{ $table->GetAsArray( @{ $table->{'header'} }[$i] ) };
-				push( @accCols, $i ) if ($OK);
-
-				unless ( defined $uniques ) {
-					$OK  = 1;
-					$tmp = undef;
-					map { $OK = 0 if ( $tmp->{$_} ); $tmp->{$_} = 1; }
-					  @{ $table->GetAsArray( @{ $table->{'header'} }[$i] ) };
-					$uniques = $i if ($OK);
-				}
-			}
-			elsif ( @$line[$i] =~ m/[\d\w]/ ) {
-				## check whether this data could be usedful in the summary table
-				$OK = 0;
-				if ( $table->Rows() == 1 ) {
-					$OK = 1;
-				}
-				else {
-					$tmp = undef;
-					map {
-						if ( !$_ =~ m/[\w\d]/ )
-						{
-
-							#	warn "123121: Empty entry in column $i\n";
-							$OK = -1;
-							last;
-						}
-						$tmp->{$_} = 1
-					} @{ $table->GetAsArray( @{ $table->{'header'} }[$i] ) };
-					if ( $OK == 0 and scalar( keys %$tmp ) > 1 ) {
-						$OK = 1;
-					}
-					else {
-						$OK = 0;
-					}
-				}
-				push( @informative, $i ) if ($OK);
-			}
-		}
-		if ( defined $uniques ) {
-			my $add = 1;
-			if ( ref($ret) eq "HASH" ) {
-				map { delete( $ret->{$_}->{'rowid'} ); } keys %$ret;
-				$add = 0;
-			}
-			my @accs;
-			for ( my $i = 0 ; $i < $table->Rows() ; $i++ ) {
-				$line = @{ $table->{'data'} }[$i];
-				if ($add) {
-					unless ( ref( $ret->{ @$line[$uniques] } ) eq "HASH" ) {
-						@accs = ( @$line[$uniques] );
-						$ret->{ @$line[$uniques] } = {};
-					}
-				}
-				else {
-					## I need to identify the most likely interesting entry in the $ret hash!
-					@accs = $self->identify_accs( $ret, @$line[@accCols] );
-				}
-				foreach my $acc (@accs) {
-					$ret->{$acc}->{'rowid'} = $i;
-
-					#$ret->{$acc}->{'accs'} = [ sort @$line[@accCols]];
-					map {
-						$ret->{$acc}->{ @$line[$_] } =
-						  @{ $table->{'header'} }[$_]
-					} @accCols;
-				}
-
-			}
-		}
-		else {
-			warn
-"Table $tname does not contain a uniue ID and is therefore useless here?\n";
-			if ( ref($ret) eq "HASH" ) {
-				my @accs;
-				for ( my $i = 0 ; $i < $table->Rows() ; $i++ ) {
-					$line = @{ $table->{'data'} }[$i];
-					## I need to identify the most likely interesting entry in the $ret hash!
-					my @accs = $self->identify_accs( $ret, @$line[@accCols] );
-
-					foreach my $acc (@accs) {
-						$ret->{$acc}->{'rowid'} = $i;
-						map {
-							$ret->{$acc}->{ @$line[$_] } =
-							  @{ $table->{'header'} }[$_]
-						} @accCols;
-					}
-
-				}
-
-				#$ret = undef;
-			}
-		}
-	}
-	return \@accCols,, \@informative, $uniques, $ret;
-}
-
-sub identify_accs {
-	my ( $self, $ret, @options ) = @_;
-	my ( $keys, $tmp );
-	foreach my $search (@options) {
-		foreach my $acc ( keys %$ret ) {
-			$tmp = join( " ", keys %{ $ret->{$acc} } );
-			if ( $tmp =~ m/$search/ ) {
-				$keys->{$acc} ||= 0;
-				$keys->{$acc}++;
-			}
-		}
-	}
-	my $max = 0;
-	map { $max = $_ if $_ > $max } values %$keys;
-	return () if ( $max == 0 );
-	map { delete( $keys->{$_} ) unless ( $keys->{$_} == $max ) }
-	  keys %$keys;
-	return ( keys %$keys );
 }
 
 sub create_subsets {
@@ -696,6 +469,7 @@ sub drop_duplicates {
 	}
 	return $self;
 }
+
 
 sub parse_NCBI {
 	my ( $self, $hash, $area, $entryID, $new_line, $options ) = @_;
@@ -834,5 +608,10 @@ sub print_debug {
 	  "$str final delta = $delta for $area, line =$entryID, and hash $hash\n"
 	  if ( $self->{'debug'} );
 }
+sub is_acc {
+	my ( $self, $acc ) = @_;
+	return $acc =~ m/^[[:alpha:]][[:alpha:]][[:alpha:]]+\d\d\d+$/;
+}
+
 
 1;
