@@ -543,15 +543,15 @@ sub GetAsPDL {
 sub get_column_entries {
 	my ( $self, $col_name ) = @_;
 	my @col_ids = $self->Header_Position($col_name);
-	unless ( defined $col_ids[0] and $col_name =~ m/^\d+$/ ) {
-		@col_ids = ($col_name);
+	unless ( defined $col_ids[0]) {
+		@col_ids = ($col_name) if ($col_name =~ m/^\d+$/ );
 	}
 	Carp::confess(
 "The column '$col_name' / '@{$self->{'header'}}[$col_name]' does not exist in this table - you can not get data from that column!\n"
-		  . join( ", ", @col_ids ) . "\n"
-		  . join( ", ", @{ $self->{'header'} } )
-		  . "\n" )
-	  unless ( defined $col_ids[0] );
+		  . join( ", ", @col_ids ) . "\n'"
+		  . join( "', '", @{ $self->{'header'} } )
+		  . "'\n" )
+	  if ( ! defined $col_ids[0] or $col_ids[0]=~m/[[:alpha:]]/ );
 	my @return;
 	foreach my $array ( @{ $self->{'data'} } ) {
 		foreach ( @$array[@col_ids] ) {
@@ -1755,8 +1755,8 @@ sub Rename_Column {
 		  return undef;
 	  }
 	  unless ( defined $self->Header_Position($old_name) ) {
-		  warn ref($self)
-			. "::Rename_Column sorry, but the column name $old_name is unknown!\n";
+		  Carp::cluck( ref($self)
+			. "::Rename_Column sorry, but the column name $old_name is unknown!\n");
 		  return undef;
 	  }
 	  @{ $self->{'header'} }[ $self->Header_Position($old_name) ] = $new_name;

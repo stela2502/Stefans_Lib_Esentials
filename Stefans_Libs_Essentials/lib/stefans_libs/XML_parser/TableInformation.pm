@@ -121,6 +121,9 @@ sub identify_interesting_columns {
 	my ($tmp);
 	$self->{'Acc_Cols'}             = [];
 	$self->{'Complete_Cols_No_Acc'} = [];
+	
+	$self->_rename_columns( $data_table );
+	
 	my @putative_accs = $self->check_4_acc( @{ $data_table->{'data'} }[0] );
 	foreach my $putative_acc_id (@putative_accs) {
 		if (
@@ -130,41 +133,59 @@ sub identify_interesting_columns {
 		  )
 		{    ## every entry in the table in the line is an acc
 			push( @{ $self->{'Acc_Cols'} }, $putative_acc_id );
-			## I need to rename the column in order to allow the weblink to work
-			if ( @{@{ $data_table->{'data'} }[0]}[$putative_acc_id] =~ m/^([[:alpha:]]+)\d+$/ ) {
-				$self->{'data_table'}->rename_column($self->{'data_table'}->{'header'}[$putative_acc_id], $1);
-			}
 		}
 	}
 	my $check = { map { $_ => 1 } @putative_accs };
 	for ( my $i = 0 ; $i < $data_table->Columns ; $i++ ) {
 		next if ( $check->{$i} );
+		
 		$tmp = $data_table->GetAsArray($i);
-		if ( $self->is_complete($tmp) and $self->not_simple($tmp) ) {
+		#if ( $self->is_complete($tmp) and $self->not_simple($tmp) ) {
+		if ( $self->not_simple($tmp) ) {	
 			push( @{ $self->{'Complete_Cols_No_Acc'} }, $i );
-			$tmp = $self->_better_colnames( @{ $data_table->{'header'} }[$i]);
-			$self->{'data_table'}->rename_column($self->{'data_table'}->{'header'}[$i], $tmp);
-			
 		}
 	}
 	return $self;
+}
+
+sub _rename_columns {
+	my ( $self, $data_table ) = @_;
+	my $hash = $data_table->get_line_asHash(0);
+	my $tmp;
+	foreach my $colname ( @{$data_table->{'header'}} ){
+		next unless ( defined  $hash->{$colname});
+		if ( $hash->{$colname} =~ m/^([[:alpha:]]+)\d+$/ ) {
+			$tmp = $1;
+			$self->{'data_table'}->rename_column($colname, $tmp) unless ( $colname eq $tmp);
+		}
+		else {
+			$tmp = $self->_better_colnames( $colname );
+			unless ( $tmp eq $colname ) {
+				$data_table -> rename_column($colname, $tmp );
+			}
+		}
+	}
+	return $data_table;
 }
 
 sub hash_of_hashes_2_data_table {
 	my ( $self, $table_rows ) = @_;
 	my $data_table = data_table->new();
 	foreach my $acc ( sort keys(%$table_rows) ) {
+		## invert the hashes
 		my $hash;
 		while (my ( $new_value, $new_key) = each %{$table_rows->{$acc}} ){
+			Carp::confess ( "key '$new_key' is alreads defined in the temp hash: '$hash->{$new_key}' vs new value '$new_value'\n" )
+				if ( defined $hash->{$new_key});
+		#	print "\$new_value = $new_value\n";
 			$hash->{$new_key} = $new_value;
 		}
-		#my @colnames = sort {length($a) <=> length($b) } keys %{ $hash };
 		#advanced sorting adapted from http://www.perlmonks.org/?node_id=145659
 		my @colnames=map { pop @$_ }
            sort{ $a->[0] <=> $b->[0] ||
                  $a->[1] cmp $b->[1] }
            map { [length($_), $_] } keys %{ $hash };
-        
+    #    print "I have these colnames: '".join("' '",@colnames)."'\n";
         $data_table->Add_2_Header( \@colnames );
 		$data_table->Add_Dataset( $hash );
 	}
@@ -354,6 +375,7 @@ sub acc_col {
 
 sub is_acc {
 	my ( $self, $acc ) = @_;
+	return 0 unless ( defined $acc); 
 	return $acc =~ m/^[[:alpha:]][[:alpha:]][[:alpha:]]+\d\d\d+$/;
 }
 1;

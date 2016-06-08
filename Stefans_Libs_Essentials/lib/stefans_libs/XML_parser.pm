@@ -299,10 +299,8 @@ Here I try to identify all NCBI IDS and sum up a hopefully interesting and meani
 
 =cut
 
-sub write_summary_file {
-	my ( $self, $fname ) = @_;
-	$self->create_subsets( 'accesion', 'accs' );
-	$self->drop_duplicates();
+sub createSummaryTable {
+	my ( $self ) = @_;
 	## now collect all IDS?
 	## there are IDs in the range of
 	## DRP DRR
@@ -310,20 +308,10 @@ sub write_summary_file {
 	## ERP ERR
 	## SRP SRR
 	## and in addition SAMN, GSE, GSM, PRINJA and so on....
-
-	my ($runset) = grep ( /RUN_SET/, keys %{ $self->{'tables'} } );
-
-	die "I have not identifies the interesting table in the list of tables: "
-	  . join( " ", keys %{ $self->{'tables'} } ) . "\n"
-	  unless ($runset);
-	unless ( $runset =~ m/\w/ and $self->{'tables'}->{$runset}->Rows() > 0 ) {
-		Carp::confess("This dataset has no RUN_SET information");
-	}
 	
 	my ( $table_name, $summary_hash,$ret );
 	
-	foreach ('RUN_SET', 'Pool', 'EXPERIMENT', 'SAMPLE', 'STUDY' ){
-		($table_name) =  grep ( /RUN_SET/, keys %{ $self->{'tables'} } );
+	foreach $table_name ('RUN_SET', 'Pool', 'EXPERIMENT', 'SAMPLE', 'STUDY' ){
 		Carp::confess("This dataset has no $_ information") unless (  $table_name =~ m/\w/ and $self->{'tables'}->{$table_name}->Rows() > 0  );
 		$summary_hash = stefans_libs::XML_parser::TableInformation->new( { 'data_table' => $self->{'tables'}->{$table_name} })->get_all_data( $summary_hash );
 	}
@@ -333,15 +321,23 @@ sub write_summary_file {
 		my $obj =  stefans_libs::XML_parser::TableInformation->new();
 		$ret = $obj->hash_of_hashes_2_data_table($summary_hash);
 		## now I only need to create the wget download for the NCBI sra files
+		$ret->Add_2_Header('Download');
 		$self->create_download_column( $ret, 'SRR', 'SRA', 'SRP', 'SRX' );
 		$self->create_download_column( $ret, 'ERR', 'ERP' );
 		$self->create_download_column( $ret, 'DRR', 'DRP' );
 		
-		$ret->write_file($fname);
+		#$ret->write_file($fname);
 	}
-
 	return $ret;
+}
 
+sub write_summary_file {
+	my ( $self, $fname ) = @_;
+
+	my $ret = $self->createSummaryTable();
+	$ret->write_file($fname) if ( ref($ret) eq "data_table" );
+	
+	return $ret;
 }
 
 sub create_download_column {
