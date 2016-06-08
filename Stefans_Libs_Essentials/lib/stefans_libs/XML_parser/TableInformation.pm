@@ -140,8 +140,8 @@ sub identify_interesting_columns {
 		next if ( $check->{$i} );
 		
 		$tmp = $data_table->GetAsArray($i);
-		#if ( $self->is_complete($tmp) and $self->not_simple($tmp) ) {
-		if ( $self->not_simple($tmp) ) {	
+		if ( $self->is_complete($tmp) and $self->not_simple($tmp) ) {
+		#if ( $self->not_simple($tmp) ) {	
 			push( @{ $self->{'Complete_Cols_No_Acc'} }, $i );
 		}
 	}
@@ -171,12 +171,17 @@ sub _rename_columns {
 sub hash_of_hashes_2_data_table {
 	my ( $self, $table_rows ) = @_;
 	my $data_table = data_table->new();
+	my $problem;
 	foreach my $acc ( sort keys(%$table_rows) ) {
 		## invert the hashes
 		my $hash;
+		$problem = '';
 		while (my ( $new_value, $new_key) = each %{$table_rows->{$acc}} ){
-			Carp::confess ( "key '$new_key' is alreads defined in the temp hash: '$hash->{$new_key}' vs new value '$new_value'\n" )
-				if ( defined $hash->{$new_key});
+			if ( defined $hash->{$new_key}){
+				$problem .= "key '$new_key' is alreads defined in the temp hash: '$hash->{$new_key}' vs new value '$new_value'\n";
+			}
+			Carp::cluck ( "ACC: $acc\n$problem \$hash = {".root->print_perl_var_def($hash)."};" )
+				if ( $problem =~ m/\w/ );
 		#	print "\$new_value = $new_value\n";
 			$hash->{$new_key} = $new_value;
 		}
@@ -368,7 +373,10 @@ sub acc_col {
 			last;
 		}
 	}
-	Carp::confess("Sorry there is no acc column in the table $self->{'name'}\n")
+	unless ( defined $self->{'_acc_col'} ){
+		$self->{'_acc_col'} = @{$self->{'Acc_Cols'}}[0]; ## use the first available...
+	}
+	Carp::confess("Sorry there is no acc column in the table '$self->{'name'}'\n")
 	  unless ( defined $self->{'_acc_col'} );
 	return $self->{'_acc_col'};
 }

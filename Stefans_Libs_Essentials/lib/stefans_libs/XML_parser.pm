@@ -311,9 +311,9 @@ sub createSummaryTable {
 	
 	my ( $table_name, $summary_hash,$ret );
 	
-	foreach $table_name ('RUN_SET', 'Pool', 'EXPERIMENT', 'SAMPLE', 'STUDY' ){
-		Carp::confess("This dataset has no $_ information") unless (  $table_name =~ m/\w/ and $self->{'tables'}->{$table_name}->Rows() > 0  );
-		$summary_hash = stefans_libs::XML_parser::TableInformation->new( { 'data_table' => $self->{'tables'}->{$table_name} })->get_all_data( $summary_hash );
+	foreach $table_name ('RUN_SET', 'EXPERIMENT', 'SAMPLE', 'STUDY' ){
+		Carp::confess("This dataset has no $table_name information") unless (  $table_name =~ m/\w/ and $self->{'tables'}->{$table_name}->Rows() > 0  );
+		$summary_hash = stefans_libs::XML_parser::TableInformation->new( { 'name' => $table_name,  'data_table' => $self->{'tables'}->{$table_name} })->get_all_data( $summary_hash );
 	}
 	
 	
