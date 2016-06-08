@@ -158,8 +158,14 @@ sub hash_of_hashes_2_data_table {
 		while (my ( $new_value, $new_key) = each %{$table_rows->{$acc}} ){
 			$hash->{$new_key} = $new_value;
 		}
-		my @colnames = sort {length($a) <=> length($b) } keys %{ $hash };
-		$data_table->Add_2_Header( \@colnames );
+		#my @colnames = sort {length($a) <=> length($b) } keys %{ $hash };
+		#advanced sorting adapted from http://www.perlmonks.org/?node_id=145659
+		my @colnames=map { pop @$_ }
+           sort{ $a->[0] <=> $b->[0] ||
+                 $a->[1] cmp $b->[1] }
+           map { [length($_), $_] } keys %{ $hash };
+        
+        $data_table->Add_2_Header( \@colnames );
 		$data_table->Add_Dataset( $hash );
 	}
 	return $data_table;

@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use XML::Simple;
 
-use Test::More tests => 2;
+use Test::More tests => 4;
 BEGIN { use_ok 'stefans_libs::XML_parser' }
 
 use FindBin;
@@ -86,25 +86,6 @@ $exp = {
 
 
 is_deeply( $IDX->{'tables'}->{'RUN_SET'}->get_line_asHash(1) , $exp, "right entries in the RUN_SET first line" );
-
-my ($accCols_array_ref, $informative_array_ref, $uniques, $ret ) = $IDX->_ids_link_to( 'RUN_SET' );
-#print root::get_hashEntries_as_string( {accCols_array_ref => $accCols_array_ref, informative_array_ref=> $informative_array_ref, uniques => $uniques, ret => $ret} ,2,'the return values from the _ids_link_to function' ) ;
-
-is_deeply( $accCols_array_ref, [0,7,8,12,16,18,19], "accession IDS are right" );
-
-#print "\$exp = ".root->print_perl_var_def( $ret->{'ERR688856'} ).";\n";
-$exp = {
-  'SAMEA3143109' => 'RUN_SET-RUN-Pool-Member-IDENTIFIERS-EXTERNAL_ID.BioSample',
-  'ERX633855' => 'RUN_SET-RUN-EXPERIMENT_REF-accession',
-  'rowid' => '1',
-  'ERS614151' => 'RUN_SET-RUN-Pool-Member-accession',
-  'ERR688856' => 'RUN_SET-RUN-accession'
-};
-
-is_deeply($ret->{'ERR688856'}, $exp, "right ref entry for ERR688856");
-
-
-
 
 #print "\$exp = ".root->print_perl_var_def($value ).";\n";
 
