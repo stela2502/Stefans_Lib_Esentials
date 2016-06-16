@@ -2,3 +2,4 @@
 /blib/
 /t/data/output/
 .svn
+/Makefile
