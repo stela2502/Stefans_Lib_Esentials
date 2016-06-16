@@ -2230,9 +2230,24 @@ If a column entry is found in the has the column is dropped.
 
 sub drop_rows{
 	my ( $self, $where, $matchHash ) = @_;
+	unless ( ref($matchHash) eq "ARRAY" ){
+		return $self->drop_these_rows ( $where, $matchHash, @_ );
+	}
 	my @pos = $self->Header_Position( $where );
 	for ( my $i = @{$self->{'data'}} -1; $i >= 0; $i-- ){
 		if ( $matchHash->{join(" ", @{@{$self->{'data'}}[$i]}[@pos])} ){ ## drop this
+			splice(@{$self->{'data'}}, $i, 1 );
+		}
+	}
+	return $self;
+}
+
+sub drop_these_rows {
+	my ( $self, @rows ) = @_;
+	@rows = @{$rows[0]} if ( ref($rows[0]) eq "ARRAY");
+	my $drop = { map{ $_ => 1} @rows };
+	for ( my $i = @{$self->{'data'}} -1; $i >= 0; $i-- ){
+		if ( $drop ->{$i} ){ ## drop this
 			splice(@{$self->{'data'}}, $i, 1 );
 		}
 	}

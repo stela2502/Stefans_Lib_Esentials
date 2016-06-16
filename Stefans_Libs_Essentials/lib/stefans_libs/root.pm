@@ -20,7 +20,7 @@ use Carp;
 use strict;
 use Date::Simple;
 use Statistics::Descriptive;
-
+use Cwd;
 
 =for comment
 
@@ -185,6 +185,9 @@ sub filemap{
 }
 sub parse_path{
 	my ( $self, $filename ) = @_;
+	unless ( $filename =~ m!^/! ) {
+		$filename = getcwd()."/$filename";
+	}
 	my @temp = split("/",$filename );
 	my $ret = {};
 	$ret -> {'total'} = $filename;
@@ -202,6 +205,26 @@ sub parse_path{
 		$ret -> {'filename_core'} = join( '.',@temp);
 	}
 	return $ret;
+}
+
+
+sub relative_path {
+	my ($self, $fm1, $fm2) = @_;
+	## fm1 is the outfile
+	## fm2 is the @files entry
+	## calc the difference fm1 -> fm2
+	my ( @outfile, @infile );
+	@outfile = split( "/", $fm1->{'path'});
+	@infile = split( "/", $fm2->{'path'} );
+	my @ret;
+	for ( my $i = 0; $i < @outfile; $i ++ ) {
+		unless ( $outfile[$i] eq $infile[$i] ) {
+			@ret = ( map { '..' } 1..(@outfile-$i));
+			push ( @ret , @infile[$i..$#infile] );
+			return join("/",@ret );
+		}
+	}
+	return "./";
 }
 
 sub ParseHMM_filename {

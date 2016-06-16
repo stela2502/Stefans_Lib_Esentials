@@ -23,7 +23,6 @@ To get further help use 'binCreate.pl -help' at the comman line.
 
 =cut
 
-
 use Getopt::Long;
 use stefans_libs::root;
 use strict;
@@ -31,7 +30,8 @@ use warnings;
 
 my $VERSION = "v1.1";
 
-my ( $help, $debug, $name, $pod, $force, @commandLineSwitches, $additional_checks );
+my ( $help, $debug, $name, $pod, $force, @commandLineSwitches,
+	$additional_checks );
 
 Getopt::Long::GetOptions(
 	"-pod=s"                    => \$pod,
@@ -80,8 +80,7 @@ my (
 
 $add_2_variable_def = $add_2_variable_read = $add_2_help_string =
   $options_string = '';
-$task_string =
-"\$task_description .= 'perl '.\$plugin_path .'/$exec_name';\n";
+$task_string = "\$task_description .= 'perl '.\$plugin_path .'/$exec_name';\n";
 my $error_check = '';
 my $log_str     = '';
 $additional_checks = '';
@@ -89,11 +88,15 @@ foreach my $variableStr (@commandLineSwitches) {
 	if ( $variableStr eq "options#array" ) {
 		$add_2_variable_def .= ", \$options";
 		$options_string = join( "\n",
-			"for ( my \$i = 0 ; \$i < \@options ; \$i += 2 ) {"
-			  , "\t\$options[ \$i + 1 ] =~ s/\\n/ /g;"
-			  , "\t\$options->{ \$options[\$i] } = \$options[ \$i + 1 ];",
-			"}" );
-		$additional_checks .= "### initialize default options:\n\n"."#\$options->{'n'} ||= 10;\n\n"."###\n";
+			"for ( my \$i = 0 ; \$i < \@options ; \$i += 2 ) {",
+			"\t\$options[ \$i + 1 ] =~ s/\\n/ /g;",
+			"\t\$options->{ \$options[\$i] } = \$options[ \$i + 1 ];",
+			"}",
+			"###### default options ########",
+			'#$options->{\'something\'} ||= \'default value\';',
+			"##############################" );
+		$additional_checks .= "### initialize default options:\n\n"
+		  . "#\$options->{'n'} ||= 10;\n\n" . "###\n";
 	}
 	if ( lc($variableStr) eq "outfile" ) {
 		$log_str =
@@ -114,8 +117,9 @@ foreach my $variableStr (@commandLineSwitches) {
 		  "       \"-$variableStr=s{,}\"    => \\\@$variableStr,\n";
 		$add_2_help_string .=
 "       -$variableStr     :<please add some info!> you can specify more entries to that\n";
-		if ( $variableStr eq "options" ){
-			$add_2_help_string .="                         format: key_1 value_1 key_2 value_2 ... key_n value_n\n";
+		if ( $variableStr eq "options" ) {
+			$add_2_help_string .=
+"                         format: key_1 value_1 key_2 value_2 ... key_n value_n\n";
 		}
 		$task_string .=
 "\$task_description .= ' -$variableStr \"'.join( '\" \"', \@$variableStr ).'\"' if ( defined \$$variableStr"
