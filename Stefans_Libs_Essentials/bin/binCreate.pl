@@ -31,7 +31,7 @@ use warnings;
 
 my $VERSION = "v1.1";
 
-my ( $help, $debug, $name, $pod, $force, @commandLineSwitches );
+my ( $help, $debug, $name, $pod, $force, @commandLineSwitches, $additional_checks );
 
 Getopt::Long::GetOptions(
 	"-pod=s"                    => \$pod,
@@ -84,6 +84,7 @@ $task_string =
 "\$task_description .= 'perl '.\$plugin_path .'/$exec_name';\n";
 my $error_check = '';
 my $log_str     = '';
+$additional_checks = '';
 foreach my $variableStr (@commandLineSwitches) {
 	if ( $variableStr eq "options#array" ) {
 		$add_2_variable_def .= ", \$options";
@@ -92,6 +93,7 @@ foreach my $variableStr (@commandLineSwitches) {
 			  , "\t\$options[ \$i + 1 ] =~ s/\\n/ /g;"
 			  , "\t\$options->{ \$options[\$i] } = \$options[ \$i + 1 ];",
 			"}" );
+		$additional_checks .= "### initialize default options:\n\n"."#\$options->{'n'} ||= 10;\n\n"."###\n";
 	}
 	if ( lc($variableStr) eq "outfile" ) {
 		$log_str =
@@ -216,6 +218,7 @@ sub helpString {
 	pod2usage(q(-verbose) => 1);
 }
 
+$additional_checks
 
 my ( \$task_description);
 
