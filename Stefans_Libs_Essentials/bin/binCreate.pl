@@ -67,16 +67,8 @@ unless ( -d $path ) {
 }
 $exec_name = "$exec_name.pl" unless ( $exec_name =~ m/\.pl$/ );
 
-if ( -f "$path/$exec_name" && !$force ) {
-	warn
-"\nthe file '$path/$exec_name' already exists!\nUse the -force switch to delete it\n\n";
-	exit;
-}
-
-my (
-	$add_2_variable_def, $add_2_variable_read, $add_2_help_string,
-	$task_string,        $options_string,
-);
+my ( $add_2_variable_def, $add_2_variable_read, $add_2_help_string,
+	$task_string, $options_string, $optionNames, );
 
 $add_2_variable_def = $add_2_variable_read = $add_2_help_string =
   $options_string = '';
@@ -111,7 +103,7 @@ foreach my $variableStr (@commandLineSwitches) {
 		  . "print LOG \$task_description.\"\\n\";\n"
 		  . "close ( LOG );\n\n";
 	}
-	if ( $variableStr =~ s/#array// ) {
+	if ( $variableStr =~ s/#array$// ) {
 		$add_2_variable_def .= ", \@$variableStr";
 		$add_2_variable_read .=
 		  "       \"-$variableStr=s{,}\"    => \\\@$variableStr,\n";
@@ -128,6 +120,19 @@ foreach my $variableStr (@commandLineSwitches) {
 		    "unless ( defined \$$variableStr" . "[0]" . ") {\n"
 		  . "	\$error .= \"the cmd line switch -$variableStr is undefined!\\n\";\n"
 		  . "}\n";
+		$optionNames->{$variableStr} = 'ARRAY';
+	}
+	elsif ( $variableStr =~ s/#option$// ){
+		$add_2_variable_def .= ", \$$variableStr";
+		$add_2_variable_read .=
+		  "       \"-$variableStr\"    => \\\$$variableStr,\n";
+		$add_2_help_string .=
+		  "       -$variableStr       :<please add some info!>\n";
+		
+		$task_string .=
+"\$task_description .= \" -$variableStr \" if ( \$$variableStr);\n";
+		$error_check .= "# $variableStr - no checks necessary\n";
+		$optionNames->{$variableStr} = 'OPTION';
 	}
 	else {
 		$add_2_variable_def .= ", \$$variableStr";
@@ -141,6 +146,7 @@ foreach my $variableStr (@commandLineSwitches) {
 		    "unless ( defined \$$variableStr) {\n"
 		  . "	\$error .= \"the cmd line switch -$variableStr is undefined!\\n\";\n"
 		  . "}\n";
+		$optionNames->{$variableStr} = 'STRING';
 	}
 
 }
@@ -237,12 +243,20 @@ $log_str
 $string =~ s/EXECUTABLE/$exec_name/g;
 $string =~ s/INFO_STR/$pod/g;
 
-open( OUT, ">$path/$exec_name" )
-  or die "could not create file '$path/$exec_name'\n";
-print OUT $string;
-close OUT;
+unless ( -f "$path/$exec_name" && !$force ) {
+	open( OUT, ">$path/$exec_name" )
+	  or die "could not create file '$path/$exec_name'\n";
+	print OUT $string;
+	close OUT;
 
-print "\nnew executable written to '$path/$exec_name'\n\n";
+	print "\nnew executable written to '$path/$exec_name'\n\n";
+}
+else {
+	warn
+"\nthe file '$path/$exec_name' already exists!\nUse the -force switch to delete it\n\n";
+}
+
+&createTestFile( "$path/../t/", $exec_name, $optionNames );
 
 sub helpString {
 	my $errorMessage = shift;
@@ -259,4 +273,64 @@ sub helpString {
    -help           :print this help
    -debug          :verbose output
  ";
+}
+
+sub createTestFile {
+	my ( $testPath, $executable, $optionNames ) = @_;
+	$executable =~ s/.pl$//;
+	if ( -f "$testPath/xx_$executable.t" and !$force ) {
+		print "test file is already present ($testPath/xx_$executable.t)\n";
+		return "$testPath/xx_$executable.t";
+	}
+	open( Test, ">$testPath/xx_$executable.t" )
+	  or die "could not open testFile $testPath/xx_$executable.t\n";
+
+	## we have to create a stup for each sub in the INFILE!
+	print Test "#! /usr/bin/perl
+use strict;
+use warnings;
+use stefans_libs::root;
+use Test::More tests => 2;
+use stefans_libs::flexible_data_structures::data_table;
+
+use FindBin;
+my \$plugin_path = \"\$FindBin::Bin\";
+
+my ( \$value, \@values, \$exp, ";
+	foreach ( keys %$optionNames ) {
+		if ( $optionNames->{$_} eq "ARRAY" ) {
+			print Test "\@$_, ";
+		}elsif ( $optionNames->{$_} eq "OPTION"){
+			## do not need that!
+		}
+		else {
+			print Test "\$$_, ";
+		}
+	}
+	print Test ");\n
+my \$exec = \$plugin_path . \"/../bin/$executable.pl\";
+ok( -f \$exec, 'the script has been found' );
+my \$outpath = \"\$plugin_path/data/output/$executable\";
+if ( -d \$outpath ) {
+	system(\"rm -Rf \$outpath\");
+}
+
+
+my \$cmd =
+    \"perl -I \$plugin_path/../lib  \$exec.pl \"\n";
+	foreach ( keys %$optionNames ) {
+		if ( $optionNames->{$_} eq "ARRAY" ) {
+			print Test ". \" -$_ \" . join(' ', \@$_ )\n";
+		}elsif ( $optionNames->{$_} eq "OPTION"){
+			print Test ". \" -$_ \" # or not?\n";
+		}
+		else {
+			print Test ". \" -$_ \" . \$$_ \n";
+		}
+	}
+	print Test ". \" -debug\";\n"
+	  . "#print \"\\\$exp = \".root->print_perl_var_def(\$value ).\";\\n";
+
+	close(OUT);
+	return "$testPath/xx_$executable.t";
 }
