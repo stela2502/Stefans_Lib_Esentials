@@ -76,7 +76,7 @@ $section -> AddText ( "I wonder whether I can link the figure ##FIGUREREF ".md5_
 $value = $Latex_Document->AsString();
 #print "\$exp = ".root->print_perl_var_def($value ).";\n";
 $exp = &document_with_table();
-$exp =~ s/\\label{test::sub}/\\label{test::sub}\nI wonder whether I can link the figure \\ref{test_figure::0} on page \\pageref{test_figure::0}.\n/;
+$exp =~ s/\\label\{test::sub\}/\\label\{test::sub\}\nI wonder whether I can link the figure \\ref{test_figure} on page \\pageref{test_figure}.\n/;
 is_deeply ( [split("\n",$value)], [split("\n",$exp)], "the ##FIGURENREF <section title>## tag");
 
 $Latex_Document->write_tex_file( 'test_figure' );
@@ -106,13 +106,12 @@ $Latex_Document->write_tex_file( 'test_section' );
 
 sub section_ref{
 	return $exp = '\documentclass{scrartcl}
-\usepackage[top=3cm, bottom=3cm, left=1.5cm, right=1.5cm]{geometry} 
+\usepackage[top=3cm, bottom=3cm, left=1.5cm, right=1.5cm]{geometry}
 \usepackage{hyperref}
 \usepackage{graphicx}
 \usepackage{nameref}
 \usepackage{longtable}
 \usepackage{subfigure}
-
 \begin{document}
 \tableofcontents
   
@@ -135,13 +134,12 @@ Hello this section should be here: \ref{sec::4783} on page \pageref{sec::4783}
 
 sub first_string{
 	return '\documentclass{scrartcl}
-\usepackage[top=3cm, bottom=3cm, left=1.5cm, right=1.5cm]{geometry} 
+\usepackage[top=3cm, bottom=3cm, left=1.5cm, right=1.5cm]{geometry}
 \usepackage{hyperref}
 \usepackage{graphicx}
 \usepackage{nameref}
 \usepackage{longtable}
 \usepackage{subfigure}
-
 \begin{document}
 \tableofcontents
   
@@ -164,13 +162,12 @@ sub first_string{
 
 sub string_with_text{
 	return '\documentclass{scrartcl}
-\usepackage[top=3cm, bottom=3cm, left=1.5cm, right=1.5cm]{geometry} 
+\usepackage[top=3cm, bottom=3cm, left=1.5cm, right=1.5cm]{geometry}
 \usepackage{hyperref}
 \usepackage{graphicx}
 \usepackage{nameref}
 \usepackage{longtable}
 \usepackage{subfigure}
-
 \begin{document}
 \tableofcontents
   
@@ -182,7 +179,7 @@ sub string_with_text{
 
 \section{Just a Test}
 \label{test}
-I just want to see if I can add a test to the section \'Just a Test\'.
+I just want to see if I can add a test to the section \&apos;Just a Test\&apos;.
 
 \subsection{first subsection}
 \label{test::sub}
@@ -195,13 +192,12 @@ I just want to see if I can add a test to the section \'Just a Test\'.
 
 sub string_with_test_figure{
 	return '\documentclass{scrartcl}
-\usepackage[top=3cm, bottom=3cm, left=1.5cm, right=1.5cm]{geometry} 
+\usepackage[top=3cm, bottom=3cm, left=1.5cm, right=1.5cm]{geometry}
 \usepackage{hyperref}
 \usepackage{graphicx}
 \usepackage{nameref}
 \usepackage{longtable}
 \usepackage{subfigure}
-
 \begin{document}
 \tableofcontents
   
@@ -213,13 +209,13 @@ sub string_with_test_figure{
 
 \section{Just a Test}
 \label{test}
-I just want to see if I can add a test to the section \'Just a Test\'.
+I just want to see if I can add a test to the section \&apos;Just a Test\&apos;.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.9\linewidth]{Figures/0_0.png}
 \caption{  } 
-\label{test_figure::0}
+\label{test_figure}
 \end{figure}
 
 \subsection{first subsection}
@@ -255,13 +251,12 @@ sub test_figure{
 
 sub test_with_subfigures{
 	return '\documentclass{scrartcl}
-\usepackage[top=3cm, bottom=3cm, left=1.5cm, right=1.5cm]{geometry} 
+\usepackage[top=3cm, bottom=3cm, left=1.5cm, right=1.5cm]{geometry}
 \usepackage{hyperref}
 \usepackage{graphicx}
 \usepackage{nameref}
 \usepackage{longtable}
 \usepackage{subfigure}
-
 \begin{document}
 \tableofcontents
   
@@ -273,7 +268,7 @@ sub test_with_subfigures{
 
 \section{Just a Test}
 \label{test}
-I just want to see if I can add a test to the section \'Just a Test\'.
+I just want to see if I can add a test to the section \&apos;Just a Test\&apos;.
 
 \begin{figure}[htbp]
 \begin{minipage}[b]{0.441\linewidth}
@@ -288,7 +283,7 @@ I just want to see if I can add a test to the section \'Just a Test\'.
 		}
 \end{minipage}\\\\
 \caption{ (A) . (B) .  } 
-\label{test_figure::0}
+\label{test_figure}
 \end{figure}
 
 \subsection{first subsection}
@@ -302,13 +297,12 @@ I just want to see if I can add a test to the section \'Just a Test\'.
 
 sub document_with_table{
         return '\documentclass{scrartcl}
-\usepackage[top=3cm, bottom=3cm, left=1.5cm, right=1.5cm]{geometry} 
+\usepackage[top=3cm, bottom=3cm, left=1.5cm, right=1.5cm]{geometry}
 \usepackage{hyperref}
 \usepackage{graphicx}
 \usepackage{nameref}
 \usepackage{longtable}
 \usepackage{subfigure}
-
 \begin{document}
 \tableofcontents
   
@@ -320,7 +314,7 @@ sub document_with_table{
 
 \section{Just a Test}
 \label{test}
-I just want to see if I can add a test to the section \'Just a Test\'.
+I just want to see if I can add a test to the section \&apos;Just a Test\&apos;.
 
 \begin{figure}[htbp]
 \begin{minipage}[b]{0.441\linewidth}
@@ -335,7 +329,7 @@ I just want to see if I can add a test to the section \'Just a Test\'.
 		}
 \end{minipage}\\\\
 \caption{ (A) . (B) .  } 
-\label{test_figure::0}
+\label{test_figure}
 \end{figure}
 
 

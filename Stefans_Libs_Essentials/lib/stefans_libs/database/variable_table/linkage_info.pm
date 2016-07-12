@@ -250,7 +250,7 @@ sub __get_ONE_ColumnName_4_SQL_Query {
 	{
 		Carp::confess(
 			    ref($self)
-			  . "::__get_ONE_ColumnName_4_SQL_Query -> the dtata structure was not created properly! ($column_name) "
+			  . "::__get_ONE_ColumnName_4_SQL_Query -> the data structure was not created properly! ($column_name) "
 			  . root::get_hashEntries_as_string( $self, 3, "" ) )
 		  unless ( $column_name eq "my_value" );
 		return '?';
@@ -267,7 +267,7 @@ sub __get_ONE_columnType_4_SQL_Query {
 	$column_name = @$column_name[0] if ( ref($column_name) eq "ARRAY" );
 	Carp::confess(
 		    ref($self)
-		  . "::__get_ONE_ColumnName_4_SQL_Query -> the dtata structure was not created properly ($column_name)! "
+		  . "::__get_ONE_ColumnName_4_SQL_Query -> the data structure was not created properly ($column_name)! "
 		  . root::get_hashEntries_as_string( $self, 3, "" ) )
 	  unless (
 		ref( $self->__get_touched_columns()->{$column_name} ) eq "ARRAY" );
@@ -532,6 +532,9 @@ sub create_SQL_statement {
 	## modify the select statement if the user wants to have a complex select ##
 	############################################################################
 	unless ( defined $complexSelect_statement ) {
+		my $t = 1;
+		my $tmp = { map { $_ => $t ++ }  @select_columns};
+		@select_columns = sort { $tmp->{$a} <=> $tmp->{$b} } keys  %$tmp; ## get uniques but in the same order as before
 		$sql .= join( ", ", @select_columns ) . " \nFROM ";
 		$self->{'tableObj'}->LastSelect_Columns( \@select_columns );
 	}

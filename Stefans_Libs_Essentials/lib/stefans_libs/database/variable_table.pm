@@ -93,7 +93,8 @@ sub datanames {
 	my ($self) = @_;
 	return $self->{'__datanames__'} if ( defined $self->{'__datanames__'} );
 	my $i = 0;
-	$self->{'__datanames__'} = { map { $_->{'name'} => $i++ }
+	$self->{'__datanames__'} =
+	  { map { $_->{'name'} => $i++ }
 		  @{ $self->{'table_definition'}->{'variables'} } };
 	return $self->{'__datanames__'};
 }
@@ -674,29 +675,10 @@ This function allows to create executed dbh->mysql_search links and give them ba
 sub _get_SearchHandle {
 	my ( $self, $hash ) = @_;
 	unless ( defined $self->{"execute_$hash->{'search_name'}"} ) {
-
-		#		if ( scalar( keys %{ $hash->{furtherSubstitutions} } ) == 0 ) {
 		$self->{"execute_$hash->{'search_name'}"} =
 		  $self->dbh()->prepare( $self->{ $hash->{'search_name'} } )
 		  or Carp::confess( "something went wrong! $self _get_SearchHandle!\n",
 			$self->dbh()->errstr() );
-
-		#		}
-		#		else {
-		#			my ($local_search_str);
-		#			$local_search_str = $self->{ $hash->{'search_name'} };
-		#			while ( my ( $key, $value ) =
-		#				each %{ $hash->{furtherSubstitutions} } )
-		#			{
-		#				$local_search_str =~ s/$key/$value/g;
-		#			}
-		#			$self->{"lastSearch_$hash->{'search_name'}"} = $local_search_str;
-		#			return $self->dbh()->prepare($local_search_str)
-		#			  or Carp::confess(
-		#"something went wrong! $self _get_SearchHandle! ($local_search_str)\n",
-		#				$self->dbh()->errstr()
-		#			  );
-		#		}
 	}
 	return $self->{"execute_$hash->{'search_name'}"};
 }
@@ -1007,13 +989,16 @@ sub _construct_variableDef {
 		$string .= "NOT NULL ";
 	}
 	if ( $variable->{'type'} =~ m/TIMESTAMP/ ) {
-			if ($variable->{'auto_update'}) {
-				$string .= " ON UPDATE CURRENT_TIMESTAMP ";
-			}
-			else {
-				$string .= " DEFAULT 0";
-			}
+		if ( $variable->{'auto_update'} ) {
+			$string .= " ON UPDATE CURRENT_TIMESTAMP ";
 		}
+		elsif ( defined $variable->{'default'} ) {
+			$string .= " DEFAULT $variable->{'default'}";
+		}
+		else {
+			$string .= " DEFAULT 0";
+		}
+	}
 	$string .= ",\n";
 }
 
@@ -1504,7 +1489,8 @@ sub __escape_putativley_dangerous_things {
 }
 
 sub NOW {
-	return DateTime::Format::MySQL->format_datetime( DateTime->now( time_zone => 'Europe/Berlin' ) );
+	return DateTime::Format::MySQL->format_datetime(
+		DateTime->now( time_zone => 'Europe/Berlin' ) );
 }
 
 sub check_dataset {
@@ -1579,8 +1565,7 @@ sub check_dataset {
 		$self->changes_after_check_dataset($dataset);
 		return 1;
 	}
-	$temp =
-	  $self->GET_entries_for_UNIQUE( [ ref($self) . '.id' ], $dataset );
+	$temp = $self->GET_entries_for_UNIQUE( [ ref($self) . '.id' ], $dataset );
 
 	if ( ref($temp) eq "HASH" && defined $temp->{'id'} ) {
 		$dataset->{'id'} = $temp->{'id'};
@@ -1924,7 +1909,7 @@ Please implement the function 'INSERT_INTO_DOWNSTREAM_TABLES' for each table tha
 =cut
 
 sub AddDataset {
-	my ( $self, $dataset ) = @_;
+	my ( $self, $dataset, $report ) = @_;
 
 	unless ( ref($dataset) eq "HASH" ) {
 		Carp::confess(
@@ -1969,6 +1954,13 @@ sub AddDataset {
 		return "wait for comitment";
 	}
 	my $sth = $self->_get_SearchHandle( { 'search_name' => 'insert' } );
+	if ($report) {
+		warn "\$exp = " . root->print_perl_var_def($dataset) . ";\n"
+		  if ($report);
+		warn "We wil get these values from $self->_get_search_array: '"
+		  . join( "', '", @{ $self->_get_search_array( $dataset, $report ) } )
+		  . "'\n";
+	}
 	unless ( $sth->execute( @{ $self->_get_search_array($dataset) } ) ) {
 		Carp::confess(
 			ref($self),
@@ -1990,6 +1982,10 @@ sub AddDataset {
 			  )
 		);
 	}
+#	warn "I have run the search: "
+#	  . $self->{'insert'}
+#	  . " with the variables: '"
+#	  . join( "', '", @{ $self->_get_search_array($dataset) } ) . "'\n";
 	Carp::confess( "We hit a DB error: '" . $self->dbh()->errstr() . "'\n" )
 	  if ( defined $self->dbh()->errstr() );
 	$self->{'last_insert_stm'} =
@@ -2238,7 +2234,7 @@ The dataset is changed if necessary!
 sub dataHandler {
 	my ( $self, $name, $data_handler ) = @_;
 	$self->{'data_handler'}->{$name} = $data_handler
-	  if ( defined  $data_handler && $data_handler->isa('variable_table') );
+	  if ( defined $data_handler && $data_handler->isa('variable_table') );
 	Carp::confess("Data handler '$name' not defined\n!")
 	  unless ( defined $self->{'data_handler'}->{$name} );
 	return $self->{'data_handler'}->{$name};
@@ -2282,12 +2278,13 @@ sub __process_variable_def {
 				}
 			}
 			elsif ( ref( $dataset->{$varName} ) eq "ARRAY" ) {
-				$dataset->{ $varName } = $dataset->{ $varName . "_id" } = $data_handler->AddDataset( $dataset->{$varName} );
+				$dataset->{$varName} = $dataset->{ $varName . "_id" } =
+				  $data_handler->AddDataset( $dataset->{$varName} );
 				## in fact we can simply replace the $dataset->{$varName} too!
-				
+
 			}
 		}
-		elsif ( defined $dataset->{ $varName }
+		elsif ( defined $dataset->{$varName}
 			&& ( !$dataset->{ $value_def->{'name'} } eq "0" ) )
 		{
 			## check whether the data exists in the other table
@@ -2295,12 +2292,12 @@ sub __process_variable_def {
 			$id_str ||= 'id';
 
 			my $refered_dataset =
-			  $data_handler->_select_all_for_DATAFIELD(
-				$dataset->{ $varName }, $id_str );
+			  $data_handler->_select_all_for_DATAFIELD( $dataset->{$varName},
+				$id_str );
 			unless ( ref( @{$refered_dataset}[0] ) eq "HASH" ) {
 				if ( ref( $dataset->{$varName} ) eq "HASH" ) {
 					$varName =~ s/(_id)//;
-					return  $data_handler->AddDataset( $dataset->{$varName} );
+					return $data_handler->AddDataset( $dataset->{$varName} );
 				}
 				Carp::confess(
 "The value '$dataset->{$varName}' for the external db.field "
@@ -2308,22 +2305,27 @@ sub __process_variable_def {
 					  . ":$id_str could not be found in the other dataset!\n" );
 			}
 		}
-		elsif ( $varName =~m/_id$/ ){
+		elsif ( $varName =~ m/_id$/ ) {
 			my $tmp = $varName;
 			$tmp =~ s/_id$//;
-			if ( ref($dataset->{$tmp}) eq "HASH" ){
-				$dataset->{$varName} = $data_handler ->AddDataset( $dataset->{$tmp} );
+			if ( ref( $dataset->{$tmp} ) eq "HASH" ) {
+				$dataset->{$varName} =
+				  $data_handler->AddDataset( $dataset->{$tmp} );
 			}
 		}
 	}
 	elsif ( $varName eq "id" ) {
 		## do nothing!
 	}
-	if ( ! defined $dataset->{$varName} )  {
+	if ( !defined $dataset->{$varName} ) {
 		if ( $value_def->{'NULL'} ) {
 			return 0;
 		}
-		Carp::confess(ref($self). ":__process_variable_def: sorry, but we could not get a usable value for $varName\n".root::get_hashEntries_as_string($dataset,3,"The dataset:"));
+		Carp::cluck(
+			    ref($self)
+			  . ":__process_variable_def: sorry, but we could not get a usable value for $varName\n"
+			  . root::get_hashEntries_as_string( $dataset, 3, "The dataset:" )
+		);
 	}
 	return $dataset->{$varName};
 }
@@ -2491,7 +2493,7 @@ sub _select_all_for_DATAFIELD {
 }
 
 sub _get_search_array {
-	my ( $self, $dataset ) = @_;
+	my ( $self, $dataset, $report ) = @_;
 
 	return $dataset->{'search_array'}
 	  if ( ref( $dataset->{'search_array'} ) eq "ARRAY" );
@@ -2504,6 +2506,27 @@ sub _get_search_array {
 			$do_not_save = 1;
 			next
 			  unless ( defined $dataset->{'table_baseString'} );
+		}
+		if ($report) {
+			Carp::cluck(
+"$self calls __process_variable_dev with the variable dev hash for variable $value_def->{'name'} and this \$dataset ="
+				  . root->print_perl_var_def(
+					{
+						map {
+							my $key = $_;
+							if ( length ($dataset->{$key}) > 80 ) {
+								$key => substr( $dataset->{$_},0, 80 );
+							}
+							else { $key => $dataset->{$key} }
+						  } keys %$dataset
+					}
+				  )
+				  . ";\n"
+			);
+		}
+		if ( $value_def->{name} eq "id" ){
+			warn join("\n", "I have searched for the caller when trying to get info on an ID from an search hash:", caller(1) )."\n";
+			next;
 		}
 		$temp = $self->__process_variable_def( $value_def, $dataset );
 		unless ( defined $temp ) {

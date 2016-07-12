@@ -305,7 +305,7 @@ sub DocumentStructure {
 	my ( $self, $document_structure ) = @_;
 	$self->{'__doc_struct__'} = $document_structure if ( defined $document_structure );
 	unless ( defined $self->{'__doc_struct__'}){
-		$self->{'__doc_struct__'} = '\documentclass{scrartcl}';
+		$self->{'__doc_struct__'} = '\documentclass{scrartcl}'."\n";
 		foreach ( $self->UsePackage() ){
 			$self->{'__doc_struct__'} .= '\usepackage'.$_."\n";
 		}

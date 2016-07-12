@@ -542,6 +542,8 @@ sub GetAsPDL {
 
 sub get_column_entries {
 	my ( $self, $col_name ) = @_;
+	$self->{'as_array'} ||= {};
+	return $self->{'as_array'} ->{$col_name} if ( defined $self->{'as_array'} ->{$col_name} );
 	my @col_ids = $self->Header_Position($col_name);
 	unless ( defined $col_ids[0]) {
 		@col_ids = ($col_name) if ($col_name =~ m/^\d+$/ );
@@ -563,6 +565,7 @@ sub get_column_entries {
 			}
 		}
 	}
+	$self->{'as_array'}->{$col_name} = \@return;
 	return \@return;
 }
 
@@ -2798,23 +2801,6 @@ sub GetAsObject {
 			  \@data
 		  );
 	  }
-	  ## now I need to include all subsets that are still valid in the new table!
-	  #	foreach my $old_subset_name ( keys %{ $self->{'subsets'} } ) {
-	  #		next if ( $old_subset_name eq $subset );
-	  #		$return->define_subset(
-	  #			$old_subset_name,
-	  #			[
-	  #				@{ $self->{'header'} }
-	  #				  [ @{ $self->{'subsets'}->{$old_subset_name} } ]
-	  #			]
-	  #		  )
-	  #		  if (
-	  #			$return->all_columns_exist(
-	  #				@{ $self->{'header'} }
-	  #				  [ @{ $self->{'subsets'}->{$old_subset_name} } ]
-	  #			)
-	  #		  );
-	  #	}
 	  foreach ( @{ $return->{'header'} } ) {
 		  $return->__col_format_is_string( $_,
 			  $self->__col_format_is_string($_) );

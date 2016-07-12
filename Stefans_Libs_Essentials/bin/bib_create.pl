@@ -94,15 +94,6 @@ $task_description .= " -pod $pod" if ( defined $pod );
 $task_description .= " -force" if (  $force );
 $task_description .= " -create_no_test" if (  $create_no_test );
 
-## first I need to check whether the lib file is already present!
-if ( -f $name ) {
-	## OK if we need to use force we will go on , otherwise we quit
-	unless ($force) {
-		print
-"the lib file is already present. I will not delete the old one unless you use -force!\n";
-		exit -1;
-	}
-}
 
 ## OK now I need to create the package string.
 my ( $path, $lib_name, @path, $filename, $use, @test_path );
@@ -130,6 +121,10 @@ print "We created the test file '". &createTestFile (join("/", @test_path), $lib
 
 sub createLibFile {
 	my ( $libFile, $package ) = @_;
+	if ( -f $libFile and ! $force ) {
+		warn "Lib file $libFile exists - use -force to overwrite it!\n";
+		return 1;
+	}
 	open( OUT, ">$libFile" ) or die "konnte $libFile nicht anlegen!\n$!\n";
 	#$package =~ s/::/_/g;
 	my $package_whole = $libFile;
@@ -218,7 +213,7 @@ sub createTestFile {
 
 	if ( -f "$testPath/$package.t" and ! $force ) {
 		print "test file is already present ($testPath/$package.t)\n";
-		return "$testPath/$package.t";
+		return "1";
 	}
 	open( Test, ">$testPath/$package.t" )
 	  or die "could not open testFile $testPath/$package.t\n";

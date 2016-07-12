@@ -108,6 +108,7 @@ $table1->{'table_definition'} = {
 		{
 			'name'        => 'time',
 			'type'        => 'TIMESTAMP',
+			'default' => 'CURRENT_TIMESTAMP',
 			'NULL'        => '0',
 			'description' => '',
 		},
