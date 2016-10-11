@@ -3,3 +3,7 @@
 /t/data/output/
 .svn
 /Makefile
+/Makefile.old
+/MYMETA.json
+/MYMETA.yml
+/pm_to_blib
