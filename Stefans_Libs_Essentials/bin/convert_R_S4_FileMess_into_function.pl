@@ -27,17 +27,20 @@ use Getopt::Long;
 use strict;
 use warnings;
 
+use stefans_libs::root;
+
 use FindBin;
 my $plugin_path = "$FindBin::Bin";
 
 my $VERSION = 'v1.0';
 
 
-my ( $help, $debug, $database, @infiles, $outpath);
+my ( $help, $debug, $database, @infiles, $use_fname, $outpath);
 
 Getopt::Long::GetOptions(
 	 "-infiles=s{,}"    => \@infiles,
 	 "-outpath=s"    => \$outpath,
+	 "-use_fname" => \$use_fname,
 
 	 "-help"             => \$help,
 	 "-debug"            => \$debug
@@ -71,8 +74,10 @@ sub helpString {
  $errorMessage
  command line switches for convert_R_S4_FileMess_into_function.pl
 
-   -infiles       :<please add some info!> you can specify more entries to that
-   -outpath       :<please add some info!>
+   -infiles       :a list of R files that you want to splice
+   -outpath       :the outpath for the new files
+   
+   -use_fname     :should I include the original filename in the outfile
 
    -help           :print this help
    -debug          :verbose output
@@ -97,10 +102,11 @@ close ( LOG );
 
 ## Do whatever you want!
 
-my ($functions); ## here I will store all function definitions untill I create the outfiles
+my ($functions, $fm); ## here I will store all function definitions untill I create the outfiles
 
 foreach my $file ( @infiles ) {
 	open ( IN, "<$file" ) or Carp::confess ( "I could not open the file '$file'\n$!\n");
+	$fm = root->filemap($file);
 	my $this_function ='';
 	my ( $is_func, $last_comment );
 	$is_func = $last_comment = 0;
@@ -110,8 +116,8 @@ foreach my $file ( @infiles ) {
 			if ( $last_comment==0 && $this_function =~ m/\w/ ) { ## I need to save the last bit
 				$is_func = &funcname($this_function);
 				print ( "$this_function\n has the funciton name $is_func\n" );
-				$functions->{$is_func} ||= '';
-				$functions->{$is_func} .= $this_function;
+				$functions->{$is_func} ||= Func->new($fm->{'filename_base'});
+				$functions->{$is_func}->R($this_function);
 				$this_function = '';
 				$last_comment= 1;
 				$is_func = 1;
@@ -130,8 +136,8 @@ foreach my $file ( @infiles ) {
 	}
 	if ( length($this_function) > 0 ) {
 		$is_func = &funcname($this_function);
-		$functions->{$is_func} ||= '';
-		$functions->{$is_func} .= $this_function;
+		$functions->{$is_func} ||= Func->new($fm->{'filename_base'});
+		$functions->{$is_func}->R($this_function);
 		$this_function = '';
 	}
 	close ( IN );
@@ -139,8 +145,13 @@ foreach my $file ( @infiles ) {
 
 ## and now all function definitions need to be saved as files
 foreach my $fname ( keys %$functions ) {
-	open ( OUT, ">$outpath/$fname.R" ) or die "I could not create the outfile '$outpath/$fname.R'\n$!";
-	print OUT $functions->{$fname };
+	if ( $use_fname ){
+		open ( OUT, ">$outpath/$functions->{$fname}->{'file'}"."_$fname.R" ) or die "I could not create the outfile '$outpath/$functions->{'file'}_$fname.R'\n$!";
+	}
+	else {
+			open ( OUT, ">$outpath/$fname.R" ) or die "I could not create the outfile '$outpath/$fname.R'\n$!";
+	}
+	print OUT $functions->{$fname}->R();
 	close ( OUT );
 	print "created file $outpath/$fname.R\n";
 }
@@ -155,3 +166,28 @@ sub funcname {
 	}
 	return $funcname
 }
+
+
+package Func;
+
+sub new{
+	my ( $class, $file ) = @_;
+
+	my ($self);
+	$self = {
+		'file' => $file,
+		'r' => ''
+	};
+
+	bless( $self, $class ) if ( $class eq "Func" );
+
+	return $self;
+}
+
+sub R {
+	my ($self, $add ) = @_;
+	$add ||= '';
+	$self->{'R'} .= $add;
+	return $self->{'R'};
+}
+
