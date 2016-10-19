@@ -3,3 +3,14 @@
 /t/data/output/
 .svn
 /Makefile
+/Makefile.old
+/MYMETA.json
+/MYMETA.yml
+/pm_to_blib
+/.Oldgitignore
+/.project
+/.Rhistory
+/MANIFEST.bak
+/META.yml
+/Stefans_Libs_Essentials-1.00.tar.gz
+/Stefans_Libs_Essentials-1.01.tar.gz
