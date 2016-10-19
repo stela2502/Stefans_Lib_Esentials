@@ -294,7 +294,7 @@ sub plot_without_digits {
 	## type 2 = middle axis => suppress first and last tic
 	## type 3 = last in a list of axies => suppress first tic
 	my ( $string, @string );
-	my $test = $self->resolveValue(1);
+	my $test = $self->resolveValue( $self->Min());
 
 	$self->plotTitle( $image, $other_pixel, $color, $title );
 

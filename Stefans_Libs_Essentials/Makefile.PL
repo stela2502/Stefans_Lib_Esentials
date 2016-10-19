@@ -11,6 +11,7 @@ author 'Stefan Lang <Stefan.Lang@med.lu.se>';
 requires	'DBI'                     => 0;
 requires		'Pod::Usage'			  => 0;
 requires		'DateTime::Format::MySQL' => 0;
+requires		'Digest::MD5'		  => 0;
 requires		'Statistics::Descriptive' => 0;
 requires		'Date::Simple'            => 0;
 requires		'Number::Format'          => 0;
