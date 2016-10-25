@@ -18,6 +18,7 @@ requires		'Number::Format'          => 0;
 requires		'GD'                      => 0;
 requires		'SVG'                     => 0;
 requires	'GD::SVG'                 => '0.33';
+requires 'inline::C' => 0.62;
 requires		'PDL' => 0;
 
 opendir( DIR, "bin/" ) or die "I could not open the bin folder\n$!\n";
