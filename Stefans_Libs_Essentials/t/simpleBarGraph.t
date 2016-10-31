@@ -10,7 +10,9 @@ my $plugin_path       = "$FindBin::Bin";
 
 my $barGraph = simpleBarGraph->new();
 is_deeply( ref($barGraph), 'simpleBarGraph', 'could get the object' );
+
 my $im = $barGraph->_createPicture ( {'x_res' => 600, 'y_res' => 400, 'type' => 'GD' } );
+
 is_deeply( ref ( $im ) , "GD::SVG::Image", "we get an Image object" );
 my $color = $barGraph->{color};
 is_deeply( ref ($color) ,"color", "and the color object was created correctly");

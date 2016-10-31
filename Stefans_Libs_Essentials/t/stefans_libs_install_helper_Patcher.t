@@ -1,7 +1,7 @@
 #! /usr/bin/perl
 use strict;
 use warnings;
-use Test::More tests => 8;
+use Test::More tests => 9;
 use stefans_libs::root;
 BEGIN { use_ok 'stefans_libs::install_helper::Patcher' }
 
@@ -27,7 +27,7 @@ is_deeply( $obj->replace_string( "\\sroot =\\> '[\\/\\w]*'," , " root => '$insta
 my $options = 'FAIL';
 my $OK2 = $obj -> replace_string("randomForest => 1,\\n\\s*ncore => \\d+,", "$options" );
 
-die $obj->{'str_rep'};
+#die $obj->{'str_rep'};
 
 
 
