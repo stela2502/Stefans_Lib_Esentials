@@ -20,7 +20,7 @@ requires		'SVG'                     => 0;
 requires	'GD::SVG'                 => '0.33';
 requires 'Inline::C' => 0.62;
 requires 'File::Copy::Recursive' => 0;
-requires 'File::Homedir' => 0;
+requires 'File::HomeDir' => 0;
 requires		'PDL' => 0;
 requires 'XML::Simple' => 0;
 
