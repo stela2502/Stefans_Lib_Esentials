@@ -1,7 +1,7 @@
 #! /usr/bin/perl
 use strict;
 use warnings;
-use Test::More tests => 88;
+use Test::More tests => 94;
 use PDL;
 
 use FindBin;
@@ -112,6 +112,19 @@ is_deeply(
 	[ 'stefan', 'lang;male', 1, 3, 5, 1e-08, "Here I have a string;", 9 ],
 	'the new string separator - complex line'
 );
+is_deeply(
+	$name->__split_line(
+		'"lang;male";"stefan";1;3;5;1e-08;"Here I have a string;";9'),
+	[ 'lang;male','stefan',  1, 3, 5, 1e-08, "Here I have a string;", 9 ],
+	'the new string separator - complex line string at the beginning'
+);
+is_deeply(
+	$name->__split_line(
+		'"stefan";"lang;male";1;3;5;1e-08;9;"Here I have a string;"'),
+	[ 'stefan', 'lang;male', 1, 3, 5, 1e-08, 9, "Here I have a string;" ],
+	'the new string separator - complex line string at the end'
+);
+
 is_deeply(
 	$name->__split_line('stefan;lang;male'),
 	[ 'stefan', 'lang', 'male' ],
@@ -298,12 +311,13 @@ $data_table->print2file( $outpath.'temp_table.txt');
 $data_table2 = data_table->new();
 $data_table2->read_file($outpath.'temp_table.xls');
 $data_table->{'read_filename'} = $outpath.'temp_table.xls';
-$data_table->AsString();
-$data_table2->AsString();
+#$data_table->AsString();
+#$data_table2->AsString();
 
 #print "I got a problem here - why are the two tables not the same?\n"."TableA:\n".$data_table->AsString().
 #"TableB:\n".$data_table2 ->AsString();
-is_deeply( $data_table, $data_table2, "import / export is ok" );
+
+is_deeply( [split( /\n\t/,$data_table2->AsString() ) ], [split( /\n\t/,$data_table->AsString() ) ], "import / export is ok" );
 $data_table2 = $data_table->Sort_by( [ [ 'age', 'numeric' ] ] );
 
 is_deeply(
@@ -491,7 +505,7 @@ push( @$value, 'some_crap' );
 $data_table2->{'debug'} = 1;
 $data_table2 = $data_table2->merge_with_data_table($other_data_table);
 
-print "Is the table merged ?\n" . $data_table2->AsTestString();
+#print "Is the table merged ?\n" . $data_table2->AsTestString();
 
 is_deeply( $data_table2->{'header'}, $value, "Header is merged" );
 is_deeply( $data_table2->{'__max_header__'},
@@ -509,10 +523,11 @@ $value = {
 	'first'       => 'hugo',
 	'second'      => 'Boss',
 	'email'       => 'Hugo.Boss@nix.com',
-	'___DATA___'  => 'Boss'
+#	'___DATA___'  => 'Boss'
 	,    ## new as I have allowed the usage of one column subsets as aliases
-	'eMail Addresse' => 'Hugo.Boss@nix.com',
+#	'eMail Addresse' => 'Hugo.Boss@nix.com',
 };
+#print "\$exp = ".root->print_perl_var_def($data_table2->get_line_asHash(3) ).";\n";
 is_deeply( $data_table2->get_line_asHash(3),
 	$value, "we do not touch a not acceptable column" );
 
@@ -624,71 +639,47 @@ $data_table2 = data_table->new();
 $data_table2->string_separator('"');
 $data_table2->line_separator(",");
 $data_table2->parse_from_string(
-'"Probe Set ID","Affy SNP ID","dbSNP RS ID","Chromosome","Physical Position","Strand","ChrX pseudo-autosomal region 1","Cytoband","Flank","Allele A","Allele B","Associated Gene","Genetic Map","Microsatellite","Fragment Enzyme Type Length Start Stop","Allele Frequencies","Heterozygous Allele Frequencies","Number of individuals/Number of chromosomes","In Hapmap","Strand Versus dbSNP","Copy Number Variation","Probe Count","ChrX pseudo-autosomal region 2","In Final List","Minor Allele","Minor Allele Frequency","% GC"
-"SNP_A-1780619","10004759","rs17106009","1","50433725","-","0","p33","ggatattgtgtgagga[A/G]taagcccacctgtggt","A","G","ENST00000371827 // intron // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// ENST00000371821 // intron // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// ENST00000371819 // intron // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// ENST00000323186 // intron // 0 // --- // --- // --- // ELAV-like protein 4 (Paraneoplastic encephalomyelitis antigen HuD) (Hu-antigen D). [Source:Uniprot/SWISSPROT;Acc:P26378] /// NM_021952 // intron // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// ENST00000357083 // intron // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// ENST00000361667 // intron // 0 // --- // --- // --- // ELAV-like protein 4 (Paraneoplastic encephalomyelitis antigen HuD) (Hu-antigen D). [Source:Uniprot/SWISSPROT;Acc:P26378] /// ENST00000371823 // intron // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// ENST00000371824 // intron // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D)","72.030224900657 // D1S2824 // D1S197 // --- // --- /// 76.2778636775225 // D1S2706 // D1S2661 // --- // --- /// 68.1611616801535 // --- // --- // TSC59969 // TSC770243","D1S1559 // downstream // 52144 /// D1S2299E // upstream // 6915","StyI // --- // 817 // 50433297 // 50434113 /// NspI // --- // 574 // 50433477 // 50434050","0.010204 // 0.989796 // CEPH /// 0.0 // 1.0 // Han Chinese /// 0.0 // 1.0 // Japanese /// 0.022222 // 0.977778 // Yoruba","0.0202 // CEPH /// 0.0 // Han Chinese /// 0.0 // Japanese /// 0.043457 // Yoruba","49.0 // CEPH /// 45.0 // Han Chinese /// 45.0 // Japanese /// 45.0 // Yoruba","YES","reverse","---","12","0","YES","--- // CEPH /// --- // Han Chinese /// --- // Japanese /// --- // Yoruba","0.010204 // CEPH /// 0.0 // Han Chinese /// 0.0 // Japanese /// 0.022222 // Yoruba","0.415785"
-"SNP_A-1780618","10004754","rs233978","4","104894961","+","0","q24","ggatattgtccctggg[A/G]atggccttatttatct","A","G","ENST00000305749 // downstream // 714054 // Hs.12248 // CXXC4 // 80319 // CXXC finger 4 /// NM_001059 // upstream // 34539 // Hs.942 // TACR3 // 6870 // Tachykinin receptor 3 /// NM_025212 // downstream // 714054 // Hs.12248 // CXXC4 // 80319 // CXXC finger 4 /// ENST00000304883 // upstream // 34539 // Hs.942 // TACR3 // 6870 // Tachykinin receptor 3","108.086324698038 // D4S1572 // D4S2913 // --- // --- /// 107.781224080953 // D4S1591 // D4S2907 // --- // --- /// 105.84222066207 // --- // --- // TSC571244 // TSC798293","D4S2650 // downstream // 90282 /// D4S1344 // upstream // 103722","StyI // --- // 221 // 104894854 // 104895074 /// NspI // --- // 700 // 104894812 // 104895511","0.38 // 0.62 // CEPH /// 0.366667 // 0.633333 // Han Chinese /// 0.322222 // 0.677778 // Japanese /// 0.2 // 0.8 // Yoruba","0.4712 // CEPH /// 0.5111 // Han Chinese /// 0.4667 // Japanese /// 0.32 // Yoruba","50.0 // CEPH /// 45.0 // Han Chinese /// 45.0 // Japanese /// 50.0 // Yoruba","YES","reverse","---","12","0","YES","--- // CEPH /// --- // Han Chinese /// --- // Japanese /// --- // Yoruba","0.38 // CEPH /// 0.366667 // Han Chinese /// 0.322222 // Japanese /// 0.2 // Yoruba","0.358613"'
+'"Probe Set ID",Affy SNP ID,"dbSNP RS ID",Chromosome,"Physical Position","Strand",ChrX pseudo-autosomal region 1,Cytoband,"Flank","Allele A","Allele B","Associated Gene","Genetic Map","Microsatellite","Fragment Enzyme Type Length Start Stop","Allele Frequencies","Heterozygous Allele Frequencies","Number of individuals/Number of chromosomes","In Hapmap","Strand Versus dbSNP","Copy Number Variation","Probe Count","ChrX pseudo-autosomal region 2","In Final List","Minor Allele","Minor Allele Frequency","% GC"
+"SNP_A-1780619",10004759,"rs17106009","1","50433725","-",0,"p33","ggatattgtgtgagga[A/G]taagcccacctgtggt","A","G","ENST00000371827 // intron // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// ENST00000371821 // intron // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// ENST00000371819 // intron // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// ENST00000323186 // intron // 0 // --- // --- // --- // ELAV-like protein 4 (Paraneoplastic encephalomyelitis antigen HuD) (Hu-antigen D). [Source:Uniprot/SWISSPROT;Acc:P26378] /// NM_021952 // intron // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// ENST00000357083 // intron // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// ENST00000361667 // intron // 0 // --- // --- // --- // ELAV-like protein 4 (Paraneoplastic encephalomyelitis antigen HuD) (Hu-antigen D). [Source:Uniprot/SWISSPROT;Acc:P26378] /// ENST00000371823 // intron // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D) /// ENST00000371824 // intron // 0 // Hs.213050 // ELAVL4 // 1996 // ELAV (embryonic lethal, abnormal vision, Drosophila)-like 4 (Hu antigen D)","72.030224900657 // D1S2824 // D1S197 // --- // --- /// 76.2778636775225 // D1S2706 // D1S2661 // --- // --- /// 68.1611616801535 // --- // --- // TSC59969 // TSC770243","D1S1559 // downstream // 52144 /// D1S2299E // upstream // 6915","StyI // --- // 817 // 50433297 // 50434113 /// NspI // --- // 574 // 50433477 // 50434050","0.010204 // 0.989796 // CEPH /// 0.0 // 1.0 // Han Chinese /// 0.0 // 1.0 // Japanese /// 0.022222 // 0.977778 // Yoruba","0.0202 // CEPH /// 0.0 // Han Chinese /// 0.0 // Japanese /// 0.043457 // Yoruba","49.0 // CEPH /// 45.0 // Han Chinese /// 45.0 // Japanese /// 45.0 // Yoruba","YES","reverse","---","12","0","YES","--- // CEPH /// --- // Han Chinese /// --- // Japanese /// --- // Yoruba","0.010204 // CEPH /// 0.0 // Han Chinese /// 0.0 // Japanese /// 0.022222 // Yoruba","0.415785"
+"SNP_A-1780618",10004754,"rs233978","4","104894961","+",0,"q24","ggatattgtccctggg[A/G]atggccttatttatct","A","G","ENST00000305749 // downstream // 714054 // Hs.12248 // CXXC4 // 80319 // CXXC finger 4 /// NM_001059 // upstream // 34539 // Hs.942 // TACR3 // 6870 // Tachykinin receptor 3 /// NM_025212 // downstream // 714054 // Hs.12248 // CXXC4 // 80319 // CXXC finger 4 /// ENST00000304883 // upstream // 34539 // Hs.942 // TACR3 // 6870 // Tachykinin receptor 3","108.086324698038 // D4S1572 // D4S2913 // --- // --- /// 107.781224080953 // D4S1591 // D4S2907 // --- // --- /// 105.84222066207 // --- // --- // TSC571244 // TSC798293","D4S2650 // downstream // 90282 /// D4S1344 // upstream // 103722","StyI // --- // 221 // 104894854 // 104895074 /// NspI // --- // 700 // 104894812 // 104895511","0.38 // 0.62 // CEPH /// 0.366667 // 0.633333 // Han Chinese /// 0.322222 // 0.677778 // Japanese /// 0.2 // 0.8 // Yoruba","0.4712 // CEPH /// 0.5111 // Han Chinese /// 0.4667 // Japanese /// 0.32 // Yoruba","50.0 // CEPH /// 45.0 // Han Chinese /// 45.0 // Japanese /// 50.0 // Yoruba","YES","reverse","---","12","0","YES","--- // CEPH /// --- // Han Chinese /// --- // Japanese /// --- // Yoruba","0.38 // CEPH /// 0.366667 // Han Chinese /// 0.322222 // Japanese /// 0.2 // Yoruba","0.358613"'
 );
 
 #print "\$exp = " . root->print_perl_var_def( $data_table2->{'col_format'} ) . ";\n";
 $exp = {
-	'17' => '1',
-	'40' => '0',
-	'22' => '0',
-	'38' => '0',
-	'11' => '1',
-	'5'  => '1',
-	'20' => '0',
-	'28' => '0',
-	'15' => '1',
-	'50' => '0',
-	'44' => '0',
-	'18' => '0',
-	'48' => '0',
-	'53' => '1',
-	'27' => '1',
-	'23' => '1',
-	'52' => '0',
-	'9'  => '1',
-	'46' => '0',
-	'36' => '0',
-	'30' => '0',
-	'14' => '0',
-	'0'  => '0',
-	'6'  => '0',
-	'29' => '1',
-	'26' => '0',
-	'39' => '1',
-	'16' => '0',
-	'12' => '0',
-	'33' => '1',
-	'10' => '0',
-	'43' => '1',
-	'2'  => '0',
-	'13' => '1',
-	'24' => '0',
-	'32' => '0',
-	'19' => '1',
-	'49' => '1',
-	'37' => '1',
-	'51' => '1',
-	'1'  => '1',
-	'47' => '1',
-	'8'  => '0',
-	'7'  => '1',
-	'45' => '1',
-	'41' => '1',
-	'31' => '1',
-	'35' => '1',
-	'34' => '0',
-	'25' => '1',
-	'21' => '1',
-	'4'  => '0',
-	'3'  => '1',
-	'42' => '0'
+  '0' => '1',
+  '10' => '1',
+  '11' => '1',
+  '12' => '1',
+  '13' => '1',
+  '14' => '1',
+  '15' => '1',
+  '16' => '1',
+  '17' => '1',
+  '18' => '1',
+  '19' => '1',
+  '1' => '0',
+  '2' => '1',
+  '20' => '1',
+  '21' => '1',
+  '22' => '1',
+  '23' => '1',
+  '24' => '1',
+  '25' => '1',
+  '26' => '1',
+  '3' => '1',
+  '4' => '1',
+  '5' => '1',
+  '6' => '0',
+  '7' => '1',
+  '8' => '1',
+  '9' => '1'
 };
+
+
 is_deeply(
 	$data_table2->{'col_format'},$exp,	"col_format storage");
-print $data_table2->AsString();
+	
+#print $data_table2->AsString();
 is_deeply( $data_table2->Header_Position('Probe Set ID'),
 	0, "the column header was identified in the right way!" );
 is_deeply( $data_table2->Header_Position('Affy SNP ID'),
@@ -856,7 +847,7 @@ $exp = [
 is_deeply( [ split( "\t", $return->AsTestString() ) ],
 	$exp, "Pathway summary Pivot Table repeate without rinse" );
 
-#die $return -> AsString();
+#die $return -> AsString();write string format (front)
 
 $value->plot_as_bar_graph(
 	{
@@ -945,10 +936,12 @@ $mail->parse_from_string(
 	]
 );
 $name->merge_with_data_table($mail);
+#print "\$exp = ".root->print_perl_var_def( [split( /[\t\n]/, $name->AsString())] ) .";\n";
+
+$exp = [ '#forename', 'lastname', 'gender', 'email', 'stefan', 'lang', 'male', 'st.t.lang@gmx.de', 'stefan', 'lang', 'male', 'st.t.lang@gmx.com' ];
+
 is_deeply(
-	$name->AsString(),
-"#forename\tlastname\tgender\temail\nstefan\tlang\tmale\tst.t.lang\@gmx.de\nstefan\tlang\tmale\tst.t.lang\@gmx.com\n",
-	"Merge two tables multiple lines"
+	[split( /[\t\n]/, $name->AsString())],$exp,	"Merge two tables multiple lines #1"
 );
 
 $name = data_table->new();
@@ -963,28 +956,46 @@ $mail->parse_from_string(
 	]
 );
 $name->merge_with_data_table($mail);
+$name = $name -> Sort_by( [['email','lexical']] );
+#print "\$exp = ".root->print_perl_var_def( [split( /[\t\n]/, $name->AsString())] ) .";\n";
+
+$exp = [ 
+'#forename', 	'lastname', 	'gender', 	'email', 
+'stefan', 		'lang', 		'male', 	'st.t.lang@gmx.com', 
+'stefan', 		'lang', 		'male', 	'st.t.lang@gmx.de', 
+'', 			'', 			'male', 	'test@fun.com' ,
+'', 			'', 			'male', 	'test@test.de', 
+];
 
 is_deeply(
-	$name->AsString(),
-"#forename\tlastname\tgender\temail\nstefan\tlang\tmale\tst.t.lang\@gmx.de\n\t\tmale\t\nstefan\tlang\tmale\tst.t.lang\@gmx.com\n",
-	"Merge two tables multiple lines"
+	[ split( /[\n\t]/,$name->AsString() ) ],$exp,
+	"Merge two tables multiple lines #2"
 );
 $name = data_table->new();
 $name->string_separator('"');
 $name->parse_from_string(
 	[ "#forename\tlastname\tgender", "\"stefan\tlang\"\tlang\tmale" ] );
+
+#print "\$exp = ".root->print_perl_var_def($name->{col_format} ).";\n";
+
+ok( @{@{$name->{'data'}}[0]}[0] eq "stefan\tlang", "internal col sep in column 0" );
+
+ok($name->__col_format_is_string(0), 'col format is string (0)' );
+
+ok($name->string_separator() eq '"', "string separator is a \"");
 is_deeply(
 	$name->AsString(),
 	"#forename\tlastname\tgender\n\"stefan\tlang\"\tlang\tmale\n",
 	"write string format (front)"
 );
 
+
 $name = data_table->new(1);
 $name->string_separator('"');
 $name->parse_from_string(
 	[
 		"#some descirption", "#forename\tlastname\tgender",
-		"stefan\t\"stefan\tlang\"\t\"male\""
+		"stefan\t\"stefan\tlang\"\tmale"
 	]
 );
 is_deeply(
@@ -1011,7 +1022,7 @@ $name->merge_with_data_table($mail);
 is_deeply(
 	$name->AsString(),
 "#some descirption\n#some other description\n#forename\tlastname\tgender\tsex\nstefan\t\"stefan\tlang\"\tmale\t\"real\tsomething\"\n",
-	"Merge two tables multiple lines"
+	"Merge two tables multiple lines #3"
 );
 $name->define_subset( 'export', [ 'lastname', 'gender', 'sex' ] );
 $mail = $name->GetAsObject('export');
@@ -1031,22 +1042,19 @@ $subset_text->AddDataset(
 $subset_text->AddDataset(
 	{ "column a" => 'a', 'column b' => 'b', 'column c' => 'c' } );
 $subset_text->define_subset( 'AA AB', [ 'Column A', 'column b' ] );
-print "\$exp = "
-  . root->print_perl_var_def( [ split( "\t", $subset_text->AsTestString() ) ] )
-  . ";\n";
-$exp = [
-	'1
-#Column A',           'Column B',   'Column C
-A',                   'B',          'C
-a',                   'b',          'c
-#subsets=column a;0', 'column c;2', 'column b;1', 'AA AB;0;1
-#subset_headers=AA AB;Column A;column b', 'column b;Column B',
-	'column c;Column C',                  'column a;Column A
+#print "\$exp = "  . root->print_perl_var_def( [ split( "\t", $subset_text->AsTestString() ) ] )  . ";\n";
+  
+$exp = [ '1
+#Column A', 'Column B', 'Column C
+A', 'B', 'C
+a', 'b', 'c
+#subsets=AA AB;0;1', 'column a;0', 'column b;1', 'column c;2
+#subset_headers=AA AB;Column A;column b', 'column a;Column A', 'column b;Column B', 'column c;Column C
 #index=
 #uniques=
 #defaults=
-'
-];
+' ];
+
 
 is_deeply( [ split( "\t", $subset_text->AsTestString() ) ],
 	$exp, 'Subset OK to add data' );

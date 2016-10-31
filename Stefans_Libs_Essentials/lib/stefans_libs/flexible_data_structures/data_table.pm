@@ -521,9 +521,9 @@ sub GetAsArray {
 sub Transpose {
 	my ($self) = @_;
 	my $return = ref($self)->new();
-	$return->add_column( @{ $self->{'header'} } );
+	$return->add_column( 'rownames', @{ $self->{'header'} } );
 	foreach ( my $i = 0 ; $i < $self->Rows() ; $i++ ) {
-		$return->add_column( @{ @{ $self->{'data'} }[$i] } );
+		$return->add_column( "col_$i", @{ @{ $self->{'data'} }[$i] } );
 	}
 	return $return;
 }
@@ -743,7 +743,7 @@ sub print2file {
 sub __seqB {
 	my ( $self, $hn ) = @_;
 	my $str = "#$hn=";
-	foreach ( keys %{ $self->{$hn} } ) {
+	foreach (sort keys %{ $self->{$hn} } ) {
 		next unless ( ref( $self->{$hn}->{$_} ) eq "ARRAY" );
 		$str .= join( ";", $_, @{ $self->{$hn}->{$_} } ) . "\t";
 	}
@@ -756,7 +756,7 @@ sub __tail_as_string {
 	my $str = $self->__seqB('subsets');
 	$str .= $self->__seqB('subset_headers');
 	foreach ( 'index', 'uniques', 'defaults' ) {
-		$str .= "#$_=" . join( "\t", ( keys %{ $self->{$_} } ) ) . "\n";
+		$str .= "#$_=" . join( "\t", (sort  keys %{ $self->{$_} } ) ) . "\n";
 	}
 	return $str;
 }
@@ -1199,8 +1199,6 @@ sub AsString {
 	@default_values = $self->getAllDefault_values();
 	my $max_H      = $self->Max_Header();
 	my $line_sep   = $self->line_separator();
-	my @col_format = map { $self->__col_format_is_string($_) }
-	  0 .. scalar( @{ @{ $self->{'data'} }[0] } ) - 1;
 	foreach my $data ( @{ $self->{'data'} } ) {
 		$data ||=[];
 		@line = @$data;
@@ -1208,8 +1206,8 @@ sub AsString {
 			unless ( defined $line[$i] ) {
 				$line[$i] = $default_values[$i];
 			}
-			$line[$i] = '"' . $line[$i] . '"'
-			  if ( $col_format[$i] );
+			$line[$i] =  $self->{'string_separator'}. $line[$i] . $self->{'string_separator'}
+			  if ( $self->__col_format_is_string($i) );
 		}
 		$str .= join( $line_sep, @line ) . "\n";
 
@@ -1229,7 +1227,7 @@ sub AsTestString {
 	}
 	if ( $self->Lines() < 11 ) {
 		return
-		    Carp::cluck() . "\n"
+		    Carp::cluck("data_table-> AsTestString( '$subset' ) ") . "\n"
 		  . $self->AsString()
 		  . $self->__tail_as_string();
 	}
@@ -1361,6 +1359,7 @@ sub Add_2_Header {
 			= '';
 		  $self->Max_Header('+');
 	  }
+	  $self->__col_format_is_string( $self->{'header_position'}->{$value}, 0 ) unless ( $self->__col_format_is_string( $self->{'header_position'}->{$value} ));
 	  return $self->{'header_position'}->{$value};
 }
 
@@ -1431,7 +1430,7 @@ sub string_separator {
 	  $self->{'string_separator'} = $string_separator
 		if ( defined $string_separator );
 	  return undef unless ( defined $self->{'string_separator'} );
-	  $self->{'string_separator'} = undef
+	  $self->{'string_separator'} = ''
 		if ( $self->{'string_separator'} eq "none" );
 	  return $self->{'string_separator'};
 }
@@ -1456,10 +1455,11 @@ sub __col_format_is_string {
 	  unless ( $col_id =~ m/^\d+$/ ) {
 		  ($col_id) = $self->Header_Position($col_id);
 	  }
-	  $self->{'col_format'}->{$col_id} = $set if ( defined $set );
-	  unless ( defined $self->{'col_format'}->{$col_id} ) {
-		  return 0;
+	  if ( defined $set ) {
+	  	$self->{'col_format'}->{$col_id} = $set;
+	  #	Carp::cluck("The col format for column '$col_id' has changed to '$set'\n") ;
 	  }
+	  $self->{'col_format'}->{$col_id} ||= 0;
 	  return $self->{'col_format'}->{$col_id};
 }
 
@@ -1469,37 +1469,23 @@ sub __split_line {
 	  my ( $temp, $substiute, @return, @temp, @d );
 	  $temp = '';
 	  if ( defined $self->{'string_separator'} ) {
-		  @temp = split( /$self->{'string_separator'}/, $line );
-		  unless ( defined $temp[0] ) {
-			  shift(@temp);
-			  push( @return, shift(@temp) );
-			  Carp::confess("File format error on line '$line'\n")
-				unless ( $temp[0] eq $self->{'line_separator'} );
-			  shift(@temp);
-		  }
-		  if ( @temp == 1 ) {
-			  return [ split( $self->{'line_separator'}, $line ), ];
-		  }
-		  my $i = 0;
-		  while ( @temp > 0 ) {
-			  if ( @temp == 1 ) {
-				  push( @return, shift @temp );
-				  $self->__col_format_is_string( $i++, 1 );
-				  next;
-			  }
-			  if ( $temp[1] =~ s/^$self->{'line_separator'}// ) {
-				  push( @return, shift @temp, );
-				  $self->__col_format_is_string( $i++, 1 );
-				  shift(@temp) unless ( defined $temp[0] );
-			  }
-			  else {
-				  $self->__col_format_is_string( $i++, 0 );
-				  push( @return,
-					  split( $self->{'line_separator'}, shift(@temp) ),
-				  );
-			  }
-		  }
-		  return \@return;
+	  		$temp = 0;
+	  		my $in_string = 0;
+	  		foreach ( split("", $line )) {
+	  			if ( $_ eq $self->{'string_separator'}) { 
+	  				$in_string = ! $in_string ;
+	  				if ( $in_string ) {
+	  					$self->__col_format_is_string( $temp, $in_string ) unless ( $self->__col_format_is_string( $temp)  );
+	  				}
+	  				
+	  			}elsif ( $_ eq $self->{'line_separator'} and ! $in_string )  {
+	  				$temp ++;
+	  				$temp[$temp] = '';
+	  			}else {
+	  				$temp[$temp] .= $_;
+	  			}
+	  		} 
+	  		return \@temp;
 	  }
 	  return [ split( $self->{'line_separator'}, $line ), ];
 }
@@ -1683,7 +1669,7 @@ sub parse_from_string {
 	  my @data;
 	  my @temp;
 	  unless ( ref($string) eq "ARRAY" ) {
-		  $string = [ split( "\n", $string ) ];
+		  $string = [ split( /[\n\r]/, $string ) ];
 	  }
 	  $self->{'description'} = [];
 	  my ( @line, $value, @description, $split_string, $string_separator );
@@ -2058,7 +2044,7 @@ sub merge_with_data_table {
 		  unless ( defined $self->Header_Position($other_column) ) {
 			  $self->Add_2_Header($other_column);
 			  $self->__col_format_is_string( $other_column,
-				  $other_data_table->__col_format_is_string($other_column) );
+				  $other_data_table->__col_format_is_string($other_column) ) unless ( $self->__col_format_is_string( $other_column ) );
 		  }
 	  }
 	  $other_data_table->define_subset( '___DATA___', [ sort keys %$keys ] );
@@ -2140,7 +2126,7 @@ sub merge_with_data_table {
 				  ## in jede Zeile muss die Info übertragen werden!
 				  $my_hash = $self->get_line_asHash($line);
 				  foreach ( keys %$other_hash ) {
-					  unless ( $my_hash->{$_} =~ m/.+/ ) {
+					  unless ( defined($my_hash->{$_}) ) {
 						  @{ @{ $self->{'data'} }[$line] }
 							[ $self->Header_Position($_) ] = $other_hash->{$_};
 					  }
@@ -2233,9 +2219,7 @@ If a column entry is found in the has the column is dropped.
 
 sub drop_rows{
 	my ( $self, $where, $matchHash ) = @_;
-	unless ( ref($matchHash) eq "ARRAY" ){
-		return $self->drop_these_rows ( $where, $matchHash, @_ );
-	}
+
 	my @pos = $self->Header_Position( $where );
 	for ( my $i = @{$self->{'data'}} -1; $i >= 0; $i-- ){
 		if ( $matchHash->{join(" ", @{@{$self->{'data'}}[$i]}[@pos])} ){ ## drop this
@@ -2341,8 +2325,11 @@ sub Add_Dataset {
 					. "\n" );
 			  next;
 		  }
-		  $data[$h] = $dataset->{$colName};
-		  $data[$h] ||= '';
+		  unless ( defined $dataset->{$colName}){
+		  	$data[$h] = '';
+		  }else {
+		  	$data[$h] = $dataset->{$colName};
+		  }
 	  }
 	  ## see if we already have that dataset - will only work if we have an index!!
 	  my $check_lines = {};
@@ -2805,6 +2792,7 @@ sub GetAsObject {
 		  $return->__col_format_is_string( $_,
 			  $self->__col_format_is_string($_) );
 	  }
+	  $return->string_separator( $self->string_separator());
 	  $return->Description( $self->Description() );
 	  return $return;
 }
