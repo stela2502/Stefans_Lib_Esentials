@@ -317,7 +317,7 @@ if ( -d \$outpath ) {
 
 
 my \$cmd =
-    \"perl -I \$plugin_path/../lib  \$exec.pl \"\n";
+    \"perl -I \$plugin_path/../lib  \$exec \"\n";
 	foreach ( keys %$optionNames ) {
 		if ( $optionNames->{$_} eq "ARRAY" ) {
 			print Test ". \" -$_ \" . join(' ', \@$_ )\n";
@@ -328,8 +328,9 @@ my \$cmd =
 			print Test ". \" -$_ \" . \$$_ \n";
 		}
 	}
+	print Test "system( \$cmd );\n";
 	print Test ". \" -debug\";\n"
-	  . "#print \"\\\$exp = \".root->print_perl_var_def(\$value ).\";\\n";
+	  . "#print \"\\\$exp = \".root->print_perl_var_def(\$value ).\";\\n\";";
 
 	close(OUT);
 	return "$testPath/xx_$executable.t";
