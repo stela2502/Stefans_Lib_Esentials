@@ -521,6 +521,11 @@ sub GetAsArray {
 sub Transpose {
 	my ($self) = @_;
 	my $return = ref($self)->new();
+	if ( $return->{'transposed'} ){
+		$return->{'transposed'} = 0;
+	}else {
+		$return->{'transposed'} = 1;
+	}
 	$return->add_column( 'rownames', @{ $self->{'header'} } );
 	foreach ( my $i = 0 ; $i < $self->Rows() ; $i++ ) {
 		$return->add_column( "col_$i", @{ @{ $self->{'data'} }[$i] } );
@@ -1512,7 +1517,7 @@ sub __process_comment_line {
 	  my ( $self, $line ) = @_;
 	  my ( @temp, $description, @line );
 	  if ( $line =~ m/^#+(.+)/ && scalar( @{ $self->{'data'} } ) == 0 ) {
-		  if ( defined @{ $self->{'header'} }[0] ) {
+		  if ( defined @{ $self->{'header'} }[0] and ref($self) eq "data_table" ) {
 			  @temp = @{ $self->__split_line($1) };
 			  foreach (@temp) {
 				  $self->Add_2_Header($_);
@@ -1660,7 +1665,8 @@ sub read_file {
 	  foreach ( keys %{ $self->{'uniques'} } ) {
 		  $self->UpdateUniqueKey($_) if ( defined $self->Header_Position($_) );
 	  }
-	  $self->After_Data_read();
+	  my $t = $self->After_Data_read();
+	  $self = $t if ( ref($t) eq ref($self) );
 	  return $self;
 }
 
