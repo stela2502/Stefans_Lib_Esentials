@@ -328,8 +328,7 @@ my \$cmd =
 			print Test ". \" -$_ \" . \$$_ \n";
 		}
 	}
-	print Test "system( \$cmd );\n";
-	print Test ". \" -debug\";\n"
+	print Test ". \" -debug\";\n". "system( \$cmd );\n"
 	  . "#print \"\\\$exp = \".root->print_perl_var_def(\$value ).\";\\n\";";
 
 	close(OUT);

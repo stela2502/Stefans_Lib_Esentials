@@ -847,14 +847,15 @@ sub _copy_without_data {
 	foreach (
 		'read_filename', 'debug',      'arraySorter',
 		'description',   'col_format', 'column_p_type',
-		'__HTML_column_mods__'
+		'__HTML_column_mods__', 'header', 'header_position'
 	  )
 	{
 		$return->{$_} = $self->{$_};
 	}
-	foreach ( @{ $self->{'header'} }[ 0 .. ( $self->Max_Header() - 1 ) ] ) {
+	foreach ( @{ $self->{'header'} } ) {
 		$return->Add_2_Header($_);
 	}
+	$return->{__max_header__} = $self->{'__max_header__'};
 	for ( my $i = 0 ; $i < @{ $self->{'default_value'} } ; $i++ ) {
 		if ( defined @{ $self->{'default_value'} }[$i] ) {
 			$return->setDefaultValue(
