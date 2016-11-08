@@ -282,6 +282,7 @@ sub select_where {
 	my $return = $self->_copy_without_data();
 	$return->Description( $self->Description );
 	for ( my $i = 0 ; $i < @{ $self->{'data'} } ; $i++ ) {
+		#print "line $i would be selected if (".&$function_ref($self->get_value_4_line_and_column( $i, $col_name )).")\n";
 		@{ $return->{'data'} }[ $return->Lines() ] =
 		  [ @{ @{ $self->{'data'} }[$i] } ]
 		  if (
@@ -290,6 +291,7 @@ sub select_where {
 			)
 		  );
 	}
+	#print "Done\n";
 	return $return;
 }
 
