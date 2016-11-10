@@ -1637,12 +1637,16 @@ sub AsString {
 					$str .= $_->AsString();
 				}
 				if ( $_->isa('data_table') ) {
-					$_->write_file( $self->Outpath()
+					if ( $_->Lines() ){
+						$_->write_file( $self->Outpath()
 						  . "/Tables/"
 						  . sprintf( '%04d', $lastTable++ )
 						  . ".txt" )
-					  if ( defined $lastTable );
-					$str .= $_->AsLatexLongtable();
+						  if ( defined $lastTable );
+						$str .= $_->AsLatexLongtable();
+					}else {
+						$str .= "\n\nSorry no entries in this table!\n\n";
+					}
 				}
 			}
 		}

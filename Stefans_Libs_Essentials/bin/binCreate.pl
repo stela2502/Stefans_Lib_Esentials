@@ -317,7 +317,7 @@ if ( -d \$outpath ) {
 
 
 my \$cmd =
-    \"perl -I \$plugin_path/../lib  \$exec.pl \"\n";
+    \"perl -I \$plugin_path/../lib  \$exec \"\n";
 	foreach ( keys %$optionNames ) {
 		if ( $optionNames->{$_} eq "ARRAY" ) {
 			print Test ". \" -$_ \" . join(' ', \@$_ )\n";

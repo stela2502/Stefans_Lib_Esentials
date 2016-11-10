@@ -652,6 +652,7 @@ sub print_perl_var_def {
 			$return .= 'undef';
 		}
 		else {
+			$var =~ s/'/\\'/g;
 			$return .= "'$var'";
 		}
 	}
@@ -746,10 +747,12 @@ sub printEntry {
 			$string .= "\t";
 		}
 		$printableString = $value;
+		
 		if ( length($value) > $maxStrLength ) {
 			$printableString = substr( $value, 0, $maxStrLength );
 			$printableString = "$printableString ...";
 		}
+		$printableString =~ s/'/\\'/g;
 		$string .= "$key\t$printableString\n";
 	}
 	else {
@@ -761,6 +764,7 @@ sub printEntry {
 			$printableString = substr( $key, 0, $maxStrLength );
 			$printableString = "$printableString ...";
 		}
+		$printableString =~ s/'/\\'/g;
 		$string .= "$printableString\n";
 	}
 	return $string if ( $maxDepth == $i );

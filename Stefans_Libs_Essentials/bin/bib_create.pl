@@ -113,6 +113,7 @@ foreach (@path) {
 }
 $lib_name .= $filename;
 $filename = join( "/", @path ) . "/$filename.pm";
+
 print "We created the lib file '".&createLibFile( $filename, $lib_name )."'\n";
 print "We created the test file '". &createTestFile (join("/", @test_path), $lib_name, join("_", split("::", $lib_name)))."'\n" unless ( $create_no_test);
 
@@ -121,6 +122,11 @@ print "We created the test file '". &createTestFile (join("/", @test_path), $lib
 
 sub createLibFile {
 	my ( $libFile, $package ) = @_;
+	my $fm = root -> filemap ( $libFile);
+	unless ( -d $fm->{'path'} ) {
+		warn "mkdir -p $fm->{'path'}\n";
+		system( "mkdir -p $fm->{'path'}");
+	}
 	if ( -f $libFile and ! $force ) {
 		warn "Lib file $libFile exists - use -force to overwrite it!\n";
 		return 1;

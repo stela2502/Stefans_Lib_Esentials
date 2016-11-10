@@ -34,7 +34,7 @@ my $plugin_path = "$FindBin::Bin";
 
 my $VERSION = 'v1.0';
 
-my ( $help, $debug, $database, $infile, $outfile, $sampleNames, $dataNames,
+my ( $help, $debug, $database, $infile, $outfile, $sampleNames, $dataNames,$options,
 	@options );
 
 Getopt::Long::GetOptions(
@@ -92,7 +92,7 @@ sub helpString {
    
    -sampleNames   :the name of the sample name column in the sample level data
    -dataNames     :the name of the data IDs in the gene level data
-   -options       :unused
+   -options       :name <some name for the R object>
 
    -help           :print this help
    -debug          :verbose output
@@ -118,6 +118,14 @@ close(LOG);
 
 ## Do whatever you want!
 
+for ( my $i = 0 ; $i < @options ; $i += 2 ) {
+	$options[ $i + 1 ] =~ s/\n/ /g;
+	$options->{ $options[$i] } = $options[ $i + 1 ];
+}
+
+$options->{'name'} ||='Some Name';
+$options->{'Robj.name'} ||= join("_", split(/\s+/,$options->{'name'}));
+
 my $obj = stefans_libs::file_readers::cefFile->new();
 $obj->read_file($infile, $sampleNames);
 foreach my $what ( 'samples', 'annotation', 'data' ) {
@@ -134,15 +142,16 @@ foreach my $what ( 'samples', 'annotation', 'data' ) {
 ## + read this into a fluidigm object for plotting
 
 open ( OUT, ">$outfile.readin.R" ) or die "Could not create R file \n$!\n";
-print OUT "library (NGSexpressionSet)\n"
-. "dat <- read.delim('$outfile"."_data.xls' , header=T )\n"
-. "rownames(dat) <- dat[,1]\n"
-. "Samples <- as.data.frame ( read.delim(file='$outfile"."_samples.xls', header=T ))\n"
-. "Samples\$origSampleName <- Samples\$$sampleNames\n"
-. "Samples\$$sampleNames <- make.names(Samples\$$sampleNames)\n"
-. "anno <- read.delim(file='$outfile"."_annotation.xls', header=T )\n"
-#. "dat <- cbind(anno,dat)\n"
-. "OBJ <- SingleCellsNGS( dat, Samples, name='@{@{$obj->{'headers'}}[0]}[1]', namecol='$sampleNames', namerow= '$dataNames', usecol=NULL )\n"
-. "OBJ\n"
-. "save( OBJ, file='$outfile.RData')\n";
+print OUT "library (StefansExpressionSet)\n";
+print OUT "dat <- read.delim('$outfile"."_data.xls' , header=T )\n";
+print OUT "rownames(dat) <- dat[,1]\n";
+print OUT "Samples <- as.data.frame ( read.delim(file='$outfile"."_samples.xls', header=T ))\n";
+print OUT "Samples\$origSampleName <- Samples\$$sampleNames\n";
+print OUT "Samples\$$sampleNames <- make.names(Samples\$$sampleNames)\n";
+print OUT "anno <- read.delim(file='$outfile"."_annotation.xls', header=T )\n";
+#print OUT "dat <- cbind(anno,dat)\n";
+print OUT "$options->{'Robj.name'} <- SingleCellsNGS( dat, Samples, name='$options->{'name'}', "
+."namecol='$sampleNames', namerow= '$dataNames', usecol=NULL )\n";
+print OUT "$options->{'Robj.name'}\n";
+print OUT "save( $options->{'Robj.name'}, file='$options->{'Robj.name'}.RData')\n";
 close ( OUT );
