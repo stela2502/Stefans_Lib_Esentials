@@ -630,7 +630,7 @@ sub print_perl_var_def {
 	my $return = '';
 	if ( ref($var) eq "HASH" ) {
 		$return = "{\n";
-		foreach my $name ( keys %$var ) {
+		foreach my $name ( sort keys %$var ) {
 			$return .= "  '$name' => "
 			  . $self->print_perl_var_def( $var->{$name} ) . ",\n";
 		}

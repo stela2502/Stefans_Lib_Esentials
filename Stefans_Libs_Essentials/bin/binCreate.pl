@@ -328,8 +328,8 @@ my \$cmd =
 			print Test ". \" -$_ \" . \$$_ \n";
 		}
 	}
-	print Test ". \" -debug\";\n"
-	  . "#print \"\\\$exp = \".root->print_perl_var_def(\$value ).\";\\n";
+	print Test ". \" -debug\";\n". "system( \$cmd );\n"
+	  . "#print \"\\\$exp = \".root->print_perl_var_def(\$value ).\";\\n\";";
 
 	close(OUT);
 	return "$testPath/xx_$executable.t";

@@ -1,7 +1,7 @@
 #! /usr/bin/perl
 use strict;
 use warnings;
-use Test::More tests => 15;
+use Test::More tests => 16;
 use stefans_libs::flexible_data_structures::data_table;
 use Digest::MD5 qw(md5_hex);
 
@@ -67,6 +67,10 @@ $Latex_Document->Outpath ( "$plugin_path/../tmp/");
 $value = $Latex_Document->write_tex_file( 'test' );
 print "could you please try to create a pdf out of that tex file '$value'\n";
 
+
+
+SKIP: {
+  	skip 2, "Not implemented and not required for over 3 years - useless" ,1;
 ## Test for complex text features 
 ## refs
 ##FIGUREREF Test##
@@ -92,7 +96,7 @@ $value =~s/{sec::\d\d\d\d}/{sec::4783}/g;
 is_deeply ( $value, &section_ref(), 'the ##SECTIONREF <section title>## tag' );
 $Latex_Document->write_tex_file( 'test_section' );
 
-
+}
 
 
 

@@ -11,14 +11,22 @@ author 'Stefan Lang <Stefan.Lang@med.lu.se>';
 requires	'DBI'                     => 0;
 requires		'Pod::Usage'			  => 0;
 requires		'DateTime::Format::MySQL' => 0;
+requires		'Digest::MD5'		  => 0;
 requires		'Statistics::Descriptive' => 0;
 requires		'Date::Simple'            => 0;
 requires		'Number::Format'          => 0;
 requires		'GD'                      => 0;
 requires		'SVG'                     => 0;
 requires	'GD::SVG'                 => '0.33';
+<<<<<<< HEAD
 requires 'Inline::C' => 0;
+=======
+requires 'Inline::C' => 0.62;
+requires 'File::Copy::Recursive' => 0;
+requires 'File::HomeDir' => 0;
+>>>>>>> branch 'master' of git@github.com:stela2502/Stefans_Lib_Esentials.git
 requires		'PDL' => 0;
+requires 'XML::Simple' => 0;
 
 opendir( DIR, "bin/" ) or die "I could not open the bin folder\n$!\n";
 map { install_script "bin/$_" } grep !/^\./,  grep '*.pl', readdir(DIR);
