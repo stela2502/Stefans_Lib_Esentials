@@ -961,11 +961,21 @@ sub LaTeX_modification_for_column {
 =head2 HTML_modification_for_column ( 
 	{
 		 'column_name' => <STR>, 
-		 'before' => 'HTML modification'
-		 'after' => 'HTML_modifcation'
-		 'td' => 'a modification of the td value'
-		 'tr' => 'a modication of the tr value'
-		 'th' => 'a modication of the th value'
+		 'before' => 'HTML modification',
+		 'after' => 'HTML_modifcation',
+		 'td' => 'a modification of the td value',
+		 'tr' => 'a modication of the tr value',
+		 'th' => 'a modication of the th value',
+		 'colsub' => a sub that creates a string based on ($self, $value, $this_hash, $type )
+		 with type == 'th', 'td' or 'tr'
+		 should return something like "<$type $modifications->{$type}>$modifications->{'before'}@$array[$i]$modifications->{'after'}</$type>";
+		 
+		 example:
+		 sub {
+		 	my ( $self, $value, $this_hash, $type ) = @_;
+		 	return "<$type><a href="/somehwhere/@$array[$i]">@$array[$i]</a></$type>"
+		 }
+		 
 	});
 
 =cut
@@ -989,7 +999,7 @@ sub HTML_modification_for_column {
 		defined $self->{'__HTML_column_mods__'}->{ $hash->{'column_name'} } )
 	{
 		$self->{'__HTML_column_mods__'}->{ $hash->{'column_name'} } =
-		  { map { $_ => '' } qw(before after tr td th) };
+		  { map { $_ => '' } qw(before after tr td th colsub) };
 	}
 	## OK we have a column name and a probably empty storage hash
 
@@ -997,6 +1007,9 @@ sub HTML_modification_for_column {
 		$self->{'__HTML_column_mods__'}->{ $hash->{'column_name'} }->{$_} =
 		  $hash->{$_}
 		  if ( defined $hash->{$_} );
+	}
+	if ( ref($hash->{'colsub'}) eq 'CODE' ) {
+		$self->{'__HTML_column_mods__'}->{ $hash->{'column_name'} }->{'colsub'} = $hash->{'colsub'};
 	}
 	return $self->{'__HTML_column_mods__'}->{ $hash->{'column_name'} };
 }
@@ -2898,11 +2911,15 @@ sub __array_2_HTML_table_line {
 	  for ( my $i = 0 ; $i < @$array ; $i++ ) {
 		  $modifications =
 			$self->HTML_modification_for_column( @{ $self->{'header'} }[$i] );
+	      if ( $modifications->{'colsub'} ) {
+	      	$str .= &{$modifications->{'colsub'}} ( $self, @$array[$i], $modifications, $type );
+	      }else {
 		  $str .=
 "<$type $modifications->{$type}>$modifications->{'before'}@$array[$i]$modifications->{'after'}</$type>";
 		  if ( $modifications->{'tr'} ) {
 			  $str =~ s/<tr>/<tr $modifications->{'tr'}>/;
 		  }
+	      }
 	  }
 	  $str .= "</tr>\n";
 	  return $str;

@@ -18,13 +18,9 @@ requires		'Number::Format'          => 0;
 requires		'GD'                      => 0;
 requires		'SVG'                     => 0;
 requires	'GD::SVG'                 => '0.33';
-<<<<<<< HEAD
-requires 'Inline::C' => 0;
-=======
 requires 'Inline::C' => 0.62;
 requires 'File::Copy::Recursive' => 0;
 requires 'File::HomeDir' => 0;
->>>>>>> branch 'master' of git@github.com:stela2502/Stefans_Lib_Esentials.git
 requires		'PDL' => 0;
 requires 'XML::Simple' => 0;
 
