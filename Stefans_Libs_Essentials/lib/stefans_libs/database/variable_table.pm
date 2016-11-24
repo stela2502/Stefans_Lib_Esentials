@@ -460,7 +460,7 @@ sub _tableNames {
 	  unless ( ref( $self->{'connection'} ) eq "HASH" );
 	$connection = $self->{'connection'};
 	if ( $connection->{'driver'} eq "mysql" ) {
-		$sql = "show tables";
+		$sql = "SHOW TABLES";
 
 		$self->{execute_table} = $self->dbh()->prepare($sql)
 		  unless ( defined $self->{execute_table} );

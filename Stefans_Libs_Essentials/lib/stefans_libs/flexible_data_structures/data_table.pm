@@ -2286,7 +2286,7 @@ sub add_column {
 	  my ( $self, $name, @data_array ) = @_;
 	  my ($col_id);
 	  if ( defined $name ) {
-		  $col_id = $self->Add_2_Header($name);
+		  ($col_id) = $self->Add_2_Header($name);
 	  }
 	  my $data_array;
 	  if ( ref( $data_array[0] ) eq "ARRAY" ) {
@@ -2295,6 +2295,7 @@ sub add_column {
 	  else {
 		  $data_array = \@data_array;
 	  }
+	 # warn "I got the col_id $col_id for the column name $name\n";
 	  if ( $col_id > 0 ) {
 		  Carp::cluck( "The data is not of the same length as the rows!( "
 				. scalar(@$data_array) . " != "
