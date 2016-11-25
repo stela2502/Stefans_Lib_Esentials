@@ -55,6 +55,7 @@ is_deeply(
 		'after'  => '',
 		'td'     => '',
 		'before' => '',
+		'colsub' => '',
 	},
 	"set the HTML modification per row"
 );

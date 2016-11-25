@@ -50,6 +50,6 @@ $exp = [
 ];
 
 
-is_deeply( [ split(/[\n]/,$OBJ->drop_column('C')->AsString())], $exp, "drop_column right results" );
+is_deeply( [ split(/[\n]/,$OBJ->drop_column('B')->AsString())], $exp, "drop_column right results" );
 
 #print "\$exp = ".root->print_perl_var_def($value ).";\n";

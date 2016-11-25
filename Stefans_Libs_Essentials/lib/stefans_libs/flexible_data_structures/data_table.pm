@@ -1093,6 +1093,7 @@ sub AsLatexLongtable {
 sub setDefaultValue {
 	my ( $self, $col_name, $default_value ) = @_;
 	foreach my $col_nr ( $self->Header_Position($col_name) ) {
+		next unless ( defined $col_nr);
 		@{ $self->{'default_value'} }[$col_nr] = $default_value;
 	}
 	return 1;
@@ -1230,7 +1231,7 @@ sub AsString {
 			$line[$i] =  $self->{'string_separator'}. $line[$i] . $self->{'string_separator'}
 			  if ( $self->__col_format_is_string($i) );
 		}
-		$str .= join( $line_sep, map { if ($line[$_]) { $line[$_] } else { $default_values[$_] } } 0..$#line ) . "\n";
+		$str .= join( $line_sep, map { if (defined $line[$_]) { $line[$_] } else { $default_values[$_] } } 0..$#line ) . "\n";
 
 		#	warn  join( $self->line_separator(), @line ) . "\n";
 	}
@@ -1407,6 +1408,9 @@ sub Max_Header {
 
 sub Header_Position {
 	  my ( $self, $value ) = @_;
+	  if ( ref($value) eq "ARRAY" ) {
+	  	return map { $self->Header_Position($_) } @$value;
+	  }
 	  return $self->{'header_position'}->{$value}
 		if ( defined $self->{'header_position'}->{$value} );
 	  return 0 .. scalar( @{ $self->{'header'} } ) - 1
@@ -2800,6 +2804,7 @@ sub GetAsObject {
 	  ## init if $self is a data reader class and therefore has a predefined header info
 	  $return->{'header'} = [];
 	  $return->{'header_position'} = {};
+	  $return->{'__max_header__'} = 0;
 	  my @new_order = $return -> Add_2_Header ( $self->{'subset_headers'}->{$subset} );
 	  foreach my $hash ( @{ $self->GetAll_AsHashArrayRef() } ) {
 	  		$return->AddDataset( {map{ $_ => $hash->{$_} } @{$self->{'subset_headers'}->{$subset}} } );
