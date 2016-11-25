@@ -1230,7 +1230,7 @@ sub AsString {
 			$line[$i] =  $self->{'string_separator'}. $line[$i] . $self->{'string_separator'}
 			  if ( $self->__col_format_is_string($i) );
 		}
-		$str .= join( $line_sep, @line ) . "\n";
+		$str .= join( $line_sep, map { if ($line[$_]) { $line[$_] } else { $default_values[$_] } } 0..$#line ) . "\n";
 
 		#	warn  join( $self->line_separator(), @line ) . "\n";
 	}
@@ -2797,23 +2797,16 @@ sub GetAsObject {
 		  return undef;
 	  }
 	  my $return = ref($self)->new();
-	  my @data;
-	  foreach my $array ( @{ $self->{'data'} } ) {
-		  push( @data, [ @$array[ @{ $self->{'subsets'}->{$subset} } ] ] );
-	  }
-	  if ( defined $self->{'subset_headers'}->{$subset} ) {
-		  $return->Add_db_result( $self->{'subset_headers'}->{$subset},
-			  \@data );
-	  }
-	  else {
-		  $return->Add_db_result(
-			  [ @{ $self->{'header'} }[ @{ $self->{'subsets'}->{$subset} } ] ],
-			  \@data
-		  );
+	  ## init if $self is a data reader class and therefore has a predefined header info
+	  $return->{'header'} = [];
+	  $return->{'header_position'} = {};
+	  my @new_order = $return -> Add_2_Header ( $self->{'subset_headers'}->{$subset} );
+	  foreach my $hash ( @{ $self->GetAll_AsHashArrayRef() } ) {
+	  		$return->AddDataset( {map{ $_ => $hash->{$_} } @{$self->{'subset_headers'}->{$subset}} } );
 	  }
 	  foreach ( @{ $return->{'header'} } ) {
-		  $return->__col_format_is_string( $_,
-			  $self->__col_format_is_string($_) );
+	  	$return->setDefaultValue( $_, $self->getDefault_values($_) );
+	  	$return->__col_format_is_string( $_, $self->__col_format_is_string($_) );
 	  }
 	  $return->string_separator( $self->string_separator());
 	  $return->Description( $self->Description() );
