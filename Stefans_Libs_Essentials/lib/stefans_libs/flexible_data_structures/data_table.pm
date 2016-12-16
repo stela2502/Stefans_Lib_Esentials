@@ -1503,7 +1503,7 @@ sub __split_line {
 	  					$self->__col_format_is_string( $temp, $in_string ) unless ( $self->__col_format_is_string( $temp)  );
 	  				}
 	  				
-	  			}elsif ( $_ eq $self->{'line_separator'} and ! $in_string )  {
+	  			}elsif ( $_ =~ m/$self->{'line_separator'}/ and ! $in_string )  {
 	  				$temp ++;
 	  				$temp[$temp] = '';
 	  			}else {
