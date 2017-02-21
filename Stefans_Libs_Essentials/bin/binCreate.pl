@@ -92,9 +92,11 @@ foreach my $variableStr (@commandLineSwitches) {
 	}
 	if ( lc($variableStr) eq "outfile" ) {
 		$log_str =
-		    "open ( LOG , \">\$outfile.log\") or die \$!;\n"
-		  . "print LOG \$task_description.\"\\n\";\n"
-		  . "close ( LOG );\n\n";
+		"my \$fm = root->filemap( \$outfile );\n"
+		. "mkdir( \$fm->{'path'}) unless ( -d \$fm->{'path'} );\n\n"
+		. "open ( LOG , \">\$outfile.log\") or die \$!;\n"
+		. "print LOG \$task_description.\"\\n\";\n"
+		. "close ( LOG );\n\n";
 	}
 	elsif ( lc($variableStr) eq "outpath" ) {
 		$log_str =
