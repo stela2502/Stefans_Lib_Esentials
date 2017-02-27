@@ -330,7 +330,10 @@ my \$cmd =
 			print Test ". \" -$_ \" . \$$_ \n";
 		}
 	}
-	print Test ". \" -debug\";\n". "system( \$cmd );\n"
+	print Test ". \" -debug\";\n". "my \$start = time;\n"
+	  . "system( \$cmd );\n"
+	  . "my \$duration = time - \$start;\n"
+	  . "print \"Execution time: \$duration s\\n\";\n"
 	  . "#print \"\\\$exp = \".root->print_perl_var_def(\$value ).\";\\n\";";
 
 	close(OUT);

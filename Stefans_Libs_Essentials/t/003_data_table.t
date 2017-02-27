@@ -1071,24 +1071,31 @@ is_deeply( [ split( "\t", $subset_text->AsTestString() ) ],
 	$exp, 'Subset after select_where selecting all lines' );
 
 is_deeply(
-	[ $subset_text->Header_Position('AA AB') ],
+	[ $subset_text->Header_Position(['Column A', 'Column B']) ],
 	[ 0, 1 ],
 	'get the location for a subset'
 );
+
+is_deeply(
+	[ $subset_text->Header_Position(['Column A', 'column b']) ],
+	[ 0, 1 ],
+	'get the location for a alias column'
+);
+print $subset_text->AsTestString();
 $subset_text = $subset_text->GetAsObject('AA AB');
+print $subset_text->AsTestString();
 $exp         = [
-	'1
-#Column A', 'column b
-A',         'B
-a',         'b
-#subsets=
-#subset_headers=
-#index=
-#uniques=
-#defaults=
-'
+	'1',
+	'#Column A', 'column b',
+'A',         'B',
+'a',         'b',
+'#subsets=',
+'#subset_headers=',
+'#index=',
+'#uniques=',
+'#defaults=',
 ];
-is_deeply( [ split( "\t", $subset_text->AsTestString() ) ],
+is_deeply( [ split( "[\t\n]", $subset_text->AsTestString() ) ],
 	$exp, 'GetAsObject' );
 
 $data_table2 = data_table->new();

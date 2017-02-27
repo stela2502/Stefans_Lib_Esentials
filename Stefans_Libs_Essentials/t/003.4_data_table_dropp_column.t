@@ -18,6 +18,8 @@ ok( -f $infile, "infile $infile" );
 
 $test_object->read_file($infile);
 
+$test_object->define_subset( 'UCSC', ['seqname','start','end']);
+
 $exp = [
 	'seqname',         'source',
 	'feature',         'start',
