@@ -142,7 +142,7 @@ sub sortArrayBy {
 "arraySorter::sortArrayBy(\$sortOrder, \@matrix) needs a array of sortOrders\n",
 "of the type { position => <position in the lineArray to evaluate>, type => <either 'numeric', 'antiNumeric' or 'lexical'>}"
 	  unless ( defined $sortOrder->{position}
-		&& ( "lexical numeric antiNumeric" =~ m/$sortOrder->{type}/ ) );
+		&& ( "lexical numeric antiNumeric" =~ m/$sortOrder->{type}/ or ref($sortOrder->{type}) eq "HASH") );
 
 	if ( $sortOrder->{type} eq "numeric" ) {
 		@matrix = (
@@ -162,6 +162,15 @@ sub sortArrayBy {
 		@matrix = (
 			sort {
 				@$b[ $sortOrder->{position} ] <=> @$a[ $sortOrder->{position} ]
+			  } @matrix
+		);
+	}elsif ( ref($sortOrder->{type}) eq "HASH" ) {
+		@matrix = (
+			sort {
+				Carp::confess ( "@$a[ $sortOrder->{position} ] or @$b[ $sortOrder->{position} ] was undefined in the sort hash")
+					unless ( defined $sortOrder->{type}->{@$a[ $sortOrder->{position} ]} and defined $sortOrder->{type}->{@$b[ $sortOrder->{position} ]} );
+				$sortOrder->{type}->{@$a[ $sortOrder->{position} ]} <=> 
+					$sortOrder->{type}->{@$b[ $sortOrder->{position} ]}
 			  } @matrix
 		);
 	}

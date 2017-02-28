@@ -1,7 +1,7 @@
 #! /usr/bin/perl
 use strict;
 use warnings;
-use Test::More tests => 94;
+use Test::More tests => 97;
 use PDL;
 
 use FindBin;
@@ -32,7 +32,7 @@ is_deeply(
 
 my $test = $data_table2->copy();
 $test->add_column( 'Test', [ 1, 2 ] );
-is_deeply( $test->AsString(), "#name	value\tTest\nstefan	\t1\negon	\t2\n",
+is_deeply( $test->AsString(), "#name	value\tTest\nstefan\t0\t1\negon\t0\t2\n",
 	"add_column" );
 $test = data_table->new();
 $test -> parse_from_string ( "#h1\th2\th3\ndata\tdata2\t\ndata3\tdata4\tdata5\n");
@@ -202,7 +202,7 @@ is_deeply(
 is_deeply(
 	[
 		$data_table->get_rowNumbers_4_columnName_and_Entry(
-			'name', [ 'lang', 'geraldin' ]
+			'name', ['lang', 'geraldin'] 
 		)
 	],
 	[2],
@@ -318,6 +318,30 @@ $data_table->{'read_filename'} = $outpath.'temp_table.xls';
 #"TableB:\n".$data_table2 ->AsString();
 
 is_deeply( [split( /\n\t/,$data_table2->AsString() ) ], [split( /\n\t/,$data_table->AsString() ) ], "import / export is ok" );
+
+
+$data_table2 = $data_table->Sort_by( [ [ 'first', { 'eva' => 1, 'geraldin' => 2,'hugo' => 3, "stefan"=> 30} ] ] );
+
+is_deeply(
+	$data_table2->{'data'},
+	[
+		[ 'eva',      'lang', 'nix2@nix.de',    '30', 'se' ],
+		[ 'eva',      'lang', 'nix2@nix.de',    '30', 'de' ],
+		[ 'geraldin', 'lang', 'nix',            '2',  'se' ],
+		[ 'geraldin', 'lang', 'nix',            '2',  'de' ],
+		[ "stefan",   "lang", "stefan\@nix.de", "32", 'se' ],
+		[ "stefan",   "lang", "stefan\@nix.de", "32", 'de' ]
+	],
+	"we can sort on an external hash to numbers"
+);
+
+is_deeply(
+	$data_table2->{'header'},
+	$data_table->{'header'},
+	'Sort does not mess up the header info'
+);
+
+
 $data_table2 = $data_table->Sort_by( [ [ 'age', 'numeric' ] ] );
 
 is_deeply(
@@ -408,7 +432,7 @@ $data_table2->createIndex('name');
 #die "\$exp = "
 #  . root->print_perl_var_def( $data_table2->{'index'}->{'name'} ) . ";\n";
 
-is_deeply( $data_table2->get_value_for( 'name', [ 'lang', 'stefan' ], 'email' ),
+is_deeply( $data_table2->get_value_for( 'name',  'lang stefan' , 'email' ),
 	'stefan@nix.de', "We can get one value" );
 
 is_deeply(

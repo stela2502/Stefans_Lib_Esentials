@@ -1,7 +1,7 @@
 #! /usr/bin/perl
 use strict;
 use warnings;
-use Test::More tests => 7;
+use Test::More tests => 10;
 
 use FindBin;
 my $plugin_path = "$FindBin::Bin";
