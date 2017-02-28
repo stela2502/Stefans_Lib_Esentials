@@ -2057,17 +2057,17 @@ sub get_rowNumbers_4_columnName_and_Entry {
 		$entry = "@$entry ";
 
 		#warn " The library has changed - arrays are now processed differntly -
-		check your outcome !\n ";
-	}#else {
-	#	$entry = [$entry];
-	#}
+		# check your outcome !\n ";
+	}    #else {
+	     #	$entry = [$entry];
+	     #}
 	unless ( defined $self->{'index'}->{$column} ) {
 		$self->createIndex($column);
 	}
 	unless ( defined $self->{'index'}->{$column}->{$entry} ) {
 		return ();
 	}
-	return  @{ $self->{'index'}->{$column}->{$entry} } ;
+	return @{ $self->{'index'}->{$column}->{$entry} };
 }
 
 sub getLines_4_columnName_and_Entry {
@@ -2177,15 +2177,15 @@ sub merge_with_data_table {
 			}
 		}
 		Carp::confess(
-			    ref($self)
+			ref($self)
 			  . " ::merge_with_data_table - we have no overlapp in the column headers
 		  and therefore can not join the tables !\n "
 			  . " me : '"
 			  . join( "', '", @{ $self->{' header '} } )
 			  . "' \nthe other : '"
 			  . join( "', '", @{ $other_data_table->{' header '} } )
-			  . "' \n " )
-		  unless ( scalar( keys %$keys ) > 0 );
+			  . "' \n "
+		) unless ( scalar( keys %$keys ) > 0 );
 	}
 	else {
 		my $error = '';
@@ -2195,206 +2195,201 @@ sub merge_with_data_table {
 				$error .= " $_ ";
 			}
 		}
-		Carp::confess( " Sorry, I could not use the predefined column titles '"
+		Carp::confess(
+			    " Sorry, I could not use the predefined column titles '"
 			  . join( "' '", @$keys_array )
 			  . "' as keys as the column title(
 			s) $error were not found in the other file '"
 			  . $other_data_table->{'read_filename'}
 			  . "'\nThis file contains the column names: '"
-			  . join( "' '", @{ $other_data_table->{'header'} } )
-			  . "'\n" )
+			  . join( "' '", @{ $other_data_table->{'header'} } ) . "'\n"
+		  )
 
-			  if ( $error =~ m/\w/ );
+		  if ( $error =~ m/\w/ );
+	}
+	my $hash = $other_data_table->get_line_asHash(0);
+
+	foreach my $other_column ( @{ $other_data_table->{'header'} }
+		[ 0 .. ( $other_data_table->Max_Header() - 1 ) ] )
+	{
+		unless ( defined $self->Header_Position($other_column) ) {
+			$self->Add_2_Header($other_column);
+			$self->__col_format_is_string( $other_column,
+				$other_data_table->__col_format_is_string($other_column) )
+			  unless ( $self->__col_format_is_string($other_column) );
 		}
-		my $hash = $other_data_table->get_line_asHash(0);
-
-		foreach my $other_column ( @{ $other_data_table->{'header'} }
-			[ 0 .. ( $other_data_table->Max_Header() - 1 ) ] )
-		{
-			unless ( defined $self->Header_Position($other_column) ) {
-				$self->Add_2_Header($other_column);
-				$self->__col_format_is_string( $other_column,
-					$other_data_table->__col_format_is_string($other_column) )
-				  unless ( $self->__col_format_is_string($other_column) );
+	}
+	$other_data_table->define_subset( '___DATA___', [ sort keys %$keys ] );
+	$self->define_subset( '___DATA___',             [ sort keys %$keys ] );
+	my $keys_this_table = $self->createIndex('___DATA___');
+	if ($not_add_first_only_lines) {
+		my $hash = $other_data_table->Lines();
+		$other_data_table = $other_data_table->select_where(
+			'___DATA___',
+			sub {
+				return 1 if ( $keys_this_table->{ $_[0] } );
+				return 0;
 			}
-		}
-		$other_data_table->define_subset( '___DATA___', [ sort keys %$keys ] );
-		$self->define_subset( '___DATA___',             [ sort keys %$keys ] );
-		my $keys_this_table = $self->createIndex('___DATA___');
-		if ($not_add_first_only_lines) {
-			my $hash = $other_data_table->Lines();
-			$other_data_table = $other_data_table->select_where(
-				'___DATA___',
-				sub {
-					return 1 if ( $keys_this_table->{ $_[0] } );
-					return 0;
-				}
-			);
-			print
+		);
+		print
 "As you did not want to make the dataset biger than in your first file I could drop the line count in the next file from $hash to "
-			  . $other_data_table->Lines() . "!\n";
-		}
+		  . $other_data_table->Lines() . "!\n";
+	}
 
-		my $keys_other_table = $other_data_table->createIndex('___DATA___');
+	my $keys_other_table = $other_data_table->createIndex('___DATA___');
 
-	  #	print root::get_hashEntries_as_string (
-	  #		{ 'this file' => $keys_this_table, 'other file' => $keys_other_table },
-	  #		3,
-	  #		"the key in the two files"
-	  #	);
-		my ( $my_hash, $other_hash, $overlap );
-		$overlap = 0;
+	#	print root::get_hashEntries_as_string (
+	#		{ 'this file' => $keys_this_table, 'other file' => $keys_other_table },
+	#		3,
+	#		"the key in the two files"
+	#	);
+	my ( $my_hash, $other_hash, $overlap );
+	$overlap = 0;
 
-		foreach ( keys %$keys_other_table ) {
-			$overlap++ if ( defined $keys_this_table->{$_} );
-		}
-		if ( !$overlap ) {
-			Carp::confess(
-				root::get_hashEntries_as_string(
-					{
-						'this file'  => $keys_this_table,
-						'other file' => $keys_other_table
-					},
-					3,
-					"Sorry I did not find an overlap betweeen the two keys!\n"
-				  )
-				  . "I used the key columns: '"
-				  . join( "' '", keys %$keys )
-				  . "'\n and I had the columns \n'"
-				  . join( "' '", @{ $self->{'header'} } ) . "'.\n"
-				  . "The other column had these: \n"
-				  . join( "' '", @{ $other_data_table->{'header'} } )
-				  . "'\n"
-			);
-		}
+	foreach ( keys %$keys_other_table ) {
+		$overlap++ if ( defined $keys_this_table->{$_} );
+	}
+	if ( !$overlap ) {
+		Carp::confess(
+			root::get_hashEntries_as_string(
+				{
+					'this file'  => $keys_this_table,
+					'other file' => $keys_other_table
+				},
+				3,
+				"Sorry I did not find an overlap betweeen the two keys!\n"
+			  )
+			  . "I used the key columns: '"
+			  . join( "' '", keys %$keys )
+			  . "'\n and I had the columns \n'"
+			  . join( "' '", @{ $self->{'header'} } ) . "'.\n"
+			  . "The other column had these: \n"
+			  . join( "' '", @{ $other_data_table->{'header'} } ) . "'\n"
+		);
+	}
 
-		foreach my $my_key ( keys %$keys_this_table ) {
-			if ( defined $keys_other_table->{$my_key} ) {
-				## OK all columns that do overlapp are in the KEY - hence I need to merge the columns - ALL!
+	foreach my $my_key ( keys %$keys_this_table ) {
+		if ( defined $keys_other_table->{$my_key} ) {
+			## OK all columns that do overlapp are in the KEY - hence I need to merge the columns - ALL!
 #Carp::confess ( "Sorry I do not know how to merge multiple lines for key '$my_key'!") if ( scalar ( @{$keys_this_table->{$my_key}} ) > 1 && scalar ( @{$keys_other_table->{$my_key}} ) > 1 );
 
-				## Now I need to save all new entries!
-				my @new_entries;
-				for ( my $i = 1 ;
-					$i < @{ $keys_other_table->{$my_key} } ; $i++ )
-				{
-					## Add more lines!
-					$other_hash = $other_data_table->get_line_asHash(
-						@{ $keys_other_table->{$my_key} }[$i] );
-					foreach my $line ( @{ $keys_this_table->{$my_key} } ) {
-						push( @new_entries,
-							[ @{ @{ $self->{'data'} }[$line] } ] );
-						foreach ( keys %$other_hash ) {
-							unless (
-								defined @{ $new_entries[ @new_entries - 1 ] }
-								[ $self->Header_Position($_) ] )
-							{
-								@{ $new_entries[ @new_entries - 1 ] }
-								  [ $self->Header_Position($_) ] =
-								  "$other_hash->{$_}";
-							}
-						}
-					}
-				}
-				## the first new line will be merged into my original data
+			## Now I need to save all new entries!
+			my @new_entries;
+			for ( my $i = 1 ; $i < @{ $keys_other_table->{$my_key} } ; $i++ ) {
+				## Add more lines!
 				$other_hash = $other_data_table->get_line_asHash(
-					@{ $keys_other_table->{$my_key} }[0] );
+					@{ $keys_other_table->{$my_key} }[$i] );
 				foreach my $line ( @{ $keys_this_table->{$my_key} } ) {
-					## in jede Zeile muss die Info übertragen werden!
-					$my_hash = $self->get_line_asHash($line);
+					push( @new_entries, [ @{ @{ $self->{'data'} }[$line] } ] );
 					foreach ( keys %$other_hash ) {
-						unless ( defined( $my_hash->{$_} ) ) {
-							@{ @{ $self->{'data'} }[$line] }
+						unless (
+							defined @{ $new_entries[ @new_entries - 1 ] }
+							[ $self->Header_Position($_) ] )
+						{
+							@{ $new_entries[ @new_entries - 1 ] }
 							  [ $self->Header_Position($_) ] =
-							  $other_hash->{$_};
+							  "$other_hash->{$_}";
 						}
 					}
 				}
-				## and now I need to add all the new data into my table....
-				foreach (@new_entries) {
-					next unless ( ref($_) eq "ARRAY" );
-					push( @{ $self->{'data'} }, $_ );
+			}
+			## the first new line will be merged into my original data
+			$other_hash = $other_data_table->get_line_asHash(
+				@{ $keys_other_table->{$my_key} }[0] );
+			foreach my $line ( @{ $keys_this_table->{$my_key} } ) {
+				## in jede Zeile muss die Info übertragen werden!
+				$my_hash = $self->get_line_asHash($line);
+				foreach ( keys %$other_hash ) {
+					unless ( defined( $my_hash->{$_} ) ) {
+						@{ @{ $self->{'data'} }[$line] }
+						  [ $self->Header_Position($_) ] = $other_hash->{$_};
+					}
 				}
 			}
-		}
-		foreach my $other_key ( keys %$keys_other_table ) {
-			unless ( defined $keys_this_table->{$other_key} ) {
-				$other_hash = $other_data_table->get_line_asHash(
-					@{ $keys_other_table->{$other_key} }[0] );
-				$self->AddDataset($other_hash)
-				  unless ($not_add_first_only_lines);
+			## and now I need to add all the new data into my table....
+			foreach (@new_entries) {
+				next unless ( ref($_) eq "ARRAY" );
+				push( @{ $self->{'data'} }, $_ );
 			}
 		}
-		$self->__copy_additional_info($other_data_table);
-		return $self;
 	}
-
-	sub get_subset_4_columnName_and_entry {
-		my ( $self, $column, $entry, $subsetName ) = @_;
-		Carp::confess(
-			ref($self)
-			  . "::get_subset_4_columnName_and_entry -> you have to define the subset $subsetName before you can get data for it!!\n"
-		) unless ( defined $self->{'subsets'}->{$subsetName} );
-		my @return;
-		foreach
-		  my $data ( $self->getLines_4_columnName_and_Entry( $column, $entry ) )
-		{
-			$return[@return] =
-			  [ @$data[ @{ $self->{'subsets'}->{$subsetName} } ] ];
+	foreach my $other_key ( keys %$keys_other_table ) {
+		unless ( defined $keys_this_table->{$other_key} ) {
+			$other_hash = $other_data_table->get_line_asHash(
+				@{ $keys_other_table->{$other_key} }[0] );
+			$self->AddDataset($other_hash)
+			  unless ($not_add_first_only_lines);
 		}
-		return \@return;
 	}
+	$self->__copy_additional_info($other_data_table);
+	return $self;
+}
 
-	sub define_subset {
-		my ( $self, $subset_name, $column_names ) = @_;
-		if ( defined $self->{'subsets'}->{$subset_name} ) {
-			return @{ $self->{'subsets'}->{$subset_name} };
-		}
-		my @columns;
-		foreach my $colName (@$column_names) {
-			if ( defined $self->Header_Position($colName) ) {
-				push( @columns, $self->Header_Position($colName) );
-			}
-			else {
-				Carp::cluck( "I define the subset like: $subset_name, ["
-					  . join( ", ", @{$column_names} )
-					  . "], but I do not know the column $colName here!\n" );
-				$self->Add_2_Header($colName);
-				push( @columns, $self->Header_Position($colName) );
-				$self->{'last_warning'} =
-				    ref($self)
-				  . "::define_subset -> sorry - we do not know a column called '$colName'\n"
-				  . "but we have created that column for you!";
-			}
-		}
-		my @print = @$column_names;
-		if ( @$column_names > 30 ) {
-			@print = (
-				@$column_names[ 0 .. 15 ], '.', '.', '.',
-				@$column_names[ ( @$column_names - 16 )
-				  .. ( @$column_names - 1 ) ]
-			);
-		}
-		foreach my $position (@columns) {
-			Carp::cluck(
-				ref($self)
-				  . "::define_subset -> we coud not identfy all columns in our table @print!!\n"
-			) unless ( defined $position );
-		}
-		$self->{'subsets'}->{$subset_name}        = \@columns;
-		$self->{'subset_headers'}->{$subset_name} = $column_names;
+sub get_subset_4_columnName_and_entry {
+	my ( $self, $column, $entry, $subsetName ) = @_;
+	Carp::confess(
+		ref($self)
+		  . "::get_subset_4_columnName_and_entry -> you have to define the subset $subsetName before you can get data for it!!\n"
+	) unless ( defined $self->{'subsets'}->{$subsetName} );
+	my @return;
+	foreach
+	  my $data ( $self->getLines_4_columnName_and_Entry( $column, $entry ) )
+	{
+		$return[@return] =
+		  [ @$data[ @{ $self->{'subsets'}->{$subsetName} } ] ];
+	}
+	return \@return;
+}
+
+sub define_subset {
+	my ( $self, $subset_name, $column_names ) = @_;
+	if ( defined $self->{'subsets'}->{$subset_name} ) {
 		return @{ $self->{'subsets'}->{$subset_name} };
 	}
-
-	sub drop_subset {
-		my ( $self, $subset_name ) = @_;
-		delete $self->{'subsets'}->{$subset_name}
-		  if ( defined $self->{'subsets'}->{$subset_name} );
-		delete $self->{'index'}->{$subset_name}
-		  if ( defined $self->{'index'}->{$subset_name} );
-
-		return 1;
+	my @columns;
+	foreach my $colName (@$column_names) {
+		if ( defined $self->Header_Position($colName) ) {
+			push( @columns, $self->Header_Position($colName) );
+		}
+		else {
+			Carp::cluck( "I define the subset like: $subset_name, ["
+				  . join( ", ", @{$column_names} )
+				  . "], but I do not know the column $colName here!\n" );
+			$self->Add_2_Header($colName);
+			push( @columns, $self->Header_Position($colName) );
+			$self->{'last_warning'} =
+			    ref($self)
+			  . "::define_subset -> sorry - we do not know a column called '$colName'\n"
+			  . "but we have created that column for you!";
+		}
 	}
+	my @print = @$column_names;
+	if ( @$column_names > 30 ) {
+		@print = (
+			@$column_names[ 0 .. 15 ], '.', '.', '.',
+			@$column_names[ ( @$column_names - 16 ) .. ( @$column_names - 1 ) ]
+		);
+	}
+	foreach my $position (@columns) {
+		Carp::cluck(
+			ref($self)
+			  . "::define_subset -> we coud not identfy all columns in our table @print!!\n"
+		) unless ( defined $position );
+	}
+	$self->{'subsets'}->{$subset_name}        = \@columns;
+	$self->{'subset_headers'}->{$subset_name} = $column_names;
+	return @{ $self->{'subsets'}->{$subset_name} };
+}
+
+sub drop_subset {
+	my ( $self, $subset_name ) = @_;
+	delete $self->{'subsets'}->{$subset_name}
+	  if ( defined $self->{'subsets'}->{$subset_name} );
+	delete $self->{'index'}->{$subset_name}
+	  if ( defined $self->{'index'}->{$subset_name} );
+
+	return 1;
+}
 
 =head2 drop_rows ( $where, $matchHash )
 
@@ -2404,227 +2399,224 @@ If a column entry is found in the has the column is dropped.
 
 =cut
 
-	sub drop_rows {
-		my ( $self, $where, $matchHash ) = @_;
-		my @pos = $self->Header_Position($where);
-		$self->{'as_array'} = {};
-		if ( ref($matchHash) eq "CODE" ) {
-			for ( my $i = @{ $self->{'data'} } - 1 ; $i >= 0 ; $i-- ) {
-				if ( ( &$matchHash( @{ @{ $self->{'data'} }[$i] }[@pos] ) ) ) {
-					## drop this
-					splice( @{ $self->{'data'} }, $i, 1 );
-				}
-				else {
-					#print "Keep row $i\n";
-				}
+sub drop_rows {
+	my ( $self, $where, $matchHash ) = @_;
+	my @pos = $self->Header_Position($where);
+	$self->{'as_array'} = {};
+	if ( ref($matchHash) eq "CODE" ) {
+		for ( my $i = @{ $self->{'data'} } - 1 ; $i >= 0 ; $i-- ) {
+			if ( ( &$matchHash( @{ @{ $self->{'data'} }[$i] }[@pos] ) ) ) {
+				## drop this
+				splice( @{ $self->{'data'} }, $i, 1 );
 			}
+			else {
+				#print "Keep row $i\n";
+			}
+		}
 
 #print "I still have ".scalar(@{$self->{'data'}})." rows in the table $self->{'data'}\n";
-		}
-		elsif ( ref($matchHash) eq "HASH" ) {
-			for ( my $i = @{ $self->{'data'} } - 1 ; $i >= 0 ; $i-- ) {
-				if (
-					$matchHash->{
-						join( " ", @{ @{ $self->{'data'} }[$i] }[@pos] )
-					} )
-				{    ## drop this
-					splice( @{ $self->{'data'} }, $i, 1 );
-				}
-			}
-		}
-		else {
-			Carp::confess(
-				ref($self)
-				  . "::drop_rows() - I need a hash or sub as second argument!\n"
-			);
-		}
-		return $self;
 	}
-
-	sub drop_these_rows {
-		my ( $self, @rows ) = @_;
-		@rows = @{ $rows[0] } if ( ref( $rows[0] ) eq "ARRAY" );
-		my $drop = { map { $_ => 1 } @rows };
+	elsif ( ref($matchHash) eq "HASH" ) {
 		for ( my $i = @{ $self->{'data'} } - 1 ; $i >= 0 ; $i-- ) {
-			if ( $drop->{$i} ) {    ## drop this
+			if (
+				$matchHash->{ join( " ", @{ @{ $self->{'data'} }[$i] }[@pos] ) }
+			  )
+			{    ## drop this
 				splice( @{ $self->{'data'} }, $i, 1 );
 			}
 		}
-		return $self;
 	}
-
-	sub AddDataset {
-		my $self = shift;
-		return $self->Add_Dataset(@_);
+	else {
+		Carp::confess(
+			ref($self)
+			  . "::drop_rows() - I need a hash or sub as second argument!\n" );
 	}
+	return $self;
+}
 
-	sub Rows {
-		return shift->Lines();
-	}
-
-	sub Columns {
-		my ($self) = @_;
-		return scalar( @{ $self->{'header'} } );
-	}
-
-	sub Reject_Hash {
-		my ( $self, $array ) = @_;
-		return 0;
-	}
-
-	sub add_column {
-		my ( $self, $name, @data_array ) = @_;
-		my ($col_id);
-		if ( defined $name ) {
-			($col_id) = $self->Add_2_Header($name);
+sub drop_these_rows {
+	my ( $self, @rows ) = @_;
+	@rows = @{ $rows[0] } if ( ref( $rows[0] ) eq "ARRAY" );
+	my $drop = { map { $_ => 1 } @rows };
+	for ( my $i = @{ $self->{'data'} } - 1 ; $i >= 0 ; $i-- ) {
+		if ( $drop->{$i} ) {    ## drop this
+			splice( @{ $self->{'data'} }, $i, 1 );
 		}
-		my $data_array;
-		if ( ref( $data_array[0] ) eq "ARRAY" ) {
-			$data_array = $data_array[0];
+	}
+	return $self;
+}
+
+sub AddDataset {
+	my $self = shift;
+	return $self->Add_Dataset(@_);
+}
+
+sub Rows {
+	return shift->Lines();
+}
+
+sub Columns {
+	my ($self) = @_;
+	return scalar( @{ $self->{'header'} } );
+}
+
+sub Reject_Hash {
+	my ( $self, $array ) = @_;
+	return 0;
+}
+
+sub add_column {
+	my ( $self, $name, @data_array ) = @_;
+	my ($col_id);
+	if ( defined $name ) {
+		($col_id) = $self->Add_2_Header($name);
+	}
+	my $data_array;
+	if ( ref( $data_array[0] ) eq "ARRAY" ) {
+		$data_array = $data_array[0];
+	}
+	else {
+		$data_array = \@data_array;
+	}
+
+	# warn "I got the col_id $col_id for the column name $name\n";
+	if ( $col_id > 0 ) {
+		Carp::cluck( "The data is not of the same length as the rows!( "
+			  . scalar(@$data_array) . " != "
+			  . $self->Rows()
+			  . ")\n" )
+		  unless ( scalar(@$data_array) == $self->Rows() );
+	}
+	elsif ( $self->Columns() == 1 ) {
+		for ( my $i = 0 ; $i < @$data_array ; $i++ ) {
+			@{ $self->{'data'} }[$i] = [];
+		}
+	}
+	for ( my $i = 0 ; $i < $self->Rows() ; $i++ ) {
+		@{ @{ $self->{'data'} }[$i] }[$col_id] = @$data_array[$i];
+	}
+	return $self;
+}
+
+sub simple_add {
+	my ( $self, $dataset ) = @_;
+	my @array;
+	foreach my $header ( keys %$dataset ) {
+		$array[ $self->Header_Position($header) ] =
+		  $dataset->{$header};
+	}
+	push( @{ $self->{'data'} }, \@array );
+	$self->UpdateIndices_at_position( @{ $self->{'data'} } - 1 );
+	return scalar( @{ $self->{'data'} } );
+}
+
+sub Add_Dataset {
+	my ( $self, $dataset ) = @_;
+	my ( @data, @lines, $index_col_id, $line_id, $mismatch, $inserted );
+	## if we already have such a dataset - see if
+	## 1 the columns are already poulated like that
+	##   or in other words if we want to add a duplicate entry - skip the process
+	## 2 the columns that would be added would add to the dataset ( the columns have been empty )
+	## 3 there is the need of a new dataset line with the new results
+	Carp::confess("Hey - I need a hash of valuies, not $dataset !\n")
+	  unless ( ref($dataset) eq "HASH" );
+	my $h;
+	foreach my $colName ( keys %$dataset ) {
+		$h = $self->Header_Position($colName);
+		unless ( defined $h ) {
+			Carp::confess(
+"we do not have a column called '$colName' - I do not know where to add this data!\n"
+				  . "I have the header: "
+				  . join( "; ", @{ $self->{'header'} }, "\n" )
+				  . "and the keys: "
+				  . join( ", ", keys %$dataset )
+				  . "\n" );
+			next;
+		}
+		unless ( defined $dataset->{$colName} ) {
+			$data[$h] = '';
 		}
 		else {
-			$data_array = \@data_array;
+			$data[$h] = $dataset->{$colName};
 		}
-
-		# warn "I got the col_id $col_id for the column name $name\n";
-		if ( $col_id > 0 ) {
-			Carp::cluck( "The data is not of the same length as the rows!( "
-				  . scalar(@$data_array) . " != "
-				  . $self->Rows()
-				  . ")\n" )
-			  unless ( scalar(@$data_array) == $self->Rows() );
-		}
-		elsif ( $self->Columns() == 1 ) {
-			for ( my $i = 0 ; $i < @$data_array ; $i++ ) {
-				@{ $self->{'data'} }[$i] = [];
-			}
-		}
-		for ( my $i = 0 ; $i < $self->Rows() ; $i++ ) {
-			@{ @{ $self->{'data'} }[$i] }[$col_id] = @$data_array[$i];
-		}
-		return $self;
 	}
-
-	sub simple_add {
-		my ( $self, $dataset ) = @_;
-		my @array;
-		foreach my $header ( keys %$dataset ) {
-			$array[ $self->Header_Position($header) ] =
-			  $dataset->{$header};
+	## see if we already have that dataset - will only work if we have an index!!
+	my $check_lines = {};
+	## see if we have some columns where we could add the dataset
+	foreach my $indexColumns ( keys %{ $self->{'index'} } ) {
+		if ( defined $dataset->{$indexColumns} ) {
+			$check_lines->{$indexColumns} = [
+				$self->get_rowNumbers_4_columnName_and_Entry(
+					$indexColumns, $dataset->{$indexColumns}
+				)
+			];
+			foreach my $col_id ( $self->Header_Position($indexColumns) ) {
+				$index_col_id->{$col_id} = 1;
+			}
+			foreach my $row_id ( @{ $check_lines->{$indexColumns} } ) {
+				$check_lines->{'final'}->{$row_id} = 0
+				  unless ( defined $check_lines->{'final'}->{$row_id} );
+				$check_lines->{'final'}->{$row_id}++;
+			}
 		}
-		push( @{ $self->{'data'} }, \@array );
-		$self->UpdateIndices_at_position( @{ $self->{'data'} } - 1 );
-		return scalar( @{ $self->{'data'} } );
 	}
+	if ( scalar( keys %$check_lines ) > 1 ) {
 
-	sub Add_Dataset {
-		my ( $self, $dataset ) = @_;
-		my ( @data, @lines, $index_col_id, $line_id, $mismatch, $inserted );
-		## if we already have such a dataset - see if
-		## 1 the columns are already poulated like that
-		##   or in other words if we want to add a duplicate entry - skip the process
-		## 2 the columns that would be added would add to the dataset ( the columns have been empty )
-		## 3 there is the need of a new dataset line with the new results
-		Carp::confess("Hey - I need a hash of valuies, not $dataset !\n")
-		  unless ( ref($dataset) eq "HASH" );
-		my $h;
-		foreach my $colName ( keys %$dataset ) {
-			$h = $self->Header_Position($colName);
-			unless ( defined $h ) {
-				Carp::confess(
-"we do not have a column called '$colName' - I do not know where to add this data!\n"
-					  . "I have the header: "
-					  . join( "; ", @{ $self->{'header'} }, "\n" )
-					  . "and the keys: "
-					  . join( ", ", keys %$dataset )
-					  . "\n" );
-				next;
-			}
-			unless ( defined $dataset->{$colName} ) {
-				$data[$h] = '';
-			}
-			else {
-				$data[$h] = $dataset->{$colName};
+		my $final = scalar( keys %$check_lines ) - 1;
+		foreach my $row_id ( keys %{ $check_lines->{'final'} } ) {
+			unless ( $check_lines->{'final'}->{$row_id} == $final ) {
+				delete( $check_lines->{'final'}->{$row_id} );
 			}
 		}
-		## see if we already have that dataset - will only work if we have an index!!
-		my $check_lines = {};
-		## see if we have some columns where we could add the dataset
-		foreach my $indexColumns ( keys %{ $self->{'index'} } ) {
-			if ( defined $dataset->{$indexColumns} ) {
-				$check_lines->{$indexColumns} = [
-					$self->get_rowNumbers_4_columnName_and_Entry(
-						$indexColumns, $dataset->{$indexColumns}
-					)
-				];
-				foreach my $col_id ( $self->Header_Position($indexColumns) ) {
-					$index_col_id->{$col_id} = 1;
-				}
-				foreach my $row_id ( @{ $check_lines->{$indexColumns} } ) {
-					$check_lines->{'final'}->{$row_id} = 0
-					  unless ( defined $check_lines->{'final'}->{$row_id} );
-					$check_lines->{'final'}->{$row_id}++;
-				}
-			}
-		}
-		if ( scalar( keys %$check_lines ) > 1 ) {
+		@lines = ( keys %{ $check_lines->{'final'} } );
+	}
+	## add the dataset to all the columns if the column would not delete a already present value
+	$inserted = 0;
+	foreach $line_id (@lines) {
+		$mismatch = 0;
+		## I need to consider the 'good' matches!
 
-			my $final = scalar( keys %$check_lines ) - 1;
-			foreach my $row_id ( keys %{ $check_lines->{'final'} } ) {
-				unless ( $check_lines->{'final'}->{$row_id} == $final ) {
-					delete( $check_lines->{'final'}->{$row_id} );
-				}
-			}
-			@lines = ( keys %{ $check_lines->{'final'} } );
-		}
-		## add the dataset to all the columns if the column would not delete a already present value
-		$inserted = 0;
-		foreach $line_id (@lines) {
-			$mismatch = 0;
-			## I need to consider the 'good' matches!
-
-			for ( my $i = 0 ; $i < @data ; $i++ ) {
-				next unless ( defined $data[$i] );
-				next if ( $index_col_id->{$i} );
-				next
-				  unless ( defined @{ @{ $self->{'data'} }[$line_id] }[$i] );
-				next
-				  if ( @{ @{ $self->{'data'} }[$line_id] }[$i] eq "" );
-				unless ( @{ @{ $self->{'data'} }[$line_id] }[$i] eq $data[$i] )
-				{
-					$mismatch++;
+		for ( my $i = 0 ; $i < @data ; $i++ ) {
+			next unless ( defined $data[$i] );
+			next if ( $index_col_id->{$i} );
+			next
+			  unless ( defined @{ @{ $self->{'data'} }[$line_id] }[$i] );
+			next
+			  if ( @{ @{ $self->{'data'} }[$line_id] }[$i] eq "" );
+			unless ( @{ @{ $self->{'data'} }[$line_id] }[$i] eq $data[$i] ) {
+				$mismatch++;
 
 #warn "we have a mismatch for column value ".@{ @{ $self->{'data'} }[$line_id] }[$i]." and $data[$i]\n";
-				}
 			}
+		}
 
 #warn "we have checked for mismatches between our two dataset - and we have found $mismatch mismatched for line $line_id\n";
-			if ( $mismatch == 0 ) {
-				## OK we do not have a problem in this line  - just paste over this line!
-				for ( my $i = 0 ; $i < @data ; $i++ ) {
-					@{ @{ $self->{'data'} }[$line_id] }[$i] = $data[$i]
-					  if ( defined $data[$i] );
-				}
-				$inserted = 1;
-
-				#print "we merged two lines!\n";
+		if ( $mismatch == 0 ) {
+			## OK we do not have a problem in this line  - just paste over this line!
+			for ( my $i = 0 ; $i < @data ; $i++ ) {
+				@{ @{ $self->{'data'} }[$line_id] }[$i] = $data[$i]
+				  if ( defined $data[$i] );
 			}
+			$inserted = 1;
+
+			#print "we merged two lines!\n";
 		}
-
-		if ($inserted) {
-
-		 #print "we do not need to update the index!\n\t".join("; ",@data)."\n";
-			return -1;
-		}
-
-		## OK this is a novel dataset - add a new line
-		#print "we added a line\n\t" . join( "; ", @data ) . "\n";
-		@{ $self->{'data'} }[ scalar( @{ $self->{'data'} } ) ] = \@data;
-
-		#print "we are done with " . ref($self) . "->Add_Dataset\n";
-		$self->UpdateIndices_at_position( @{ $self->{'data'} } - 1 );
-		return scalar( @{ $self->{'data'} } );
 	}
+
+	if ($inserted) {
+
+		#print "we do not need to update the index!\n\t".join("; ",@data)."\n";
+		return -1;
+	}
+
+	## OK this is a novel dataset - add a new line
+	#print "we added a line\n\t" . join( "; ", @data ) . "\n";
+	@{ $self->{'data'} }[ scalar( @{ $self->{'data'} } ) ] = \@data;
+
+	#print "we are done with " . ref($self) . "->Add_Dataset\n";
+	$self->UpdateIndices_at_position( @{ $self->{'data'} } - 1 );
+	return scalar( @{ $self->{'data'} } );
+}
 
 =head2 merge_cols (  $self, $new_col, @cols  )
 
@@ -2633,68 +2625,68 @@ All @cols are dropped from the table.
 
 =cut
 
-	sub uniq_in_array {
-		my $self = shift;
-		return do {
-			my %seen;
-			grep { !$seen{$_}++ } @_;
-		  }
-	}
+sub uniq_in_array {
+	my $self = shift;
+	return do {
+		my %seen;
+		grep { !$seen{$_}++ } @_;
+	  }
+}
 
-	sub merge_cols {
-		my ( $self, $new_col, @cols ) = @_;
-		my @new;
-		if ( defined $self->Header_Position($new_col) ) {
-			unshift( @cols, $new_col );
-			@cols = $self->uniq_in_array(@cols);
-		}
-		my @c = grep defined, map { $self->Header_Position($_) } @cols;
-		for ( my $i = 0 ; $i < $self->Lines() ; $i++ ) {
-			$new[$i] = join(
-				" ",
-				$self->uniq_in_array(
-					grep defined, @{ @{ $self->{'data'} }[$i] }[@c]
-				)
-			);
-		}
-		$self->define_subset( 'drop this', \@cols );
-		$self = $self->drop_column('drop this');
-		$self->add_column( $new_col, \@new );
-		return $self;
+sub merge_cols {
+	my ( $self, $new_col, @cols ) = @_;
+	my @new;
+	if ( defined $self->Header_Position($new_col) ) {
+		unshift( @cols, $new_col );
+		@cols = $self->uniq_in_array(@cols);
 	}
+	my @c = grep defined, map { $self->Header_Position($_) } @cols;
+	for ( my $i = 0 ; $i < $self->Lines() ; $i++ ) {
+		$new[$i] = join(
+			" ",
+			$self->uniq_in_array(
+				grep defined, @{ @{ $self->{'data'} }[$i] }[@c]
+			)
+		);
+	}
+	$self->define_subset( 'drop this', \@cols );
+	$self = $self->drop_column('drop this');
+	$self->add_column( $new_col, \@new );
+	return $self;
+}
 
-	sub is_empty {
-		my ($self) = @_;
-		return 1 if ( scalar( @{ $self->{'data'} } == 0 ) );
-		return 0;
-	}
+sub is_empty {
+	my ($self) = @_;
+	return 1 if ( scalar( @{ $self->{'data'} } == 0 ) );
+	return 0;
+}
 
-	sub Lines {
-		my ($self) = @_;
-		return scalar( @{ $self->{'data'} } );
-	}
+sub Lines {
+	my ($self) = @_;
+	return scalar( @{ $self->{'data'} } );
+}
 
-	sub UpdateIndices_at_position {
-		my ( $self, $pos ) = @_;
-		return 0 unless ( defined $pos );
-		my ( @cols, $key );
-		foreach ( keys %{ $self->{'index'} } ) {
-			$key = join( " ",
-				@{ @{ $self->{'data'} }[$pos] }[ $self->Header_Position($_) ] );
-			$self->{'index'}->{$_}->{$key} = []
-			  unless ( defined $self->{'index'}->{$_}->{$key} );
-			push( @{ $self->{'index'}->{$_}->{$key} }, $pos )
-			  unless (
-				$self->_in_the_array( $pos, $self->{'index'}->{$_}->{$key} ) );
-		}
-		foreach ( keys %{ $self->{'uniques'} } ) {
-			$key = join( " ",
-				@{ @{ $self->{'data'} }[$pos] }[ $self->Header_Position($_) ] );
-			$self->_remove_entry_at_pos( $self->{'uniques'}->{$_}, $pos );
-			$self->{'uniques'}->{$_}->{$key} = $pos;
-		}
-		return 1;
+sub UpdateIndices_at_position {
+	my ( $self, $pos ) = @_;
+	return 0 unless ( defined $pos );
+	my ( @cols, $key );
+	foreach ( keys %{ $self->{'index'} } ) {
+		$key = join( " ",
+			@{ @{ $self->{'data'} }[$pos] }[ $self->Header_Position($_) ] );
+		$self->{'index'}->{$_}->{$key} = []
+		  unless ( defined $self->{'index'}->{$_}->{$key} );
+		push( @{ $self->{'index'}->{$_}->{$key} }, $pos )
+		  unless (
+			$self->_in_the_array( $pos, $self->{'index'}->{$_}->{$key} ) );
 	}
+	foreach ( keys %{ $self->{'uniques'} } ) {
+		$key = join( " ",
+			@{ @{ $self->{'data'} }[$pos] }[ $self->Header_Position($_) ] );
+		$self->_remove_entry_at_pos( $self->{'uniques'}->{$_}, $pos );
+		$self->{'uniques'}->{$_}->{$key} = $pos;
+	}
+	return 1;
+}
 
 =head2 _remove_entry_at_pos($hash, $pos)
 
@@ -2702,88 +2694,88 @@ This function removes entried from the unique hash or any has, that has as value
 
 =cut
 
-	sub _remove_entry_at_pos {
-		my ( $self, $hash, $pos ) = @_;
-		foreach ( keys %$hash ) {
-			delete( $hash->{$_} ) if ( $hash->{$_} == $pos );
-		}
+sub _remove_entry_at_pos {
+	my ( $self, $hash, $pos ) = @_;
+	foreach ( keys %$hash ) {
+		delete( $hash->{$_} ) if ( $hash->{$_} == $pos );
 	}
+}
 
-	sub _in_the_array {
-		my ( $self, $value, $array ) = @_;
-		foreach (@$array) {
-			return 1 if ( $_ eq $value );
-		}
-		return 0;
+sub _in_the_array {
+	my ( $self, $value, $array ) = @_;
+	foreach (@$array) {
+		return 1 if ( $_ eq $value );
 	}
+	return 0;
+}
 
-	sub UpdateIndex {
-		my ( $self, $index_name ) = @_;
-		return undef unless ( defined $index_name );
-		$self->{'index_length'} ||= {};
-		$self->{'index_length'}->{$index_name} ||= 0;
-		return $self->{'index'}->{$index_name}
-		  if ( $self->{'index_length'}->{$index_name} == $self->Rows() );
+sub UpdateIndex {
+	my ( $self, $index_name ) = @_;
+	return undef unless ( defined $index_name );
+	$self->{'index_length'} ||= {};
+	$self->{'index_length'}->{$index_name} ||= 0;
+	return $self->{'index'}->{$index_name}
+	  if ( $self->{'index_length'}->{$index_name} == $self->Rows() );
 
-		my @col_ids = $self->Header_Position($index_name);
-		my ( $key, $add );
+	my @col_ids = $self->Header_Position($index_name);
+	my ( $key, $add );
 
-		warn(   "Sorry I do not know the column name '$index_name'\n'"
-			  . join( "','", @{ $self->{'header'} }[ 0 .. 10 ] )
-			  . "'\n" )
-		  unless ( defined $col_ids[0] );
-		$self->{'index'}->{$index_name} = {};
+	warn(   "Sorry I do not know the column name '$index_name'\n'"
+		  . join( "','", @{ $self->{'header'} }[ 0 .. 10 ] )
+		  . "'\n" )
+	  unless ( defined $col_ids[0] );
+	$self->{'index'}->{$index_name} = {};
 
-		for ( my $i = 0 ; $i < $self->Rows() ; $i++ ) {
-			$key = join( " ", @{ @{ $self->{'data'} }[$i] }[@col_ids] );
-			$self->{'index'}->{$index_name}->{$key} ||= [];
-			push( @{ $self->{'index'}->{$index_name}->{$key} }, $i );
-		}
-		$self->{'index_length'}->{$index_name} = $self->Rows();
-		return $self->{'index'}->{$index_name};
+	for ( my $i = 0 ; $i < $self->Rows() ; $i++ ) {
+		$key = join( " ", @{ @{ $self->{'data'} }[$i] }[@col_ids] );
+		$self->{'index'}->{$index_name}->{$key} ||= [];
+		push( @{ $self->{'index'}->{$index_name}->{$key} }, $i );
 	}
+	$self->{'index_length'}->{$index_name} = $self->Rows();
+	return $self->{'index'}->{$index_name};
+}
 
-	sub Add_unique_key {
-		my ( $self, $key_name, $columnName ) = @_;
-		return 1 if ( defined $self->{'uniques'}->{$key_name} );
-		$self->{'uniques'}->{$key_name} = {};
-		my @columns;
-		unless ( ref($columnName) eq "ARRAY" ) {
-			$columnName = [$columnName];
-		}
-		my @return = $self->define_subset( $key_name, $columnName );
-		$self->UpdateUniqueKey($key_name);
-		return @return;
+sub Add_unique_key {
+	my ( $self, $key_name, $columnName ) = @_;
+	return 1 if ( defined $self->{'uniques'}->{$key_name} );
+	$self->{'uniques'}->{$key_name} = {};
+	my @columns;
+	unless ( ref($columnName) eq "ARRAY" ) {
+		$columnName = [$columnName];
 	}
+	my @return = $self->define_subset( $key_name, $columnName );
+	$self->UpdateUniqueKey($key_name);
+	return @return;
+}
 
-	sub UpdateUniqueKey {
-		my ( $self, $columnName ) = @_;
-		my @columns = $self->Header_Position($columnName);
-		my ( $key, $i );
-		$i = 0;
-		foreach my $data ( @{ $self->{'data'} } ) {
-			$key = "@$data[@columns]";
-			Carp::confess(
-				"the Unique key $columnName has a duplicate on line $i ($key)" )
-			  if ( defined $self->{'uniques'}->{$columnName}->{$key}
-				&& $self->{'uniques'}->{$columnName}->{$key} != $i );
-			$self->{'uniques'}->{$columnName}->{$key} = $i;
-			$i++;
-		}
-		return 1;
+sub UpdateUniqueKey {
+	my ( $self, $columnName ) = @_;
+	my @columns = $self->Header_Position($columnName);
+	my ( $key, $i );
+	$i = 0;
+	foreach my $data ( @{ $self->{'data'} } ) {
+		$key = "@$data[@columns]";
+		Carp::confess(
+			"the Unique key $columnName has a duplicate on line $i ($key)")
+		  if ( defined $self->{'uniques'}->{$columnName}->{$key}
+			&& $self->{'uniques'}->{$columnName}->{$key} != $i );
+		$self->{'uniques'}->{$columnName}->{$key} = $i;
+		$i++;
 	}
+	return 1;
+}
 
-	sub getLine_4_unique_key {
-		my ( $self, $key_name, $data ) = @_;
-		unless ( defined $self->{'uniques'}->{$key_name} ) {
-			warn ref($self)
-			  . "::getLine_4_unique_key -> we do not have an unique key named '$key_name'\n";
-		}
-		if ( ref($data) eq "ARRAY" ) {
-			$data = "@$data";
-		}
-		return $self->{'uniques'}->{$key_name}->{$data};
+sub getLine_4_unique_key {
+	my ( $self, $key_name, $data ) = @_;
+	unless ( defined $self->{'uniques'}->{$key_name} ) {
+		warn ref($self)
+		  . "::getLine_4_unique_key -> we do not have an unique key named '$key_name'\n";
 	}
+	if ( ref($data) eq "ARRAY" ) {
+		$data = "@$data";
+	}
+	return $self->{'uniques'}->{$key_name}->{$data};
+}
 
 =head2 Add_dataset_for_entry_at_index ( dataset, entry, index)
 
@@ -2804,46 +2796,45 @@ $data_table->Add_dataset_for_entry_at_index(
 			
 =cut
 
-	sub Add_dataset_for_entry_at_index {
-		my ( $self, $dataset, $entry, $index ) = @_;
-		my ( @columns, @values );
-		foreach my $colName ( keys %$dataset ) {
-			push( @columns, $self->Header_Position($colName) );
-			Carp::confess(
-				"Column $colName is not defined in this table - add it first!" )
-			  unless ( defined $columns[$#columns] );
-			if ( ref( $dataset->{$colName} ) eq "ARRAY" ) {
-				push( @values, @{ $dataset->{$colName} } );
-			}
-			else {
-				push( @values, $dataset->{$colName} );
-			}
-		}
+sub Add_dataset_for_entry_at_index {
+	my ( $self, $dataset, $entry, $index ) = @_;
+	my ( @columns, @values );
+	foreach my $colName ( keys %$dataset ) {
+		push( @columns, $self->Header_Position($colName) );
 		Carp::confess(
-"You probably want/need to change this function here! I do not have enough columns to add your data or vice versa (cols="
-			  . scalar(@columns)
-			  . ", data [n]="
-			  . scalar(@values)
-			  . ")\n" )
-		  unless ( scalar(@columns) == scalar(@values) );
-		foreach my $row_id (
-			$self->get_rowNumbers_4_columnName_and_Entry( $index, $entry ) )
-		{
-			@{ @{ $self->{'data'} }[$row_id] }[@columns] = @values;
-			$self->UpdateIndices_at_position($row_id);
+			"Column $colName is not defined in this table - add it first!")
+		  unless ( defined $columns[$#columns] );
+		if ( ref( $dataset->{$colName} ) eq "ARRAY" ) {
+			push( @values, @{ $dataset->{$colName} } );
 		}
-		return 1;
+		else {
+			push( @values, $dataset->{$colName} );
+		}
 	}
+	Carp::confess(
+"You probably want/need to change this function here! I do not have enough columns to add your data or vice versa (cols="
+		  . scalar(@columns)
+		  . ", data [n]="
+		  . scalar(@values)
+		  . ")\n" )
+	  unless ( scalar(@columns) == scalar(@values) );
+	foreach my $row_id (
+		$self->get_rowNumbers_4_columnName_and_Entry( $index, $entry ) )
+	{
+		@{ @{ $self->{'data'} }[$row_id] }[@columns] = @values;
+		$self->UpdateIndices_at_position($row_id);
+	}
+	return 1;
+}
 
-	sub get_value_4_line_and_column {
-		my ( $self, $line, $column ) = @_;
-		Carp::confess("Sorry, but I do not know the column $column\n")
-		  unless ( defined $self->Header_Position($column) );
-		Carp::confess("Sorry, but I do not have a line with the number $line\n")
-		  unless ( ref( @{ $self->{'data'} }[$line] ) eq "ARRAY" );
-		return @{ @{ $self->{'data'} }[$line] }
-		  [ $self->Header_Position($column) ];
-	}
+sub get_value_4_line_and_column {
+	my ( $self, $line, $column ) = @_;
+	Carp::confess("Sorry, but I do not know the column $column\n")
+	  unless ( defined $self->Header_Position($column) );
+	Carp::confess("Sorry, but I do not have a line with the number $line\n")
+	  unless ( ref( @{ $self->{'data'} }[$line] ) eq "ARRAY" );
+	return @{ @{ $self->{'data'} }[$line] }[ $self->Header_Position($column) ];
+}
 
 =head2 get_line_asHash (<line_id>, <subset name>)
 
@@ -2851,27 +2842,27 @@ You will get either the whiole line or the columns defined ias subset as hash.
 
 =cut
 
-	sub get_line_as_hash {
-		return shift->get_line_asHash(@_);
-	}
+sub get_line_as_hash {
+	return shift->get_line_asHash(@_);
+}
 
-	sub get_line_asArray {
-		my ( $self, $line ) = @_;
-		return @{ $self->{'data'} }[$line];
-	}
+sub get_line_asArray {
+	my ( $self, $line ) = @_;
+	return @{ $self->{'data'} }[$line];
+}
 
-	sub get_line_asHash {
-		my ( $self, $line_id, $subset_name ) = @_;
-		return undef unless ( defined $line_id );
-		return undef
-		  unless ( ref( @{ $self->{'data'} }[$line_id] ) eq "ARRAY" );
-		my ( %hash, @temp );
-		$subset_name = "ALL" unless ( defined $subset_name );
-		@hash{ @{ $self->{'header'} }[ $self->Header_Position($subset_name) ] }
-		  = @{ @{ $self->{'data'} }[$line_id] }
-		  [ $self->Header_Position($subset_name) ];
-		return \%hash;
-	}
+sub get_line_asHash {
+	my ( $self, $line_id, $subset_name ) = @_;
+	return undef unless ( defined $line_id );
+	return undef
+	  unless ( ref( @{ $self->{'data'} }[$line_id] ) eq "ARRAY" );
+	my ( %hash, @temp );
+	$subset_name = "ALL" unless ( defined $subset_name );
+	@hash{ @{ $self->{'header'} }[ $self->Header_Position($subset_name) ] } =
+	  @{ @{ $self->{'data'} }[$line_id] }
+	  [ $self->Header_Position($subset_name) ];
+	return \%hash;
+}
 
 =head2 GetAll_AsHashArrayRef  ()
 
@@ -2879,33 +2870,33 @@ return all values in the dataset as array of hases.
 
 =cut
 
-	sub GetAll_AsHashArrayRef {
-		my ($self) = @_;
-		my ( @return, $lines );
-		$lines = $self->Lines();
-		for ( my $i = 0 ; $i < $lines ; $i++ ) {
-			my %hash;
-			@hash{ @{ $self->{'header'} } } =
-			  @{ @{ $self->{'data'} }[$i] };
-			push( @return, \%hash );
-		}
-		return \@return;
+sub GetAll_AsHashArrayRef {
+	my ($self) = @_;
+	my ( @return, $lines );
+	$lines = $self->Lines();
+	for ( my $i = 0 ; $i < $lines ; $i++ ) {
+		my %hash;
+		@hash{ @{ $self->{'header'} } } =
+		  @{ @{ $self->{'data'} }[$i] };
+		push( @return, \%hash );
 	}
+	return \@return;
+}
 
 =head2 Foreach_Line_As_Hash()
 
 returns a array of hashes with all the data in the table - please be careful with that!
 =cut
 
-	sub Foreach_Line_As_Hash {
-		my ($self) = @_;
-		my @return;
-		for ( my $i = 0 ; $i < $self->Lines() ; $i++ ) {
-			push( @return, $self->get_line_asHash($i) );
-		}
-		shift(@return) unless ( ref( $return[0] eq "HASH" ) );
-		return (@return);
+sub Foreach_Line_As_Hash {
+	my ($self) = @_;
+	my @return;
+	for ( my $i = 0 ; $i < $self->Lines() ; $i++ ) {
+		push( @return, $self->get_line_asHash($i) );
 	}
+	shift(@return) unless ( ref( $return[0] eq "HASH" ) );
+	return (@return);
+}
 
 =head2 getAsHash
 
@@ -2914,73 +2905,73 @@ This function will return two columns ( $ARHV[0], $ARGV[1]) as hash
 
 =cut
 
-	sub GetAsHashedArray {
-		my ( $self, $key_name, $value_name ) = @_;
-		return $self->GetAll_AsHashArrayRef()
-		  unless ( defined $key_name );
-		my ( $hash, $line, @key_id, @value_id );
-		@key_id   = $self->Header_Position($key_name);
-		@value_id = $self->Header_Position($value_name);
+sub GetAsHashedArray {
+	my ( $self, $key_name, $value_name ) = @_;
+	return $self->GetAll_AsHashArrayRef()
+	  unless ( defined $key_name );
+	my ( $hash, $line, @key_id, @value_id );
+	@key_id   = $self->Header_Position($key_name);
+	@value_id = $self->Header_Position($value_name);
 
-		Carp::confess(
-			root::get_hashEntries_as_string(
-				{ $key_name => @key_id, $value_name => @value_id },
-				3, "The important places "
-			)
-		) if ( !defined $key_id[0] || !defined $value_id[0] );
-		Carp::confess(
+	Carp::confess(
+		root::get_hashEntries_as_string(
+			{ $key_name => @key_id, $value_name => @value_id },
+			3, "The important places "
+		)
+	) if ( !defined $key_id[0] || !defined $value_id[0] );
+	Carp::confess(
 "Sorry, but we do not have a column named '$value_name' - only the columns "
-			  . join( ", ", @{ $self->{'header'} } )
-			  . "\n" )
-		  unless ( defined $value_id[0] );
-		foreach $line ( @{ $self->{'data'} } ) {
-			@$line[@value_id] = '' unless ( defined @$line[@value_id] );
-			$key_name   = join( " ", @$line[@key_id] );
-			$value_name = join( " ", @$line[@value_id] );
-			unless ( defined $hash->{"$key_name"} ) {
-				$hash->{"$key_name"} = ["$value_name"];
-			}
-			else {
-				push( @{ $hash->{"$key_name"} }, "$value_name" );
-			}
+		  . join( ", ", @{ $self->{'header'} } )
+		  . "\n" )
+	  unless ( defined $value_id[0] );
+	foreach $line ( @{ $self->{'data'} } ) {
+		@$line[@value_id] = '' unless ( defined @$line[@value_id] );
+		$key_name   = join( " ", @$line[@key_id] );
+		$value_name = join( " ", @$line[@value_id] );
+		unless ( defined $hash->{"$key_name"} ) {
+			$hash->{"$key_name"} = ["$value_name"];
 		}
+		else {
+			push( @{ $hash->{"$key_name"} }, "$value_name" );
+		}
+	}
 
 #Carp::confess( "sorry, but we had a problem!". root::get_hashEntries_as_string ($hash, 3, " "));
-		return $hash;
-	}
+	return $hash;
+}
 
-	sub GetAsHash {
-		my ( $self, $key_name, $value_name ) = @_;
-		return $self->getAsHash( $key_name, $value_name );
-	}
+sub GetAsHash {
+	my ( $self, $key_name, $value_name ) = @_;
+	return $self->getAsHash( $key_name, $value_name );
+}
 
-	sub getAsHash {
-		my ( $self, $key_name, $value_name ) = @_;
-		my ( $hash, $line, @key_id, @value_id );
-		@key_id   = $self->Header_Position($key_name);
-		@value_id = $self->Header_Position($value_name);
-		$hash     = {};
-		Carp::confess(
-			root::get_hashEntries_as_string(
-				{ $key_name => @key_id, $value_name => @value_id },
-				3, "The important places "
-			)
-		) if ( !defined $key_id[0] || !defined $value_id[0] );
-		Carp::confess(
+sub getAsHash {
+	my ( $self, $key_name, $value_name ) = @_;
+	my ( $hash, $line, @key_id, @value_id );
+	@key_id   = $self->Header_Position($key_name);
+	@value_id = $self->Header_Position($value_name);
+	$hash     = {};
+	Carp::confess(
+		root::get_hashEntries_as_string(
+			{ $key_name => @key_id, $value_name => @value_id },
+			3, "The important places "
+		)
+	) if ( !defined $key_id[0] || !defined $value_id[0] );
+	Carp::confess(
 "Sorry, but we do not have a column named '$value_name' - only the columns "
-			  . join( ", ", @{ $self->{'header'} } )
-			  . "\n" )
-		  unless ( defined $value_id[0] );
-		foreach $line ( @{ $self->{'data'} } ) {
-			@$line[@value_id] = '' unless ( defined @$line[@value_id] );
-			$key_name   = join( " ", @$line[@key_id] );
-			$value_name = join( " ", @$line[@value_id] );
-			$hash->{"$key_name"} = "$value_name";
-		}
+		  . join( ", ", @{ $self->{'header'} } )
+		  . "\n" )
+	  unless ( defined $value_id[0] );
+	foreach $line ( @{ $self->{'data'} } ) {
+		@$line[@value_id] = '' unless ( defined @$line[@value_id] );
+		$key_name   = join( " ", @$line[@key_id] );
+		$value_name = join( " ", @$line[@value_id] );
+		$hash->{"$key_name"} = "$value_name";
+	}
 
 #Carp::confess( "sorry, but we had a problem!". root::get_hashEntries_as_string ($hash, 3, " "));
-		return $hash;
-	}
+	return $hash;
+}
 
 =head2 GetAsObject ( <subset name> )
 
@@ -2988,49 +2979,49 @@ This function can be used to reformat the table according to a subset name.
 
 =cut
 
-	sub all_columns_exist {
-		my $self = shift;
-		foreach (@_) {
-			return 0 unless ( defined $self->Header_Position($_) );
-		}
-		return 1;
+sub all_columns_exist {
+	my $self = shift;
+	foreach (@_) {
+		return 0 unless ( defined $self->Header_Position($_) );
 	}
+	return 1;
+}
 
-	sub GetAsObject {
-		my ( $self, $subset ) = @_;
-		return $self unless ( defined $subset );
-		unless ( defined $self->{'subsets'}->{$subset} ) {
-			warn "we do not know the subset $subset\n";
-			return undef;
-		}
-		my $return = ref($self)->new();
-		## init if $self is a data reader class and therefore has a predefined header info
-		$return->{'header'}          = [];
-		$return->{'header_position'} = {};
-		$return->{'__max_header__'}  = 0;
-		my @new_order =
-		  $return->Add_2_Header( $self->{'subset_headers'}->{$subset} );
-		my @old_order =
-		  $self->Header_Position( $self->{'subset_headers'}->{$subset} );
-		for ( my $i = 0 ; $i < $self->Rows() ; $i++ ) {
-			push(
-				@{ $return->{'data'} },
-				[ @{ @{ $self->{'data'} }[$i] }[@old_order] ]
-			);
-		}
+sub GetAsObject {
+	my ( $self, $subset ) = @_;
+	return $self unless ( defined $subset );
+	unless ( defined $self->{'subsets'}->{$subset} ) {
+		warn "we do not know the subset $subset\n";
+		return undef;
+	}
+	my $return = ref($self)->new();
+	## init if $self is a data reader class and therefore has a predefined header info
+	$return->{'header'}          = [];
+	$return->{'header_position'} = {};
+	$return->{'__max_header__'}  = 0;
+	my @new_order =
+	  $return->Add_2_Header( $self->{'subset_headers'}->{$subset} );
+	my @old_order =
+	  $self->Header_Position( $self->{'subset_headers'}->{$subset} );
+	for ( my $i = 0 ; $i < $self->Rows() ; $i++ ) {
+		push(
+			@{ $return->{'data'} },
+			[ @{ @{ $self->{'data'} }[$i] }[@old_order] ]
+		);
+	}
 
 #foreach my $hash ( @{ $self->GetAll_AsHashArrayRef() } ) {
 #		$return->AddDataset( {map{ $_ => $hash->{$_} } @{$self->{'subset_headers'}->{$subset}} } );
 #}
-		foreach ( @{ $return->{'header'} } ) {
-			$return->setDefaultValue( $_, $self->getDefault_values($_) );
-			$return->__col_format_is_string( $_,
-				$self->__col_format_is_string($_) );
-		}
-		$return->string_separator( $self->string_separator() );
-		$return->Description( $self->Description() );
-		return $return;
+	foreach ( @{ $return->{'header'} } ) {
+		$return->setDefaultValue( $_, $self->getDefault_values($_) );
+		$return->__col_format_is_string( $_,
+			$self->__col_format_is_string($_) );
 	}
+	$return->string_separator( $self->string_separator() );
+	$return->Description( $self->Description() );
+	return $return;
+}
 
 =head2 GetColumnpositionsLike ( RegExp )
 
@@ -3038,107 +3029,107 @@ this function will return an array ref to a list of column locations that do mat
 
 =cut
 
-	sub GetColumnNamesLike {
-		my ( $self, $RegExp ) = @_;
-		my @return;
-		foreach ( @{ $self->{'header'} } ) {
-			push( @return, $_ ) if ( $_ =~ m/$RegExp/ );
-		}
-		return \@return;
+sub GetColumnNamesLike {
+	my ( $self, $RegExp ) = @_;
+	my @return;
+	foreach ( @{ $self->{'header'} } ) {
+		push( @return, $_ ) if ( $_ =~ m/$RegExp/ );
 	}
+	return \@return;
+}
 
-	sub create_dataset_for_line {
-		my ( $self, $line_id ) = @_;
-		my $dataset = {};
-		return $dataset unless ( defined $line_id );
-		return $dataset
-		  unless ( ref( @{ $self->{data} }[$line_id] ) eq "ARRAY" );
-		for ( my $i = 0 ; $i < @{ $self->{header} } ; $i++ ) {
-			$dataset->{ @{ $self->{header} }[$i] } =
-			  @{ @{ $self->{data} }[$line_id] }[$i];
-		}
-		print root::get_hashEntries_as_string ( $dataset, 3,
-			"we have created the dataset " )
-		  if ( $self->{'debug'} );
-		return $dataset;
+sub create_dataset_for_line {
+	my ( $self, $line_id ) = @_;
+	my $dataset = {};
+	return $dataset unless ( defined $line_id );
+	return $dataset
+	  unless ( ref( @{ $self->{data} }[$line_id] ) eq "ARRAY" );
+	for ( my $i = 0 ; $i < @{ $self->{header} } ; $i++ ) {
+		$dataset->{ @{ $self->{header} }[$i] } =
+		  @{ @{ $self->{data} }[$line_id] }[$i];
 	}
+	print root::get_hashEntries_as_string ( $dataset, 3,
+		"we have created the dataset " )
+	  if ( $self->{'debug'} );
+	return $dataset;
+}
 
-	sub AsHTML {
-		my $self = shift;
-		return $self->GetAsHTML(@_);
+sub AsHTML {
+	my $self = shift;
+	return $self->GetAsHTML(@_);
+}
+
+sub HTML_id {
+	my ( $self, $id ) = @_;
+	$self->{'HTML_ID'} = $id if ( defined $id );
+	return $self->{'HTML_ID'};
+}
+
+sub GetAsHTML {
+	my ( $self, $subset ) = @_;
+	my $temp;
+	if ( defined $subset ) {
+		$temp = $self;
+		$self = $self->GetAsObject($subset);
 	}
-
-	sub HTML_id {
-		my ( $self, $id ) = @_;
-		$self->{'HTML_ID'} = $id if ( defined $id );
-		return $self->{'HTML_ID'};
+	my $str = "<table border=\"1\"";
+	$str .= ", id='" . $self->HTML_id() . "'"
+	  if ( defined $self->HTML_id() );
+	$str .= ">\n";
+	$str .=
+	    "<thead>"
+	  . $self->__array_2_HTML_table_line( $self->{'header'}, 'th' )
+	  . "</thead><tbody>";
+	foreach my $array ( @{ $self->{'data'} } ) {
+		$str .= $self->__array_2_HTML_table_line($array);
 	}
+	$str .= "</tbody></table>\n";
+	$self = $temp if ( defined $temp );
+	return $str;
+}
 
-	sub GetAsHTML {
-		my ( $self, $subset ) = @_;
-		my $temp;
-		if ( defined $subset ) {
-			$temp = $self;
-			$self = $self->GetAsObject($subset);
-		}
-		my $str = "<table border=\"1\"";
-		$str .= ", id='" . $self->HTML_id() . "'"
-		  if ( defined $self->HTML_id() );
-		$str .= ">\n";
-		$str .=
-		    "<thead>"
-		  . $self->__array_2_HTML_table_line( $self->{'header'}, 'th' )
-		  . "</thead><tbody>";
-		foreach my $array ( @{ $self->{'data'} } ) {
-			$str .= $self->__array_2_HTML_table_line($array);
-		}
-		$str .= "</tbody></table>\n";
-		$self = $temp if ( defined $temp );
-		return $str;
-	}
-
-	sub HTML_line_mod {
-		my ( $self, $array ) = @_;
-		if ( ref($array) eq "CODE" ) {
-			$self->{'code_to_call_4_HTML_row'} = $array;
-		}
-		elsif ( ref($array) eq "ARRAY" ) {
-			if ( ref( $self->{'code_to_call_4_HTML_row'} ) eq "CODE" ) {
-				return &{ $self->{'code_to_call_4_HTML_row'} }( $self, $array );
-			}
-			$self->{'code_to_call_4_HTML_row'} ||= '';
-			return $self->{'code_to_call_4_HTML_row'};
-		}
+sub HTML_line_mod {
+	my ( $self, $array ) = @_;
+	if ( ref($array) eq "CODE" ) {
 		$self->{'code_to_call_4_HTML_row'} = $array;
-		return $self;
+	}
+	elsif ( ref($array) eq "ARRAY" ) {
+		if ( ref( $self->{'code_to_call_4_HTML_row'} ) eq "CODE" ) {
+			return &{ $self->{'code_to_call_4_HTML_row'} }( $self, $array );
+		}
+		$self->{'code_to_call_4_HTML_row'} ||= '';
+		return $self->{'code_to_call_4_HTML_row'};
+	}
+	$self->{'code_to_call_4_HTML_row'} = $array;
+	return $self;
+}
+
+sub __array_2_HTML_table_line {
+	my ( $self, $array, $type ) = @_;
+	$type ||= 'td';
+	my $str = "\t<tr >";
+	if ( $type eq 'td' ) {
+		$str = "\t<tr " . $self->HTML_line_mod($array) . ">";
 	}
 
-	sub __array_2_HTML_table_line {
-		my ( $self, $array, $type ) = @_;
-		$type ||= 'td';
-		my $str = "\t<tr >";
-		if ( $type eq 'td' ) {
-			$str = "\t<tr " . $self->HTML_line_mod($array) . ">";
+	my ($modifications);
+	for ( my $i = 0 ; $i < @$array ; $i++ ) {
+		$modifications =
+		  $self->HTML_modification_for_column( @{ $self->{'header'} }[$i] );
+		if ( $modifications->{'colsub'} ) {
+			$str .= &{ $modifications->{'colsub'} }
+			  ( $self, @$array[$i], $modifications, $type );
 		}
-
-		my ($modifications);
-		for ( my $i = 0 ; $i < @$array ; $i++ ) {
-			$modifications =
-			  $self->HTML_modification_for_column( @{ $self->{'header'} }[$i] );
-			if ( $modifications->{'colsub'} ) {
-				$str .= &{ $modifications->{'colsub'} }
-				  ( $self, @$array[$i], $modifications, $type );
-			}
-			else {
-				$str .=
+		else {
+			$str .=
 "<$type $modifications->{$type}>$modifications->{'before'}@$array[$i]$modifications->{'after'}</$type>";
-				if ( $modifications->{'tr'} ) {
-					$str =~ s/<tr>/<tr $modifications->{'tr'}>/;
-				}
+			if ( $modifications->{'tr'} ) {
+				$str =~ s/<tr>/<tr $modifications->{'tr'}>/;
 			}
 		}
-		$str .= "</tr>\n";
-		return $str;
 	}
+	$str .= "</tr>\n";
+	return $str;
+}
 
-	1;
+1;
