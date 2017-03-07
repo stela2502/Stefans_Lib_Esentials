@@ -22,6 +22,7 @@ use Carp;
 use stefans_libs::root;
 
 use PDL ('pdl');
+$PDL::BIGPDL = 1;
 use stefans_libs::flexible_data_structures::data_table::arraySorter;
 
 use stefans_libs::plot::simpleBarGraph;
@@ -1898,13 +1899,13 @@ sub drop_column {
 	}
 	## store subsets
 	my $subsets;
-	foreach my $sname ( keys %{ $self->{' subsets '} } ) {
+	foreach my $sname ( keys %{ $self->{'subsets'} } ) {
 		$subsets->{$sname} =
-		  [ @{ $self->{' header '} }[ @{ $self->{' subsets '}->{$sname} } ] ];
+		  [ @{ $self->{'header'} }[ @{ $self->{'subsets'}->{$sname} } ] ];
 	}
 	my @cols;
 	for ( my $i = 0 ; $i < $self->Columns() ; $i++ ) {
-		push( @cols, @{ $self->{' header '} }[$i] ) unless ( $col_pos->{$i} );
+		push( @cols, @{ $self->{'header'} }[$i] ) unless ( $col_pos->{$i} );
 	}
 	my @col_ids = sort { $b <=> $a } ( keys %$col_pos );
 
@@ -1912,20 +1913,20 @@ sub drop_column {
   #"I drop the column $column_name and am going through the data in the order: "
   #	  . join( ", ", @col_ids ) . "\n";
 	for ( my $i = 0 ; $i < $self->Rows() ; $i++ ) {
-		map { splice( @{ @{ $self->{' data '} }[$i] }, $_, 1 ) } @col_ids;
+		map { splice( @{ @{ $self->{'data'} }[$i] }, $_, 1 ) } @col_ids;
 	}
-	$self->{' header '} = [];
+	$self->{'header'} = [];
 
-	$self->{' header_position '} = {};
-	$self->{' __max_header__ '}  = 0;
+	$self->{'header_position'} = {};
+	$self->{'__max_header__'}  = 0;
 	$self->Add_2_Header( \@cols );
 	foreach my $sname ( keys %$subsets ) {
 		$self->define_subset( $sname, $subsets->{$sname} );
 	}
 
-	$self->{' index_length '} = {};
-	foreach my $index_name ( keys %{ $self->{' index '} } ) {
-		delete( $self->{' index '}->{$index_name} );
+	$self->{'index_length'} = {};
+	foreach my $index_name ( keys %{ $self->{'index'} } ) {
+		delete( $self->{'index'}->{$index_name} );
 		$self->createIndex($index_name);
 	}
 	return $self;
@@ -1934,7 +1935,7 @@ sub drop_column {
 sub Remove_from_Column_Names {
 	my ( $self, $str ) = @_;
 	my $new_column;
-	foreach my $old_header ( @{ $self->{' header '} } ) {
+	foreach my $old_header ( @{ $self->{'header'} } ) {
 		$new_column = $old_header;
 		if ( $new_column =~ s/$str// ) {
 			$self->Rename_Column( $old_header, $new_column );
@@ -1946,10 +1947,10 @@ sub Remove_from_Column_Names {
 sub Add_2_Description {
 	my ( $self, $string ) = @_;
 	if ( defined $string ) {
-		foreach my $description_line ( @{ $self->{' description '} } ) {
+		foreach my $description_line ( @{ $self->{'description'} } ) {
 			return 1 if ( $string eq $description_line );
 		}
-		push( @{ $self->{' description '} }, $string );
+		push( @{ $self->{'description'} }, $string );
 		return 1;
 	}
 	return 0;
@@ -1959,7 +1960,7 @@ sub Description {
 	my ( $self, $description_array ) = @_;
 	if ( ref($description_array) eq "ARRAY" ) {
 		## OH - probably we copy ourselve right now?
-		$self->{' description '} = $description_array;
+		$self->{'description'} = $description_array;
 	}
 	elsif ( !defined $description_array ) {
 		## OK that is only used to circumvent a stupid error message.
@@ -1967,12 +1968,12 @@ sub Description {
 	elsif ( $description_array =~ m/\w/ ) {
 		## OH probably you search for a specific line?
 		my @return;
-		foreach ( @{ $self->{' description '} } ) {
+		foreach ( @{ $self->{'description'} } ) {
 			push( @return, $_ ) if ( $_ =~ m/$description_array/ );
 		}
 		return \@return;
 	}
-	return $self->{' description '};
+	return $self->{'description'};
 }
 
 sub Add_header_Array {
@@ -1991,8 +1992,8 @@ sub Add_db_result {
 		"the header information has to be an array of column titles!\n")
 	  unless ( ref($header) eq "ARRAY" );
 	$self->Add_header_Array($header);
-	$self->{' data '} = $db_result;
-	foreach my $columnName ( keys %{ $self->{' index '} } ) {
+	$self->{'data'} = $db_result;
+	foreach my $columnName ( keys %{ $self->{'index'} } ) {
 		$self->__update_index($columnName);
 	}
 	return 1;
@@ -2005,13 +2006,13 @@ sub get_lable_for_row_and_column {
 
 sub __update_index {
 	my ( $self, $columnName ) = @_;
-	return undef unless ( defined $self->{' index '}->{$columnName} );
+	return undef unless ( defined $self->{'index'}->{$columnName} );
 	my ( @col_id, $lable );
 	@col_id = $self->Header_Position($columnName);
 	unless ( defined $col_id[0] ) {
 		Carp::confess(
 			root::get_hashEntries_as_string(
-				$self->{' header '},
+				$self->{'header'},
 				3,
 				"we ($self) have no column that is named '$columnName' \n "
 				  . " and we have opened the file $self->{'read_filename'} \n "
@@ -2049,7 +2050,7 @@ sub get_rowNumbers_4_columnName_and_Entry {
 	unless ( defined $self->Header_Position($column) ) {
 		Carp::confess(
 			    " we do not have a column named '$column' \nonly these : '"
-			  . join( "', '", @{ $self->{' header '} } )
+			  . join( "', '", @{ $self->{'header'} } )
 			  . "' \n " );
 		return [];
 	}
@@ -2181,9 +2182,9 @@ sub merge_with_data_table {
 			  . " ::merge_with_data_table - we have no overlapp in the column headers
 		  and therefore can not join the tables !\n "
 			  . " me : '"
-			  . join( "', '", @{ $self->{' header '} } )
+			  . join( "', '", @{ $self->{'header'} } )
 			  . "' \nthe other : '"
-			  . join( "', '", @{ $other_data_table->{' header '} } )
+			  . join( "', '", @{ $other_data_table->{'header'} } )
 			  . "' \n "
 		) unless ( scalar( keys %$keys ) > 0 );
 	}

@@ -20,9 +20,9 @@
 =head1  SYNOPSIS
 
     create_package.pl
-       -name       :<please add some info!>
-       -path       :<please add some info!>
-       -depends     :<please add some info!> you can specify more entries to that
+       -name       :the package name
+       -path       :where to put the package
+       -depends    :all perl libs the package depends on
 
 
        -help           :print this help
@@ -146,5 +146,5 @@ WriteAll();\n";
 
 close ( MAKE );
 
-system( "bib_create.pl -name $path/lib/$file -pod 'A new lib names $name.' ");
+system( "bib_create.pl -name $path/lib/$file -pod 'A new lib named $name.' ");
 
