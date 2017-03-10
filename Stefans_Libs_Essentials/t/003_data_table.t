@@ -202,7 +202,7 @@ is_deeply(
 is_deeply(
 	[
 		$data_table->get_rowNumbers_4_columnName_and_Entry(
-			'name', ['lang', 'geraldin'] 
+			'name', 'lang geraldin'
 		)
 	],
 	[2],
@@ -218,15 +218,13 @@ is_deeply(
 	],
 	"we can use getLines_4_columnName_and_Entry"
 );
-
-$data_table->Add_dataset_for_entry_at_index( { 'nationality' => 'de' },
-	'lang', 'second' );
+$data_table->set_value_for('second', 'lang',  'nationality' , 'de' );
 
 #die "\$exp = " . root->print_perl_var_def( [$data_table->getLines_4_columnName_and_Entry('name', [ 'lang', 'stefan' ]) ] ) . ";\n";
 is_deeply(
 	[
 		$data_table->getLines_4_columnName_and_Entry(
-			'name', [ 'lang', 'stefan' ]
+			'name', 'lang stefan' 
 		)
 	],
 	[ [ 'stefan', 'lang', 'stefan@nix.de', '32', 'de' ] ],
@@ -322,16 +320,19 @@ is_deeply( [split( /\n\t/,$data_table2->AsString() ) ], [split( /\n\t/,$data_tab
 
 $data_table2 = $data_table->Sort_by( [ [ 'first', { 'eva' => 1, 'geraldin' => 2,'hugo' => 3, "stefan"=> 30} ] ] );
 
+#print "\$exp = ".root->print_perl_var_def( $data_table2->{'data'} ).";\n";
+$exp = [ 
+[ 'eva', 'lang', 'nix2@nix.de', '30', 'se' ], 
+[ 'eva', 'lang', 'nix2@nix.de', '30', 'de' ], 
+[ 'geraldin', 'lang', undef,undef, 'se' ], 
+[ 'geraldin', 'lang', '', '', 'de' ], 
+[ 'stefan', 'lang', 'stefan@nix.de', '32', 'se' ], 
+[ 'stefan', 'lang', 'stefan@nix.de', '32', 'de' ] 
+];
+$value = $data_table2->{'data'};
+
 is_deeply(
-	$data_table2->{'data'},
-	[
-		[ 'eva',      'lang', 'nix2@nix.de',    '30', 'se' ],
-		[ 'eva',      'lang', 'nix2@nix.de',    '30', 'de' ],
-		[ 'geraldin', 'lang', 'nix',            '2',  'se' ],
-		[ 'geraldin', 'lang', 'nix',            '2',  'de' ],
-		[ "stefan",   "lang", "stefan\@nix.de", "32", 'se' ],
-		[ "stefan",   "lang", "stefan\@nix.de", "32", 'de' ]
-	],
+	$data_table2->{'data'},$exp,
 	"we can sort on an external hash to numbers"
 );
 
@@ -347,8 +348,8 @@ $data_table2 = $data_table->Sort_by( [ [ 'age', 'numeric' ] ] );
 is_deeply(
 	$data_table2->{'data'},
 	[
-		[ 'geraldin', 'lang', 'nix',            '2',  'se' ],
-		[ 'geraldin', 'lang', 'nix',            '2',  'de' ],
+		[ 'geraldin', 'lang', undef, undef,  'se' ],
+		[ 'geraldin', 'lang', '',            '',  'de' ],
 		[ 'eva',      'lang', 'nix2@nix.de',    '30', 'se' ],
 		[ 'eva',      'lang', 'nix2@nix.de',    '30', 'de' ],
 		[ "stefan",   "lang", "stefan\@nix.de", "32", 'se' ],
@@ -369,8 +370,8 @@ is_deeply(
 	[
 		[ 'eva',      'lang', 'nix2@nix.de',    '30', 'se' ],
 		[ 'eva',      'lang', 'nix2@nix.de',    '30', 'de' ],
-		[ 'geraldin', 'lang', 'nix',            '2',  'se' ],
-		[ 'geraldin', 'lang', 'nix',            '2',  'de' ],
+		[ 'geraldin', 'lang', undef, undef,  'se' ],
+		[ 'geraldin', 'lang', '',            '',  'de' ],
 		[ "stefan",   "lang", "stefan\@nix.de", "32", 'se' ],
 		[ "stefan",   "lang", "stefan\@nix.de", "32", 'de' ]
 	],
@@ -402,8 +403,8 @@ is_deeply(
 		[ "stefan",   "lang", "stefan\@nix.de", "32", 'de' ],
 		[ 'eva',      'lang', 'nix2@nix.de',    '30', 'se' ],
 		[ 'eva',      'lang', 'nix2@nix.de',    '30', 'de' ],
-		[ 'geraldin', 'lang', 'nix',            '2',  'se' ],
-		[ 'geraldin', 'lang', 'nix',            '2',  'de' ]
+		[ 'geraldin', 'lang', undef, undef,  'se' ],
+		[ 'geraldin', 'lang', '',            '',  'de' ]
 	],
 	"we can sort 'antiNumeric'"
 );
@@ -1045,14 +1046,14 @@ is_deeply(
 $name->merge_with_data_table($mail);
 is_deeply(
 	$name->AsString(),
-"#some descirption\n#some other description\n#forename\tlastname\tgender\tsex\nstefan\t\"stefan\tlang\"\tmale\t\"real\tsomething\"\n",
+"#some descirption\n#forename\tlastname\tgender\tsex\nstefan\t\"stefan\tlang\"\tmale\t\"real\tsomething\"\n",
 	"Merge two tables multiple lines #3"
 );
 $name->define_subset( 'export', [ 'lastname', 'gender', 'sex' ] );
 $mail = $name->GetAsObject('export');
 is_deeply(
 	$mail->AsString(),
-"#some descirption\n#some other description\n#lastname\tgender\tsex\n\"stefan\tlang\"\tmale\t\"real\tsomething\"\n",
+"#some descirption\n#lastname\tgender\tsex\n\"stefan\tlang\"\tmale\t\"real\tsomething\"\n",
 	"GetAsObject with string separator"
 );
 
@@ -1068,8 +1069,7 @@ $subset_text->AddDataset(
 $subset_text->define_subset( 'AA AB', [ 'Column A', 'column b' ] );
 #print "\$exp = "  . root->print_perl_var_def( [ split( "\t", $subset_text->AsTestString() ) ] )  . ";\n";
   
-$exp = [ '1
-#Column A', 'Column B', 'Column C
+$exp = [ '#Column A', 'Column B', 'Column C
 A', 'B', 'C
 a', 'b', 'c
 #subsets=AA AB;0;1', 'column a;0', 'column b;1', 'column c;2
@@ -1109,7 +1109,6 @@ print $subset_text->AsTestString();
 $subset_text = $subset_text->GetAsObject('AA AB');
 print $subset_text->AsTestString();
 $exp         = [
-	'1',
 	'#Column A', 'column b',
 'A',         'B',
 'a',         'b',

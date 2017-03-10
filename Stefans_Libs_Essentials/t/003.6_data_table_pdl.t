@@ -38,10 +38,6 @@ $PDL = pdl(
 	]
 );
 
-print 'got:' . $data_table2->GetAsPDL(), print 'expected:' . $value;
-print
-"Sorry this is a visual test for you - do you see thesame information twice? - great!\n";
-
 $data_table= $data_table2->_copy_without_data();
 
 $data_table->{'data'} = unpdl($data_table2->GetAsPDL()->xchg(0,1));
@@ -80,11 +76,11 @@ $exp = [2,4,6,7,7];
 
 is_deeply( [@{@$tmp[0]}], $exp , "sum up two columns");
 
-print "First and second column: ".$PDL->slice(":,0:1")."\n";
+#print "First and second column: ".$PDL->slice(":,0:1")."\n";
 
 $tmp = unpdl($PDL->slice(":,2") += $PDL->slice(":,0:1") );
 
-print "\$exp = " . root->print_perl_var_def( $tmp ) . ";\n";
+#print "\$exp = " . root->print_perl_var_def( $tmp ) . ";\n";
 $exp = [ 3,6,9,9,8];
 
 is_deeply(@$tmp, $exp, "merge three columns" );

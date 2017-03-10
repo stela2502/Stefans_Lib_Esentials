@@ -648,7 +648,7 @@ sub print_perl_var_def {
 		$return .= " ]";
 	}
 	else {
-		unless ( length($var) > 0 ){
+		unless ( defined $var and length($var) > 0 ){
 			$return .= 'undef';
 		}
 		else {

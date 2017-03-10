@@ -22,7 +22,7 @@ sub new {
 
 	my ( $class, $type, $imgType, $fontfile ) = @_;
 
-	unless ( -f $fontfile ) {
+	unless ( defined $fontfile and -f $fontfile ) {
 		$fontfile = "/usr/share/fonts/liberation/LiberationSerif-Regular.ttf";
 	}
 	my ( $self, @stringTypes );

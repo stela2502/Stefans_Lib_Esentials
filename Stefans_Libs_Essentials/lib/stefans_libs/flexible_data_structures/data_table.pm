@@ -285,7 +285,7 @@ sub select_where {
 	for ( my $i = 0 ; $i < @{ $self->{'data'} } ; $i++ ) {
 
 #print "line $i would be selected if (".&$function_ref($self->get_value_4_line_and_column( $i, $col_name )).")\n";
-		@{ $return->{'data'} }[ $return->Lines() ] =
+		@{ $return->{'data'} }[ scalar(@{ $return->{'data'} }) ] =
 		  [ @{ @{ $self->{'data'} }[$i] } ]
 		  if (
 			&$function_ref(
@@ -293,7 +293,6 @@ sub select_where {
 			)
 		  );
 	}
-
 	#print "Done\n";
 	return $return;
 }
@@ -918,18 +917,17 @@ sub _copy_without_data {
 	{
 		$return->{$_} = $self->{$_};
 	}
-	foreach ( @{ $self->{'header'} } ) {
-		$return->Add_2_Header($_) if ( defined $_ );
+	 foreach ( 'header_position') {
+		$return->{$_} = {};
 	}
+	foreach (  'header' ) {
+		$return->{$_} = [];
+	}
+	$return->Add_2_Header($self->{'header'});
+
 	$return->{__max_header__} = $self->{'__max_header__'};
-	for ( my $i = 0 ; $i < @{ $self->{'default_value'} } ; $i++ ) {
-		if ( defined @{ $self->{'default_value'} }[$i] ) {
-			$return->setDefaultValue(
-				@{ $self->{'header'} }[$i],
-				@{ $self->{'default_value'} }[$i]
-			);
-		}
-	}
+
+		
 	foreach (
 		sort { $self->_subset_weight($a) <=> $self->_subset_weight($b) }
 		keys %{ $self->{'subsets'} }
@@ -940,6 +938,17 @@ sub _copy_without_data {
 		  @{ $self->{'subset_headers'}->{$_} };
 		$return->define_subset( $_, $self->{'subset_headers'}->{$_} ) if ($OK);
 	}
+	
+		
+	for ( my $i = 0 ; $i < @{  $self->{'header'} } ; $i++ ) {
+		if ( defined @{ $self->{'default_value'} }[$i] ) {
+			$return->setDefaultValue(
+				@{ $self->{'header'} }[$i],
+				@{ $self->{'default_value'} }[$i]
+			);
+		}
+	}
+	
 	$return->line_separator( $self->line_separator() );
 	foreach my $index_name ( keys %{ $self->{'index'} } ) {
 		$return->{'index'}->{$index_name} = {};
@@ -947,6 +956,7 @@ sub _copy_without_data {
 	foreach my $index_name ( keys %{ $self->{'uniques'} } ) {
 		$return->{'uniques'}->{$index_name} = {};
 	}
+	
 	return $return;
 }
 
@@ -1326,8 +1336,7 @@ sub AsTestString {
 	}
 	if ( $self->Lines() < 11 ) {
 		return
-		    Carp::cluck("data_table-> AsTestString( '$subset' ) ") . "\n"
-		  . $self->AsString()
+		   $self->AsString()
 		  . $self->__tail_as_string();
 	}
 	foreach my $description_line ( @{ $self->{'description'} } ) {
@@ -1451,11 +1460,12 @@ sub Add_2_Header {
 	Carp::cluck("Sorry, but giving me no value is not acceptably!\n")
 	  unless ( defined $value );
 	if ( ref($value) eq "ARRAY" ) {
-		my @return;
-		foreach (@$value) {
-			push( @return, $self->Add_2_Header($_) );
-		}
-		return @return;
+		return map { $self->Add_2_Header($_) } @$value;
+#		my @return;
+#		foreach (@$value) {
+#			push( @return, $self->Add_2_Header($_) );
+#		}
+#		return @return;
 	}
 	unless ( defined $self->{'header_position'}->{$value} ) {
 		$self->{'header_position'}->{$value} =
@@ -1485,24 +1495,21 @@ sub Max_Header {
 	else {
 		Carp::confess("Sorry you can not do that: '$what'\n");
 	}
-	Carp::confess(
-		    "Max header setting is useless!\n $self->{'__max_header__'} > "
-		  . scalar( @{ $self->{'header'} } )
-		  . "\n" )
-	  if ( $self->{'__max_header__'} > scalar( @{ $self->{'header'} } ) );
+	$self->{'__max_header__'} = scalar( @{ $self->{'header'} } ) if ( $self->{'__max_header__'} > scalar( @{ $self->{'header'} } ) );
+
 	return $self->{'__max_header__'};
 }
 
 sub Header_Position {
 	my ( $self, $value ) = @_;
 	return undef unless ( defined $value );
+	return 0 .. scalar( @{ $self->{'header'} } ) - 1
+	  if ( lc($value) eq "all" );
 	if ( ref($value) eq "ARRAY" ) {
 		return map { $self->Header_Position($_) } @$value;
 	}
 	return $self->{'header_position'}->{$value}
 	  if ( defined $self->{'header_position'}->{$value} );
-	return 0 .. scalar( @{ $self->{'header'} } ) - 1
-	  if ( lc($value) eq "all" );
 	if ( ref( $self->{'subsets'}->{$value} ) eq "ARRAY" ) {
 		return ${ $self->{'subsets'}->{$value} }[0]
 		  if ( @{ $self->{'subsets'}->{$value} } == 1 );
@@ -1905,7 +1912,8 @@ sub drop_column {
 	}
 	my @cols;
 	for ( my $i = 0 ; $i < $self->Columns() ; $i++ ) {
-		push( @cols, @{ $self->{'header'} }[$i] ) unless ( $col_pos->{$i} );
+		next unless (defined @{ $self->{'header'} }[$i]);
+		$cols[@cols] = @{ $self->{'header'} }[$i] unless ( $col_pos->{$i} );
 	}
 	my @col_ids = sort { $b <=> $a } ( keys %$col_pos );
 
