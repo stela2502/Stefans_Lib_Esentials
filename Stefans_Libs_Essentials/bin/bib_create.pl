@@ -30,6 +30,7 @@ use stefans_libs::root;
 
 use FindBin;
 my $plugin_path = "$FindBin::Bin";
+use stefans_libs::Version;
 
 my $VERSION = 'v1.0';
 
@@ -122,6 +123,7 @@ print "We created the test file '". &createTestFile (join("/", @test_path), $lib
 
 sub createLibFile {
 	my ( $libFile, $package ) = @_;
+	my $V = stefans_libs::Version->new();
 	my $fm = root -> filemap ( $libFile);
 	unless ( -d $fm->{'path'} ) {
 		warn "mkdir -p $fm->{'path'}\n";
@@ -141,6 +143,7 @@ sub createLibFile {
 
 #use FindBin;
 #use lib \"\$FindBin::Bin/../lib/\";
+#created by bib_create.pl from ".$V->origin('Stefans_Lib_Esentials')." commit ".$V->version('Stefans_Lib_Esentials')."
 use strict;
 use warnings;
 

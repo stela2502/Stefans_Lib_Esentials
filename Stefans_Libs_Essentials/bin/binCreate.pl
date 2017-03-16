@@ -28,6 +28,8 @@ use stefans_libs::root;
 use strict;
 use warnings;
 
+use stefans_libs::Version;
+
 my $VERSION = "v1.1";
 
 my ( $help, $debug, $name, $pod, $force, @commandLineSwitches,
@@ -92,7 +94,9 @@ foreach my $variableStr (@commandLineSwitches) {
 	}
 	if ( lc($variableStr) eq "outfile" ) {
 		$log_str =
-		"my \$fm = root->filemap( \$outfile );\n"
+		"use stefans_libs::Version;\n"
+		. "my $V = stefans_libs::Version->new();\n"
+		. "my \$fm = root->filemap( \$outfile );\n"
 		. "mkdir( \$fm->{'path'}) unless ( -d \$fm->{'path'} );\n\n"
 		. "open ( LOG , \">\$outfile.log\") or die \$!;\n"
 		. "print LOG \$task_description.\"\\n\";\n"
@@ -152,7 +156,7 @@ foreach my $variableStr (@commandLineSwitches) {
 	}
 
 }
-
+my $V =stefans_libs::Version->new();
 my $string = "#! /usr/bin/perl -w
 
 =head1 LICENCE
@@ -171,6 +175,11 @@ my $string = "#! /usr/bin/perl -w
 
   You should have received a copy of the GNU General Public License 
   along with this program; if not, see <http://www.gnu.org/licenses/>.
+
+=head1 CREATED BY
+   
+   binCreate.pl from ".$V->origin('Stefans_Lib_Esentials')." commit ".$V->version('Stefans_Lib_Esentials')."
+   
 
 =head1  SYNOPSIS
 
