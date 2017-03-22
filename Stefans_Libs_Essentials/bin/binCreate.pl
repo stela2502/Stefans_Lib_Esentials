@@ -95,7 +95,7 @@ foreach my $variableStr (@commandLineSwitches) {
 	if ( lc($variableStr) eq "outfile" ) {
 		$log_str =
 		"use stefans_libs::Version;\n"
-		. "my $V = stefans_libs::Version->new();\n"
+		. "my \$V = stefans_libs::Version->new();\n"
 		. "my \$fm = root->filemap( \$outfile );\n"
 		. "mkdir( \$fm->{'path'}) unless ( -d \$fm->{'path'} );\n\n"
 		. "open ( LOG , \">\$outfile.log\") or die \$!;\n"
@@ -254,6 +254,8 @@ $log_str
 $string =~ s/EXECUTABLE/$exec_name/g;
 $string =~ s/INFO_STR/$pod/g;
 
+&createTestFile( "$path/../t/", $exec_name, $optionNames );
+
 unless ( -f "$path/$exec_name" && !$force ) {
 	open( OUT, ">$path/$exec_name" )
 	  or die "could not create file '$path/$exec_name'\n";
@@ -267,7 +269,6 @@ else {
 "\nthe file '$path/$exec_name' already exists!\nUse the -force switch to delete it\n\n";
 }
 
-&createTestFile( "$path/../t/", $exec_name, $optionNames );
 
 sub helpString {
 	my $errorMessage = shift;

@@ -185,6 +185,13 @@ sub filemap{
 }
 sub parse_path{
 	my ( $self, $filename ) = @_;
+	if ( $filename =~m/^(\$\w*)\/(.*)$/ ) {
+ 	## oops the path is an environment variable!
+ 		my $tmp = $1;
+ 		my $fm = $self->filemap( $2 );
+ 		$fm->{'path'} = $tmp;
+ 		return $fm;
+ 	}
 	unless ( $filename =~ m!^/! ) {
 		$filename = getcwd()."/$filename";
 	}
