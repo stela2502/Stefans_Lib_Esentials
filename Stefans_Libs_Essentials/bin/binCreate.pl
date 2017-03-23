@@ -254,7 +254,9 @@ $log_str
 $string =~ s/EXECUTABLE/$exec_name/g;
 $string =~ s/INFO_STR/$pod/g;
 
+eval {
 &createTestFile( "$path/../t/", $exec_name, $optionNames );
+};
 
 unless ( -f "$path/$exec_name" && !$force ) {
 	open( OUT, ">$path/$exec_name" )
