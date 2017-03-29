@@ -137,7 +137,7 @@ foreach ( @depends ){
 }
 
 print MAKE "opendir( DIR, 'bin/' ) or die \"I could not open the bin folder\n\$!\n\";
-map { install_script \"bin/\$_\" } grep !/^\./,  grep '*.pl', readdir(DIR);
+map { install_script \"bin/\$_\" } grep !/^\\./,  grep '*.pl', readdir(DIR);
 close ( DIR );
 
 
