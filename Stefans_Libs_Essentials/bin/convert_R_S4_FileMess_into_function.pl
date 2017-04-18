@@ -144,16 +144,20 @@ foreach my $file ( @infiles ) {
 }
 
 ## and now all function definitions need to be saved as files
+my $outfile;
 foreach my $fname ( keys %$functions ) {
 	if ( $use_fname ){
-		open ( OUT, ">$outpath/$functions->{$fname}->{'file'}"."_$fname.R" ) or die "I could not create the outfile '$outpath/$functions->{'file'}_$fname.R'\n$!";
+		$outfile = "$outpath/$functions->{$fname}->{'file'}"."_$fname.R";
 	}
 	else {
-			open ( OUT, ">$outpath/$fname.R" ) or die "I could not create the outfile '$outpath/$fname.R'\n$!";
+		$outfile = "$outpath/$fname.R";
 	}
-	print OUT $functions->{$fname}->R();
-	close ( OUT );
-	print "created file $outpath/$fname.R\n";
+	unless ( -f $outfile ) {
+		open ( OUT, ">$outfile" ) or die "I could not create the outfile '$outfile'\n$!\n";
+		print OUT $functions->{$fname}->R();
+		close ( OUT );
+		print "created file '$outfile'\n";
+	}
 }
 
 print "Done\n";

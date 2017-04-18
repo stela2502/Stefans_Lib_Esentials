@@ -188,6 +188,7 @@ setMethod('$funN', signature = c ('$classN'),
 	}
 }
 close(OUT);
+print "Done\n";
 
 sub man2str {
 	my ($man) = @_;
