@@ -1,4 +1,4 @@
 all:
-	make -C SCExV
+	make -C Stefans_Libs_Essentials
 install:
-	make -C SCExV install
+	make -C Stefans_Libs_Essentials install
