@@ -990,13 +990,13 @@ sub _construct_variableDef {
 	}
 	if ( $variable->{'type'} =~ m/TIMESTAMP/ ) {
 		if ( $variable->{'auto_update'} ) {
-			$string .= " ON UPDATE CURRENT_TIMESTAMP ";
+			$string .= " DEFAULT NOW() ON UPDATE CURRENT_TIMESTAMP ";
 		}
 		elsif ( defined $variable->{'default'} ) {
 			$string .= " DEFAULT $variable->{'default'}";
 		}
 		else {
-			$string .= " DEFAULT 0";
+			$string .= " DEFAULT NOW()";
 		}
 	}
 	$string .= ",\n";
