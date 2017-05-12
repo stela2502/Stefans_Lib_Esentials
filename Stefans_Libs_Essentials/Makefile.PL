@@ -30,4 +30,4 @@ close ( DIR );
 
 
 auto_install();
-WriteAll();
+WriteAll;
