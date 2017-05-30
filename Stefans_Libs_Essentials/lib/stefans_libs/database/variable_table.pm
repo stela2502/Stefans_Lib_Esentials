@@ -85,12 +85,17 @@ sub new {
 
 }
 
+
+
 =head2 datanames 
 	get all names for the different columns as hash
 =cut
 
 sub datanames {
-	my ($self) = @_;
+	my ($self, $array) = @_;
+	if ( defined $array ) {
+		return map { $_->{'name'} } @{ $self->{'table_definition'}->{'variables'} } ;
+	}
 	return $self->{'__datanames__'} if ( defined $self->{'__datanames__'} );
 	my $i = 0;
 	$self->{'__datanames__'} =
@@ -355,8 +360,18 @@ sub getDBH_Connection {
 
 sub getDBH {
 	my ( $self, $connection_position, $database_name_position ) = @_;
-	unless ( ref($self) eq 'varaiable_table' ) {
+	unless ( ref( $self->{'connection'} ) eq "HASH" ) {
 		$self = variable_table->new();
+	}
+	if ( defined $self->{'connection'} and $self->{'connection'}->{'driver'} eq "SQLite" ) {
+		unless ( defined $self->{'connection'}->{'filename'} ) {
+			Carp::confess ( "No SQLite db without a filename - please fix the script!" );
+		}
+		my $dsn = "DBI:SQLite:dbname=$self->{'connection'}->{'filename'}";
+		my $userid = "";
+		my $password = "";
+		my $dbh = DBI->connect($dsn, $userid, $password, { RaiseError => 1 }) or die $DBI::errstr;
+		return $dbh;
 	}
 	my ( $connection_str, $dbh );
 	if ( defined $connection_position ) {
@@ -479,6 +494,16 @@ sub _tableNames {
 		$self->{__tableNames} =
 		  [ $self->dbh()
 			  ->tables( { 'TABLE_SCHEM' => uc( $connection->{'dbuser'} ) } ) ];
+	}elsif ($connection->{'driver'} eq "SQLite" ){
+		my $sql = "SELECT name FROM sqlite_master WHERE type='table';";
+		my $sth = $self->dbh()->prepare( $sql )
+		  or Carp::confess( "something went wrong! '$sql'\n",
+			$self->dbh()->errstr() );
+		$sth->execute();
+		my $return     = $sth->fetchall_arrayref();
+		my $data_table = data_table->new();
+		$data_table->Add_db_result( ['table'], $return );
+		$self->{__tableNames} = $data_table ->GetAsArray('table');
 	}
 
 #warn ref($self),":_tableNames -> we have the table names ",join (", ", @{$self->{__tableNames}}),"\n";
@@ -512,7 +537,7 @@ sub tableExists {
 				. '"' eq uc($name) );
 		}
 	}
-	elsif ( $self->{'connection'}->{'driver'} eq "mysql" ) {
+	elsif ( $self->{'connection'}->{'driver'} eq "mysql" || $self->{'connection'}->{'driver'} eq "SQLite") {
 		foreach $name ( @{ $self->_tableNames() } ) {
 			if ( $table_name eq $name ) {
 				$self->{'check_ok'} = 1;
@@ -707,6 +732,9 @@ sub create_String_mysql {
 	$hash->{'table_name'} = $self->TableName();
 	my $string =
 "CREATE TABLE $hash->{'table_name'} (\n\tid INTEGER UNSIGNED auto_increment,\n";
+	if ( $self->{'connection'}->{'driver'} eq "SQLite") {
+		$string =~ s/id INTEGER UNSIGNED auto_increment/id INTEGER PRIMARY KEY AUTOINCREMENT/;
+	}
 	unless ( ref( $hash->{'variables'} ) eq "ARRAY" ) {
 		$self->{error} .= ref($self)
 		  . ":create_String -> we need an array of 'variables' informations!\n";
@@ -715,7 +743,7 @@ sub create_String_mysql {
 		foreach my $variable ( @{ $hash->{'variables'} } ) {
 			$string .= $self->_construct_variableDef( 'mysql', $variable );
 		}
-		$string .= "\t PRIMARY KEY ( id ),\n";
+		$string .= "\t PRIMARY KEY ( id ),\n" unless ( $self->{'connection'}->{'driver'} eq "SQLite" );
 	}
 
 	if ( ref( $hash->{'INDICES'} ) eq "ARRAY"
@@ -1028,7 +1056,7 @@ sub create {
 	my ( $self, $table_base_name ) = @_;
 	my ($sql);
 	$self->_dropTable($table_base_name);
-	if ( $self->{'connection'}->{'driver'} eq "mysql" ) {
+	if ( $self->{'connection'}->{'driver'} eq "mysql" ||  $self->{'connection'}->{'driver'} eq "SQLite") {
 		$sql = $self->create_String_mysql( $self->{'table_definition'} );
 	}
 	elsif ( $self->{'connection'}->{'driver'} eq "DB2" ) {
