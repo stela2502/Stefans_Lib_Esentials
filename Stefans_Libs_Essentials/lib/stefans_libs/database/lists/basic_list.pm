@@ -211,10 +211,11 @@ sub UpdateList {
 
 sub DropEntry {
 	my ( $self, $id ) = @_;
-	return $self->dbh()
+	my @return = $self->dbh()
 	  ->do( 'delete from ' . $self->TableName() . " where id = $id" )
 	  or Carp::confess(
-		"I could not delete the id $id!\n" . $self->dbh()->errstr() . "\n" );
+		"I could not delete the id $id!\n" . {$self->dbh()}->errstr() . "\n" );
+	return @return;
 }
 
 sub init_tableStructure {
