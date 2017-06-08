@@ -3,11 +3,14 @@
 # expected.  You have been warned.
 
 use inc::Module::Install;
+use Module::Install::Share;
 
 name "Stefans_Libs_Essentials";
 version_from "lib/Stefans_Libs_Essentials.pm";
 author 'Stefan Lang <Stefan.Lang@med.lu.se>';
 
+requires 'Module::Install::Share' => 0;
+requires 'File::ShareDir' => 0;
 requires	'DBI'                     => 0;
 requires		'Pod::Usage'			  => 0;
 requires		'DateTime::Format::MySQL' => 0;
@@ -29,6 +32,8 @@ map { install_script "bin/$_" } grep !/^\./,  grep '*.pl', readdir(DIR);
 close ( DIR );
 
 requires_external_bin('sqlite3');
+
+install_share ('data' );
 
 auto_install();
 WriteAll();

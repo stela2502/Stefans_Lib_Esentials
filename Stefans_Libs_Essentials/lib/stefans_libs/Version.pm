@@ -107,11 +107,11 @@ sub save {
 
 sub record{
 	my ( $self, $package, $path) = @_;
-	open ( REF, "cd $path && git rev-parse HEAD |" ) or Carp::confess("I could not recieve the git reference\n$!\n");
+	open ( REF, "git -C $path rev-parse HEAD |" ) or Carp::confess("I could not recieve the git reference\n$!\n");
 	my $ID = join("", <REF>);
 	$ID =~ s/\n//g;
 	close ( REF );
-	open ( REF, "cd $path && git remote get-url origin|") or Carp::confess("I could not recieve the git origin\n$!\n");
+	open ( REF, "cd $path && git remote get-url --push $package |") or Carp::confess("I could not recieve the git origin\n$!\n");
 	my $orig = join("", <REF>);
 	$orig =~ s/\n//g;
 	close ( REF );
