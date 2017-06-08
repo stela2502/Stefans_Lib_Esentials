@@ -26,6 +26,7 @@ requires 'File::Copy::Recursive' => 0;
 requires 'File::HomeDir' => 0;
 requires		'PDL' => 0;
 requires 'XML::Simple' => 0;
+requires 'Spreadsheet::ParseExcel' => 0;
 
 opendir( DIR, "bin/" ) or die "I could not open the bin folder\n$!\n";
 map { install_script "bin/$_" } grep !/^\./,  grep '*.pl', readdir(DIR);
