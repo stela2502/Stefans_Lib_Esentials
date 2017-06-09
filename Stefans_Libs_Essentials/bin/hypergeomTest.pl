@@ -143,11 +143,12 @@ my $drawN = scalar(@B);
 
 
  # 'max_count', 'bad_entries', $genes 'matched genes', 'pathway_name' 
-print "result:\n". &more_hypergeom($totalN, $totalN - $pathwayN, &in(@A, @B), $drawN, "useless" )."\n";
+#print "result:\n". &more_hypergeom($totalN, $pathwayN, $drawN, &in(\@A, \@B), "useless" )."\n";
+print "p value (more than expected):\n". &more_hypergeom($pathwayN, $totalN- $pathwayN,$drawN, &in(\@A, \@B), "useless" )."\n";
 
 sub in{
 	my ( $a, $b ) = @_;
-	$b = { map { $_ => 1 } @$b};
+	$b = { map { $_ => 1 if ( defined $_ )  } @$b};
 	my ( $match );
 	$match = 0;
 	foreach ( @$a ){
@@ -156,9 +157,25 @@ sub in{
 	return $match;
 }
 
+=head 3 more_hypergeom (  $n, $m, $N, $i, $pathway )
+
+'max_count','bad_entries', 'number of genes in pathway, 'matched genes', 'pathway_name'
+
+same implementation
+
+				'max_count'   => scalar( @{ $self->{'pathways'}->{$pathway} } ),
+				'bad_entries' => $self->{'max_bad'} - $i,
+				'matched genes' => $i,
+				'pathway_name'  => "\\href{"
+				  . $self->{'source'}->{$pathway} . "}{"
+				  . join( " ", split( "_", $pathway ) ) . "}",
+				'gene list' => $genes,
+
+=cut
 
 sub more_hypergeom {
 	my ( $n, $m, $N, $i, $pathway ) = @_;
+	print "more_hypergeom( $n, $m, $N, $i, $pathway )\n";
 	return 1 unless ( defined $n );
 	if ( $i > $n ) {
 		## This is normaly a deadly problem!

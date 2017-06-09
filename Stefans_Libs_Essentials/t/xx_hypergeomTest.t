@@ -17,6 +17,9 @@ if ( -d $outpath ) {
 	system("rm -Rf $outpath");
 }
 
+@all = ('a'..'z','A'..'Z');
+@A = 'A'..'G';
+@B= ('C'..'G','X'..'Z');
 
 my $cmd =
     "perl -I $plugin_path/../lib  $exec "

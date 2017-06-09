@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use stefans_libs::root;
-use Test::More tests => 2;
+use Test::More tests => 6;
 use stefans_libs::flexible_data_structures::data_table;
 
 use FindBin;
@@ -107,6 +107,31 @@ $exp = [
 
 is_deeply( \@values, $exp, "Human gene names" );
 
+@names= ("$plugin_path/data/some_mouse_genes.txt" );
+
+$cmd =
+    "perl -I $plugin_path/../lib  $exec "
+  . " -names "
+  . join( ' ', @names )
+  ." -name_is_list"
+  . " -outfile "
+  . $outfile
+  . " -hom_file "
+  . $hom_file
+
+  #. " -name_type " . $name_type
+  . " -B " . $B . " -A " . $A . " -debug";
+$start = time;
+unlink($outfile);
+system($cmd );
+$duration = time - $start;
+print "Execution time: $duration s\n";
+
+@values = file_2_array($outfile);
+
+is_deeply( \@values, $exp, "read from flist file" );
+
+
 sub file_2_array {
 	my $file = shift;
 	my @names;
@@ -118,3 +143,5 @@ sub file_2_array {
 	close(Mgenes);
 	return @names;
 }
+
+

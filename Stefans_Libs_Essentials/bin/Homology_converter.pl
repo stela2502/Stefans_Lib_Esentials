@@ -26,6 +26,10 @@
 
     Homology_converter.pl
        -names     :a list of gene names
+       
+       -name_is_list
+                  :option that uses the first name entry as list file
+                  
        -hom_file  :a homology database dump obtained from http://www.informatics.jax.org/homology.shtml
                     http://www.informatics.jax.org/downloads/reports/HMD_HumanPhenotype.rpt
        -outfile   :the outfile
@@ -59,13 +63,14 @@ my $plugin_path = "$FindBin::Bin";
 my $VERSION = 'v1.0';
 
 
-my ( $help, $debug, $database, @names, $hom_file, $A, $B, $outfile, $name_type);
+my ( $help, $debug, $database, @names, $hom_file, $A, $B, $outfile, $name_is_list, $name_type);
 
 Getopt::Long::GetOptions(
        "-names=s{,}"    => \@names,
 	 "-hom_file=s"    => \$hom_file,
 	 "-outfile=s"    => \$outfile,
 	 "-name_type=s"    => \$name_type,
+	 "-name_is_list" => \$name_is_list,
    "-A=s"          => \$A,
    "-B=s"          => \$B,
 	 "-help"             => \$help,
@@ -125,7 +130,7 @@ $task_description .= ' -names "'.join( '" "', @names ).'"' if ( defined $names[0
 $task_description .= " -hom_file '$hom_file'" if (defined $hom_file);
 $task_description .= " -outfile '$outfile'" if (defined $outfile);
 $task_description .= " -name_type '$name_type'" if (defined $name_type);
-
+$task_description .= " -name_is_list" if ( $name_is_list);
 
 
 use stefans_libs::Version;
@@ -190,12 +195,25 @@ open ( OUT , ">$outfile") or die "I could not open the outfile '$outfile\n'\n$!\
 if ( -f $names[0] ) {
   ## I asume it is a GSEA database file
   open ( IN , "<$names[0]" ) or die "I could not read from infile $names[0]\n$!\n";
-  while( <IN> ) {
-    chomp();
-    @line= split("\t", $_);
-    print OUT join("\t", shift(@line), shift(@line) )."\t";
-    print OUT join("\t", &translate( @line) )."\n";
+  @names = undef;
+  if ( $name_is_list ) {
+  	while (<IN>) {
+		chomp();
+		push( @names, split( /\s+/, $_ ) );
+	}
+	my @ret = &translate( @names );
+  	$ok = scalar(@ret);
+  	print OUT join("\n", @ret );
+  	print "I could convert $ok out of ".scalar(@names)." gene names\n";
+  }else {
+  	while( <IN> ) {
+	    chomp();
+	    @line= split("\t", $_);
+	    print OUT join("\t", shift(@line), shift(@line) )."\t";
+	    print OUT join("\t", &translate( @line) )."\n";
+  	}
   }
+  close ( IN );
 }
 else {
   my @ret = &translate( @names );
@@ -211,10 +229,23 @@ close ( OUT );
 sub translate {
   my @ret;
   foreach ( @_ ) {
+  	next unless ( defined $_ );
      if ( defined $data->{$_}){
     	push ( @ret, $data->{$_} );
   		#warn "$_ -> $data->{$_}\n";
     }
   }
   return @ret;
+}
+
+sub file_2_array {
+	my $file = shift;
+	my @names;
+	open( Mgenes, "<$file" ) or die $!;
+	while (<Mgenes>) {
+		chomp();
+		push( @names, split( /\s+/, $_ ) );
+	}
+	close(Mgenes);
+	return @names;
 }
