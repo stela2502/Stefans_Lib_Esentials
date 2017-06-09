@@ -34,7 +34,7 @@ close ( DIR );
 
 requires_external_bin('sqlite3');
 
-install_share ('data' );
+install_share 'data';
 
 auto_install();
 WriteAll();
