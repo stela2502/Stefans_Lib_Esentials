@@ -24,7 +24,7 @@ my $cmd =
 . " -name " . $name 
 . " -pod " . $pod 
 . " -force " # or not?
-. " -column_headers " . join(' ', @column_headers )
+. " -column_headers '" . join(' ', @column_headers ) . "'"
 . " -debug";
 
 system( $cmd );
