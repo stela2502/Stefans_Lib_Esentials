@@ -111,10 +111,21 @@ sub record{
 	my $ID = join("", <REF>);
 	$ID =~ s/\n//g;
 	close ( REF );
+	my $orig;
+	eval {
 	open ( REF, "cd $path && git remote get-url --push $package |") or Carp::confess("I could not recieve the git origin\n$!\n");
-	my $orig = join("", <REF>);
+	$orig = join("", <REF>);
 	$orig =~ s/\n//g;
 	close ( REF );
+	};
+	unless ( defined $orig ) {
+		eval {
+			open ( REF, "cd $path && git remote get-url origin |") or Carp::confess("I could not recieve the git origin\n$!\n");
+			$orig = join("", <REF>);
+			$orig =~ s/\n//g;
+			close ( REF );
+		};
+	}
 	
 	my $table = $self->file();
 	if ( $table->get_rowNumbers_4_columnName_and_Entry( 'package', $package) ) {
