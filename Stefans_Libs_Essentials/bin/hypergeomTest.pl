@@ -106,7 +106,7 @@ $task_description .= ' -all "'.join( '" "', @all ).'"' if ( defined $all[0]);
 use stefans_libs::Version;
 my $V  = stefans_libs::Version->new();
 
-print '#library version' . $V->version('Stefans_Libs_Essentials') . "\n";
+print '#library version ' . $V->version('Stefans_Libs_Essentials') . "\n";
 print "#$task_description\n";
 
 if ( -f $all[0] ) {
@@ -127,18 +127,24 @@ my $drawN = scalar(@B);
 
  # 'max_count', 'bad_entries', $genes 'matched genes', 'pathway_name' 
 #print "result:\n". &more_hypergeom($totalN, $pathwayN, $drawN, &in(\@A, \@B), "useless" )."\n";
-print "p value (more than expected):\n". &more_hypergeom($pathwayN, $totalN- $pathwayN,$drawN, &in(\@A, \@B), "useless" )."\n";
+my @overlap;
+print "p value (more than expected):\n". &more_hypergeom($pathwayN, $totalN- $pathwayN,$drawN, &in(\@A, \@B), "red, black, draw, success" )."\n";
+print join(" ", @overlap )."\n";
+=head3 
+
+this function pushes into the hopefully empty global varaible @overlap,
+but returns the number of entryies in @overlap at return!
+
+=cut
 
 sub in{
 	my ( $a, $b ) = @_;
 	#warn "I got n entries in  A=".scalar(@$a). " B=".scalar(@$b)."\n";
 	$b = { map { $_ => 1  } @$b};
-	my ( $match );
-	$match = 0;
 	foreach ( @$a ){
-		$match ++ if ( $b->{$_} );
+		push ( @overlap, $_ ) if ( $b->{$_} );
 	}
-	return $match;
+	return scalar(@overlap);
 }
 
 =head 3 more_hypergeom (  $n, $m, $N, $i, $pathway )

@@ -139,7 +139,7 @@ my $fm = root->filemap( $outfile );
 mkdir( $fm->{'path'}) unless ( -d $fm->{'path'} );
 
 open ( LOG , ">$outfile.log") or die $!;
-print LOG '#library version'.$V->version( "Stefans_Libs_Essentials" )."\n";
+print LOG '#library version '.$V->version( "Stefans_Libs_Essentials" )."\n";
 print LOG $task_description."\n";
 close ( LOG );
 

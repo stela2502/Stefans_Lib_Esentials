@@ -35,12 +35,14 @@ my $duration = time - $start;
 print "Execution time: $duration s\n";
 
 $value =~ s/perl .*hypergeomTest.pl/hypergeomTest.pl/;
+$value =~ s/version ?[\w\d]*/version XYZ/;
 
-$exp = '#library versionf723a33b16a2db2398b4925c02b30d8558a03f1d
+$exp = '#library version XYZ
 #hypergeomTest.pl -A "A" "B" "C" "D" "E" "F" "G" -B "C" "D" "E" "F" "G" "X" "Y" "Z" -all "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z" "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z"
-more_hypergeom( 7, 45, 8, 5, useless )
+more_hypergeom( 7, 45, 8, 5, red, black, draw, success )
 p value (more than expected):
 0.000197989962368116
+C D E F G
 ';
 
 is_deeply($value, $exp," run OK" );
