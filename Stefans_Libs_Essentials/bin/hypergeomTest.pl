@@ -70,39 +70,11 @@ my $error = '';
 unless ( defined $all[0]) {
 	$error .= "the cmd line switch -all is undefined!\n";
 }
-elsif ( -f $all[0] ) {
-	open ( IN, "<$all[0]" ) or die "I could not realld the all file $all[0]\n$!\n";
-	@all = undef;
-	while( <IN> ) {
-		chomp();
-		push( @all, split(/\s+/,$_));
-	}
-	close ( IN );
-}
-
 unless ( defined $A[0]) {
 	$error .= "the cmd line switch -A is undefined!\n";
 }
-elsif ( -f $A[0] ) {
-	open ( IN, "<$A[0]" ) or die "I could not read the A file $A[0]\n$!\n";
-	@A = undef;
-	while( <IN> ) {
-		chomp();
-		push( @A, split(/\s+/,$_));
-	}
-	close ( IN );
-}
 unless ( defined $B[0]) {
 	$error .= "the cmd line switch -B is undefined!\n";
-}
-elsif ( -f $B[0] ) {
-	open ( IN, "<$B[0]" ) or die "I could not read the B file $B[0]\n$!\n";
-	@B = undef;
-	while( <IN> ) {
-		chomp();
-		push( @B, split(/\s+/,$_));
-	}
-	close ( IN );
 }
 
 if ( $help ){
@@ -129,12 +101,23 @@ my ( $task_description);
 $task_description .= 'perl '.$plugin_path .'/hypergeomTest.pl';
 $task_description .= ' -A "'.join( '" "', @A ).'"' if ( defined $A[0]);
 $task_description .= ' -B "'.join( '" "', @B ).'"' if ( defined $B[0]);
+$task_description .= ' -all "'.join( '" "', @all ).'"' if ( defined $all[0]);
 
 use stefans_libs::Version;
 my $V  = stefans_libs::Version->new();
 
 print '#library version' . $V->version('Stefans_Libs_Essentials') . "\n";
 print "#$task_description\n";
+
+if ( -f $all[0] ) {
+	@all = &file_2_array($all[0]);
+}
+if ( -f $A[0] ) {
+	@A = &file_2_array($A[0]);
+}
+if ( -f $B[0] ) {
+	@B = &file_2_array($B[0]);
+}
 
 ## Do whatever you want!
 my $totalN = scalar(@all);
@@ -148,7 +131,8 @@ print "p value (more than expected):\n". &more_hypergeom($pathwayN, $totalN- $pa
 
 sub in{
 	my ( $a, $b ) = @_;
-	$b = { map { $_ => 1 if ( defined $_ )  } @$b};
+	#warn "I got n entries in  A=".scalar(@$a). " B=".scalar(@$b)."\n";
+	$b = { map { $_ => 1  } @$b};
 	my ( $match );
 	$match = 0;
 	foreach ( @$a ){
@@ -233,4 +217,16 @@ sub gammln {
 	}
 	Carp::confess("Hej we must not have a $x of 0!\n") if ( $x == 0 );
 	-$tmp + log( 2.5066282746310005 * $ser / $x );
+}
+
+sub file_2_array {
+	my $file = shift;
+	my @names;
+	open( Mgenes, "<$file" ) or die $!;
+	while (<Mgenes>) {
+		chomp();
+		push( @names, split( /\s+/, $_ ) ) if ( $_ =~m/\w/);
+	}
+	close(Mgenes);
+	return @names;
 }

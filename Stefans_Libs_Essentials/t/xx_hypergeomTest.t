@@ -28,7 +28,22 @@ my $cmd =
 . " -B " . join(' ', @B )
 . " -debug";
 my $start = time;
-system( $cmd );
+open ( IN, "$cmd |" );
+$value = join("", map { $_ } <IN>);
+close ( IN );
 my $duration = time - $start;
 print "Execution time: $duration s\n";
+
+$value =~ s/perl .*hypergeomTest.pl/hypergeomTest.pl/;
+
+$exp = '#library versionf723a33b16a2db2398b4925c02b30d8558a03f1d
+#hypergeomTest.pl -A "A" "B" "C" "D" "E" "F" "G" -B "C" "D" "E" "F" "G" "X" "Y" "Z" -all "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z" "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z"
+more_hypergeom( 7, 45, 8, 5, useless )
+p value (more than expected):
+0.000197989962368116
+';
+
+is_deeply($value, $exp," run OK" );
+
+#print "I got this output:\n$value\n";
 #print "\$exp = ".root->print_perl_var_def($value ).";\n";
