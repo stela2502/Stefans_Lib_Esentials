@@ -24,7 +24,8 @@ my $cmd =
 . " -name " . $name 
 . " -pod " . $pod 
 . " -force " # or not?
-. " -column_headers " . join(' ', @column_headers )
-system( $cmd );
+. " -column_headers '" . join(' ', @column_headers ) . "'"
 . " -debug";
+
+system( $cmd );
 #print "\$exp = ".root->print_perl_var_def($value ).";\n";

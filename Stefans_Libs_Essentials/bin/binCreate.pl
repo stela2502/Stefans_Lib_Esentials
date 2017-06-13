@@ -91,7 +91,7 @@ foreach my $variableStr (@commandLineSwitches) {
 			"##############################" );
 		$additional_checks .= "### initialize default options:\n\n"
 		  . "#\$options->{'n'} ||= 10;\n\n" . "###\n";
-	}
+	}	
 	if ( lc($variableStr) eq "outfile" ) {
 		$log_str =
 		"use stefans_libs::Version;\n"
@@ -99,6 +99,7 @@ foreach my $variableStr (@commandLineSwitches) {
 		. "my \$fm = root->filemap( \$outfile );\n"
 		. "mkdir( \$fm->{'path'}) unless ( -d \$fm->{'path'} );\n\n"
 		. "open ( LOG , \">\$outfile.log\") or die \$!;\n"
+		. "print LOG '#library version '.\$V->version( AddRightLibNameHere ).\"\\n\";\n"
 		. "print LOG \$task_description.\"\\n\";\n"
 		. "close ( LOG );\n\n";
 	}
