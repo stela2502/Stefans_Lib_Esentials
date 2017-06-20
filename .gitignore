@@ -1,3 +1,5 @@
 /.project
 /.Rhistory
 /.includepath
+*.Rout
+runRFclust*RData
