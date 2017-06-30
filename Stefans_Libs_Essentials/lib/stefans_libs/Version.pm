@@ -83,6 +83,7 @@ sub _lib_path {
 sub table_file {
 	my $self = shift;
 	$self->{fname} ||= $self->_lib_path()."Versions.xls";
+	warn "I am using the version file '$self->{fname}'\n";
 	return $self->{fname};
 }
 
@@ -96,7 +97,11 @@ sub file {
 		$self->{'data_table'} ->Add_2_Header ( ['package','origin', 'version'] );
 		return $self->{'data_table'};
 	}else {
-		return $self->{'data_table'} = data_table->new({'filename' => $self->table_file() } );
+		$self->{'data_table'} = data_table->new({'filename' => $self->table_file() } );
+		unless ( defined $self->{'data_table'}->Header_Position('package')) {
+			$self->{'data_table'} ->Add_2_Header ( ['package','origin', 'version'] );
+		}
+		return $self->{'data_table'};
 	}
 }
 
@@ -112,26 +117,29 @@ sub record{
 	$ID =~ s/\n//g;
 	close ( REF );
 	my $orig;
+	my $table = $self->file();
+	my $id = $table->get_rowNumbers_4_columnName_and_Entry( 'package', $package) ;
+	if ( defined $id ){
+		$table->set_value_for('package', $package, 'version', $ID );
+		return $self;
+	}
 	eval {
-	open ( REF, "cd $path && git remote get-url --push $package |") or Carp::confess("I could not recieve the git origin\n$!\n");
-	$orig = join("", <REF>);
-	$orig =~ s/\n//g;
-	close ( REF );
+		warn "cd $path && git remote get-url --push $package \n";
+		open ( REF, "cd $path && git remote get-url --push $package |") or Carp::confess("I could not recieve the git origin\n$!\n");
+		$orig = join("", <REF>);
+		$orig =~ s/\n//g;
+		close ( REF );
+		$table->AddDataset( {'package' => $package, 'version' => $ID , 'origin' => $orig} ) if ($orig =~ m/\w/ );
 	};
-	unless ( defined $orig ) {
+	unless (defined $table->get_rowNumbers_4_columnName_and_Entry( 'package', $package) ) {
 		eval {
+			warn "cd $path && git remote get-url origin\n"; 
 			open ( REF, "cd $path && git remote get-url origin |") or Carp::confess("I could not recieve the git origin\n$!\n");
 			$orig = join("", <REF>);
 			$orig =~ s/\n//g;
 			close ( REF );
+			$table->AddDataset( {'package' => $package, 'version' => $ID , 'origin' => $orig} ) if ($orig =~ m/\w/ );
 		};
-	}
-	
-	my $table = $self->file();
-	if ( $table->get_rowNumbers_4_columnName_and_Entry( 'package', $package) ) {
-		$table->set_value_for('package', $package, 'version', $ID );
-	}else {
-		$table->AddDataset( {'package' => $package, 'version' => $ID , 'origin' => $orig} );
 	}
 	return $self;
 }

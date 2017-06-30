@@ -11,6 +11,7 @@ author 'Stefan Lang <Stefan.Lang@med.lu.se>';
 
 requires 'Module::Install::Share' => 0;
 requires 'File::ShareDir' => 0;
+requires 'File::HomeDir' => 0;
 requires	'DBI'                     => 0;
 requires		'Pod::Usage'			  => 0;
 requires		'DateTime::Format::MySQL' => 0;
@@ -38,3 +39,4 @@ install_share 'data';
 
 auto_install();
 WriteAll();
+
