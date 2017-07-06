@@ -93,19 +93,53 @@ sub batch_import {
 	my $fm = root->filemap( $variable_table->{'connection'}->{'filename'} );
 	my $tmp_filename = "$fm->{'path'}/".$variable_table->TableName().".import.0.tmp";
 	my $i = 1;
+	$self->import_max( $i, $variable_table, $tmp_filename, $data_table );
+	
+#	while ( -f $tmp_filename ) {
+#		$tmp_filename =~ s/import.\d*.tmp/import.$i.tmp/;
+#		$i ++;
+#	}
+#	open ( TMP, ">$tmp_filename" ) or die "I could not create the tmp file '$tmp_filename'\n$!\n";
+#	for ( $i = 0; $i < $data_table->Rows(); $i ++ ) {
+#		print TMP join("\t",@{$data_table->get_line_asArray($i)} )."\n";
+#	}
+#	close ( TMP );
+#	my $sql_script = ".separator \"\\t\"\n.import $tmp_filename ".$variable_table->TableName()."\n";
+#	print "echo '$sql_script' | sqlite3 $variable_table->{'connection'}->{'filename'}\n";
+#	system("echo '$sql_script' | sqlite3 $variable_table->{'connection'}->{'filename'}" );
+	
+	print "Done\n";
+}
+
+=head3 import_max ( $i, $variable_table, $tmp_filename, $data_table, $start )
+
+Restrict the number of batch inserted rows to $self->{'max_rows'} (default = 5e+6)
+
+=cut
+
+sub import_max{
+	my ( $self, $i, $variable_table, $tmp_filename, $data_table, $start ) = @_;
+	$start ||=0; # start from first line in table
+	$self->{'max_rows'} ||= 5e+6;
 	while ( -f $tmp_filename ) {
 		$tmp_filename =~ s/import.\d*.tmp/import.$i.tmp/;
 		$i ++;
 	}
 	open ( TMP, ">$tmp_filename" ) or die "I could not create the tmp file '$tmp_filename'\n$!\n";
-	for ( $i = 0; $i < $data_table->Rows(); $i ++ ) {
-		print TMP join("\t",@{$data_table->get_line_asArray($i)} )."\n";
+	my $end = $start + $self->{'max_rows'};
+	$end = $data_table->Rows() if ($end > $data_table->Rows());
+	
+	for (my  $it = $start; $it < $end; $it ++ ) {
+		print TMP join("\t",@{$data_table->get_line_asArray($it)} )."\n";
 	}
 	close ( TMP );
-	my $sql_script = ".separator \"\t\"\n.import $tmp_filename ".$variable_table->TableName()."\n";
+	my $sql_script = ".separator \"\\t\"\n.import $tmp_filename ".$variable_table->TableName()."\n";
+	print "echo '$sql_script' | sqlite3 $variable_table->{'connection'}->{'filename'}\n";
 	system("echo '$sql_script' | sqlite3 $variable_table->{'connection'}->{'filename'}" );
 	
-	print "Done\n";
+	print "done $start-$end\n";
+	$self->import_max( $i, $variable_table, $tmp_filename, $data_table, $end ) unless ( $end == $data_table->Rows() );
+	return $self;
 }
 
 1;

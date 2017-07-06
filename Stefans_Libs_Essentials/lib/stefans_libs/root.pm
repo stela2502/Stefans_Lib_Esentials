@@ -20,6 +20,7 @@ use Carp;
 use strict;
 use Date::Simple;
 use Statistics::Descriptive;
+use File::Spec::Functions;
 use Cwd;
 
 =for comment
@@ -193,14 +194,15 @@ sub parse_path{
  		return $fm;
  	}
 	unless ( $filename =~ m!^/! ) {
-		$filename = getcwd()."/$filename";
+		$filename = File::Spec->catfile( getcwd(),$filename );
 	}
-	my @temp = split("/",$filename );
+	my @temp = File::Spec->splitpath( $filename );
 	my $ret = {};
 	$ret -> {'total'} = $filename;
 	$ret -> {'filename'} =pop(@temp);
 	$temp[0] = "./" unless ( defined $temp[0]);
-	$ret -> {'path'} = join("/", @temp);
+	$ret -> {'path'} = File::Spec->catfile(@temp);
+	$ret -> {'path'} =~ s!//!/!g;
 	@temp = split(/\./, $ret -> {'filename'});
 	$ret -> {'filename_base'} = $temp[0];
 	$ret -> {'filename_ext'} = pop(@temp);
