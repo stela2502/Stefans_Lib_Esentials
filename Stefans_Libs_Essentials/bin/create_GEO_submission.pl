@@ -29,6 +29,8 @@
        -dataPath  :the path where all possible data files are stored
        -outpath   :the outpath to that should go to NCBI - GEO
 
+       -copyExisting: Do not die if a file does not exist.
+       -link_only   :Do not copy but create hard links (unix only 'ln')
 
        -help           :print this help
        -debug          :verbose output
@@ -55,13 +57,15 @@ my $plugin_path = "$FindBin::Bin";
 
 my $VERSION = 'v1.0';
 
-my ( $help, $debug, $database, $xls, $dataPath, $outpath );
+my ( $help, $debug, $database, $xls, $dataPath, $copyExisting, $link_only, $outpath );
 
 Getopt::Long::GetOptions(
-	"-xls=s"      => \$xls,
-	"-dataPath=s" => \$dataPath,
-	"-outpath=s"  => \$outpath,
-
+	"-xls=s"        => \$xls,
+	"-dataPath=s"   => \$dataPath,
+	"-outpath=s"    => \$outpath,
+	"-copyExisting" => \$copyExisting,
+	"-link_only" => \$link_only,
+	
 	"-help"  => \$help,
 	"-debug" => \$debug
 );
@@ -102,6 +106,9 @@ $task_description .= 'perl ' . $plugin_path . '/create_GEO_submission.pl';
 $task_description .= " -xls '$xls'" if ( defined $xls );
 $task_description .= " -dataPath '$dataPath'" if ( defined $dataPath );
 $task_description .= " -outpath '$outpath'" if ( defined $outpath );
+$task_description .= " -copyExisting" if ( $copyExisting );
+$task_description .= " -link_only" if ( $link_only );
+
 
 mkdir($outpath) unless ( -d $outpath );
 my @out = split( "/", $outpath );
@@ -169,32 +176,62 @@ while (<MD5>) {
 close(MD5);
 
 my $available_fn;
+my $err;
+if ($copyExisting ){
+	open( LOG, ">>$outpath/../$ext." . $$ . "_create_GEO_submission.pl.log" )
+	
+}
+
 foreach my $required_fn ( keys %$files ) {
 	($available_fn) = grep( /$required_fn/, keys %$available );
 	if ( defined $available->{$available_fn} ) {
 		if ( $files->{$required_fn} eq $available->{$available_fn} ) {
-			warn "I copy \n\t$available_fn\nto\n\t".File::Spec->catfile( $outpath, $required_fn )."\n" if ($debug);
-			cp( $available_fn, File::Spec->catfile( $outpath, $required_fn ) );
+			warn "I copy \n\t$available_fn\nto\n\t"
+			  . File::Spec->catfile( $outpath, $required_fn ) . "\n"
+			  if ($debug);
+			if ( $link_only ) {
+				system( "ln ".$available_fn." ".File::Spec->catfile( $outpath, $required_fn ) );
+			}else {
+				cp( $available_fn, File::Spec->catfile( $outpath, $required_fn ) );
+			}
 		}
 		else {
-			Carp::confess(
+			$err =
 "md5sums for the required file '$required_fn' ($files->{$required_fn}) "
-				  . "does not match the identified file '$available_fn' ($available->{$available_fn})\n"
-				  . "\$existing ="
-				  . root->print_perl_var_def($available)
-				  . "\n\$required="
-				  . root->print_perl_var_def($files) );
-		}
-	}
-	else {
-		Carp::confess(
-"required filename $required_fn could not be found downsream of $dataPath ($available_fn)\n"
+			  . "does not match the identified file '$available_fn' ($available->{$available_fn})\n"
 			  . "\$existing ="
 			  . root->print_perl_var_def($available)
 			  . "\n\$required="
-			  . root->print_perl_var_def($files) 
-		);
+			  . root->print_perl_var_def($files);
+			if ($copyExisting) {
+				Carp::cluck($err);
+				print LOG "missing file $required_fn ($files->{$required_fn})\n";	
+			}
+			else {
+				Carp::confess($err);
+			}
+		}
 	}
+	else {
+		$err =
+"required filename $required_fn could not be found downsream of $dataPath ($available_fn)\n"
+		  . "\$existing ="
+		  . root->print_perl_var_def($available)
+		  . "\n\$required="
+		  . root->print_perl_var_def($files);
+		if ($copyExisting) {
+			Carp::cluck($err);
+			print LOG "missing file $required_fn ($files->{$required_fn})\n";
+		}
+		else {
+			Carp::confess($err);
+		}
+	}
+}
+
+if ($copyExisting ){
+	close ( LOG );
+	print "Missing files would be stated in $outpath/../$ext." . $$ . "_create_GEO_submission.pl.log\n";
 }
 
 system( "rm -fR " . File::Spec->catpath( $outpath, 'tmp' ) );
