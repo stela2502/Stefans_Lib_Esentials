@@ -57,15 +57,16 @@ my $plugin_path = "$FindBin::Bin";
 
 my $VERSION = 'v1.0';
 
-my ( $help, $debug, $database, $xls, $dataPath, $copyExisting, $link_only, $outpath );
+my ( $help, $debug, $database, $xls, $dataPath, $copyExisting, $link_only,
+	$outpath );
 
 Getopt::Long::GetOptions(
 	"-xls=s"        => \$xls,
 	"-dataPath=s"   => \$dataPath,
 	"-outpath=s"    => \$outpath,
 	"-copyExisting" => \$copyExisting,
-	"-link_only" => \$link_only,
-	
+	"-link_only"    => \$link_only,
+
 	"-help"  => \$help,
 	"-debug" => \$debug
 );
@@ -106,9 +107,8 @@ $task_description .= 'perl ' . $plugin_path . '/create_GEO_submission.pl';
 $task_description .= " -xls '$xls'" if ( defined $xls );
 $task_description .= " -dataPath '$dataPath'" if ( defined $dataPath );
 $task_description .= " -outpath '$outpath'" if ( defined $outpath );
-$task_description .= " -copyExisting" if ( $copyExisting );
-$task_description .= " -link_only" if ( $link_only );
-
+$task_description .= " -copyExisting" if ($copyExisting);
+$task_description .= " -link_only" if ($link_only);
 
 mkdir($outpath) unless ( -d $outpath );
 my @out = split( "/", $outpath );
@@ -177,9 +177,9 @@ close(MD5);
 
 my $available_fn;
 my $err;
-if ($copyExisting ){
+if ($copyExisting) {
 	open( LOG, ">>$outpath/../$ext." . $$ . "_create_GEO_submission.pl.log" )
-	
+
 }
 
 foreach my $required_fn ( keys %$files ) {
@@ -189,10 +189,17 @@ foreach my $required_fn ( keys %$files ) {
 			warn "I copy \n\t$available_fn\nto\n\t"
 			  . File::Spec->catfile( $outpath, $required_fn ) . "\n"
 			  if ($debug);
-			if ( $link_only ) {
-				system( "ln ".$available_fn." ".File::Spec->catfile( $outpath, $required_fn ) );
-			}else {
-				cp( $available_fn, File::Spec->catfile( $outpath, $required_fn ) );
+			if ($link_only) {
+				system( "ln "
+					  . $available_fn . " "
+					  . File::Spec->catfile( $outpath, $required_fn ) )
+				  unless ( -f File::Spec->catfile( $outpath, $required_fn ) );
+			}
+			else {
+				cp( $available_fn,
+					File::Spec->catfile( $outpath, $required_fn ) )
+				  unless ( -f File::Spec->catfile( $outpath, $required_fn ) )
+				  ;
 			}
 		}
 		else {
@@ -205,7 +212,8 @@ foreach my $required_fn ( keys %$files ) {
 			  . root->print_perl_var_def($files);
 			if ($copyExisting) {
 				Carp::cluck($err);
-				print LOG "missing file $required_fn ($files->{$required_fn})\n";	
+				print LOG
+				  "missing file $required_fn ($files->{$required_fn})\n";
 			}
 			else {
 				Carp::confess($err);
@@ -229,9 +237,10 @@ foreach my $required_fn ( keys %$files ) {
 	}
 }
 
-if ($copyExisting ){
-	close ( LOG );
-	print "Missing files would be stated in $outpath/../$ext." . $$ . "_create_GEO_submission.pl.log\n";
+if ($copyExisting) {
+	close(LOG);
+	print "Missing files would be stated in $outpath/../$ext." . $$
+	  . "_create_GEO_submission.pl.log\n";
 }
 
 system( "rm -fR " . File::Spec->catpath( $outpath, 'tmp' ) );
