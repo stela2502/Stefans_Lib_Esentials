@@ -10,6 +10,7 @@ version_from "lib/Stefans_Libs_Essentials.pm";
 author 'Stefan Lang <Stefan.Lang@med.lu.se>';
 
 requires 'Module::Install::Share' => 0;
+requires 'HTML::TableExtract' => 0;
 requires 'File::ShareDir' => 0;
 requires 'File::HomeDir' => 0;
 requires	'DBI'                     => 0;
