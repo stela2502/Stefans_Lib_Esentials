@@ -31,7 +31,7 @@
                   :option that uses the first name entry as list file
                   
        -hom_file  :a homology database dump obtained from http://www.informatics.jax.org/homology.shtml
-                    http://www.informatics.jax.org/downloads/reports/HMD_HumanPhenotype.rpt
+                    http://www.informatics.jax.org/downloads/reports/HOM_MouseHumanSequence.rpt
        -outfile   :the outfile
        -name_type :the homology database dump has a lot of ids - choose the right one
 
@@ -86,13 +86,13 @@ unless ( defined $names[0]) {
 unless ( defined $hom_file) {
 	$warn .= "the built in mouse/human -hom_file is used\n";
 	$hom_file = File::ShareDir::dist_file('Stefans_Libs_Essentials', "HOM_MouseHumanSequence.rpt.gz");
-	if ( $A != 9606 ){
+	if ( !$A or $A != 9606 ){
 		$A = 10090;
 		$B = 9606;
 	}
 }
 unless ( defined $outfile) {
-	$error .= "the cmd line switch -outfile is undefined!\n";
+	warn "no outfile - printing to stdout\n"
 }
 unless ( defined $name_type) {
 	$warn .= "the -name_type was set to 'Symbol'\n";
@@ -133,16 +133,18 @@ $task_description .= " -name_type '$name_type'" if (defined $name_type);
 $task_description .= " -name_is_list" if ( $name_is_list);
 
 
-use stefans_libs::Version;
-my $V = stefans_libs::Version->new();
-my $fm = root->filemap( $outfile );
-mkdir( $fm->{'path'}) unless ( -d $fm->{'path'} );
 
-open ( LOG , ">$outfile.log") or die $!;
-print LOG '#library version '.$V->version( "Stefans_Libs_Essentials" )."\n";
-print LOG $task_description."\n";
-close ( LOG );
 
+if ( defined $outfile) {
+	use stefans_libs::Version;
+	my $V = stefans_libs::Version->new();
+	my $fm = root->filemap( $outfile );
+	mkdir( $fm->{'path'}) unless ( -d $fm->{'path'} );
+	open ( LOG , ">$outfile.log") or die $!;
+	print LOG '#library version '.$V->version( "Stefans_Libs_Essentials" )."\n";
+	print LOG $task_description."\n";
+	close ( LOG );
+}
 
 ## Do whatever you want!
 if ( $hom_file =~m/.gz$/) {
@@ -153,7 +155,7 @@ if ( $hom_file =~m/.gz$/) {
 	
 }
 
-my ($header, $data,@line, $a, $b);
+my ($header, $data,@line, $a, $b, $old_homID);
 while ( <HOM> ) {
   chomp();
   @line = split("\t",$_);
@@ -168,29 +170,51 @@ while ( <HOM> ) {
     }
     next;
   }
-  if ( $line[$header->{'NCBI Taxon ID'}] == $A ) {
+  unless(defined $old_homID){
+  	$old_homID = $line[$header->{'HomoloGene ID'}];
+  }
+  unless ($old_homID eq $line[$header->{'HomoloGene ID'}] ){
+  	## make shure there is no error in the gene names to ID
+  	$old_homID = $line[$header->{'HomoloGene ID'}];
+  	$a = $b = undef;
+  }
+  if ($old_homID == 7517 && $debug ){
+  	warn "read while start \$old_homID=$old_homID; \$a=$a; \$b=$b\n";
+  }
+  if ( $line[$header->{'NCBI Taxon ID'}] eq $A ) {
     $a = $line[$header->{$name_type}];
   #  print "Found one gene $a for tax $A\n" if ($debug);
     if ( defined $b ) {
       $data->{$a} = $b;
+      print "b also: $a => $b" if ( $old_homID == 7517 && $debug );
       $a = $b = undef;
     }
+    next;
   }
-  if ( $line[$header->{'NCBI Taxon ID'}] == $B ) {
+  if ( $line[$header->{'NCBI Taxon ID'}] eq $B ) {
     $b = $line[$header->{$name_type}];
   #  print "Found one gene $b for tax $B\n" if ($debug);
     if ( defined $a ) {
       $data->{$a} = $b;
+      print "a also: $a => $b" if ( $old_homID == 7517 && $debug );
       $a = $b = undef;
     }
+  }
+  
+  if ($old_homID == 7517 && $debug ){
+  	warn "read while end \$old_homID=$old_homID; \$a=$a; \$b=$b\n";
   }
 }
 
 close ( HOM);
 print "Read ".scalar(keys %$data). " gene-gene combinations\n";
-my $ok;
+my ($ok, $fh);
 
-open ( OUT , ">$outfile") or die "I could not open the outfile '$outfile\n'\n$!\n";
+if ( defined $outfile ) {
+	open ( $fh , ">$outfile") or die "I could not open the outfile '$outfile\n'\n$!\n";
+}else {
+	$fh = *STDOUT;
+}
 
 if ( -f $names[0] ) {
   ## I asume it is a GSEA database file
@@ -203,27 +227,27 @@ if ( -f $names[0] ) {
 	}
 	my @ret = &translate( @names );
   	$ok = scalar(@ret);
-  	print OUT join("\n", @ret );
-  	print "I could convert $ok out of ".scalar(@names)." gene names\n";
+  	print $fh join("\n", @ret )."\n";
+  	warn "I could convert $ok out of ".scalar(@names)." gene names\n";
   }else {
   	while( <IN> ) {
 	    chomp();
 	    @line= split("\t", $_);
-	    print OUT join("\t", shift(@line), shift(@line) )."\t";
-	    print OUT join("\t", &translate( @line) )."\n";
+	    print $fh join("\t", shift(@line), shift(@line) )."\t";
+	    print $fh join("\t", &translate( @line) )."\n";
   	}
   }
-  close ( IN );
+  close ( $fh );
 }
 else {
   my @ret = &translate( @names );
   $ok = scalar(@ret);
-  print OUT join("\n", @ret );
-  print "I could convert $ok out of ".scalar(@names)." gene names\n";
+  print $fh join("\n", @ret )."\n";
+  warn "I could convert $ok out of ".scalar(@names)." gene names\n";
 
 }
 
-close ( OUT );
+close ( $fh );
 
 
 sub translate {
