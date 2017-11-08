@@ -1,4 +1,4 @@
-package stefans_libs_database_userTable_CatalystUser;
+package stefans_libs::database::userTable::CatalystUser;
 
 use strict;
 use warnings;
