@@ -1715,14 +1715,16 @@ This function will read a tab separated table file. The separator can be set usi
 =cut
 
 sub read_file {
-	my ( $self, $filename, $lines ) = @_;
+	my ( $self, $filename, $lines, $noinit ) = @_;
 	return undef unless ( -f $filename );
 	if ( $self->Lines > 0 ) {
 		$self = ref($self)->new();
 	}
 	$self->{'read_filename'}   = $filename;
-	$self->{'header_position'} = {} if ( ref($self) eq "data_table" );
-	$self->{'header'}          = [] if ( ref($self) eq "data_table" );
+	unless ( $noinit ) {
+		$self->{'header_position'} = {} if ( ref($self) eq "data_table" );
+		$self->{'header'}          = [] if ( ref($self) eq "data_table" );
+	}
 	$self->{'data'}            = [];
 	$self->string_separator();    ##init
 	$self->line_separator();      ##init

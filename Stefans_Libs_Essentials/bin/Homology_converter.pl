@@ -25,7 +25,7 @@
 =head1  SYNOPSIS
 
     Homology_converter.pl
-       -names     :a list of gene names
+       -names     :a list of gene names or a file containing only gene names
        
        -name_is_list
                   :option that uses the first name entry as list file
@@ -80,8 +80,20 @@ Getopt::Long::GetOptions(
 my $warn = '';
 my $error = '';
 
+sub uniq {
+	my $d = { map { $_ => 1} @_ }	;
+	return sort keys %$d;
+}
 unless ( defined $names[0]) {
 	$error .= "the cmd line switch -names is undefined!\n";
+}elsif( -f $names[0] ){
+	open (IN , "<$names[0]") or die "I could not open the names file $names[0]\n$!\n";
+	my @tmp;
+	while ( <IN> ){
+		push ( @tmp, split(/\s+/, $_));
+	}
+	close ( IN );
+	@names = &uniq( @tmp);
 }
 unless ( defined $hom_file) {
 	$warn .= "the built in mouse/human -hom_file is used\n";
