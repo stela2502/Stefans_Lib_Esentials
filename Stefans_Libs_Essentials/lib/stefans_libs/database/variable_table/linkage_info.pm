@@ -623,16 +623,15 @@ sub create_SQL_statement {
 	###########################
 
 	if ( defined $hash->{'limit'} ) {
-		if ( $self->{'tableObj'}->{'connection'}->{'driver'} eq "mysql" ) {
-			$sql .= " $hash->{'limit'}";
-		}
-		elsif ( $self->{'tableObj'}->{'connection'}->{'driver'} eq "DB2" ) {
+		if ( $self->{'tableObj'}->{'connection'}->{'driver'} eq "DB2" ) {
 			$temp = $hash->{'limit'};
 			$temp =~ s/limit/FETCH FIRST/;
 			unless ( $temp =~ m/FETCH FIRST/ ) {
 				$temp = "FETCH FIRST $temp";
 			}
 			$sql .= " " . $temp . " ROWS ONLY";
+		}else {
+			$sql .= " $hash->{'limit'}";
 		}
 	}
 	$sql = $self->finally_check_sql_stmt($sql);

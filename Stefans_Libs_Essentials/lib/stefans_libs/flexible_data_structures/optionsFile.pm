@@ -141,26 +141,32 @@ sub load{
 	return $self;
 }
 
+sub AsString{
+	my ($self) = @_;
+	my $str = "## required:\n";
+	foreach ( @{$self->{'required'}} ) {
+		if ( $self->{'data'}->{$_}) {
+			$str .=  "$_\t$self->{'data'}->{$_}\n";
+		}else {
+			$str .=  "$_\tchange me\n";
+		}
+	}
+	$str .=  "## optional:\n";
+	foreach ( @{$self->{'optional'}} ) {
+		if ( $self->{'data'}->{$_}) {
+			$str .= "$_\t$self->{'data'}->{$_}\n";
+		}else {
+			$str .=  "#$_\tchange me or comment me out\n";
+		}
+	}
+	return $str;
+}
+
 sub save{
 	my ( $self, $fname ) = @_;
 	$fname = $self->{'default_file'} unless ( defined $fname );
 	open (OUT , ">$fname") or die "I could not create the SLURM opts store '$fname'\n$!\n";
-	print OUT "## required:\n";
-	foreach ( @{$self->{'required'}} ) {
-		if ( $self->{'data'}->{$_}) {
-			print OUT "$_\t$self->{'data'}->{$_}\n";
-		}else {
-			print OUT "$_\tchange me\n";
-		}
-	}
-	print OUT "## optional:\n";
-	foreach ( @{$self->{'optional'}} ) {
-		if ( $self->{'data'}->{$_}) {
-			print OUT "$_\t$self->{'data'}->{$_}\n";
-		}else {
-			print OUT "#$_\tchange me or comment me out\n";
-		}
-	}
+	print OUT  $self->AsString();
 	close ( OUT );
 	return $self;
 }

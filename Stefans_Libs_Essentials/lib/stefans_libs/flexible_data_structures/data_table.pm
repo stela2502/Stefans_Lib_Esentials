@@ -2365,7 +2365,7 @@ sub define_subset {
 		else {
 			Carp::cluck( "I define the subset like: $subset_name, ["
 				  . join( ", ", @{$column_names} )
-				  . "], but I do not know the column $colName here!\n" );
+				  . "], but I do not know the column @{$column_names} here!\n" );
 			$self->Add_2_Header($colName);
 			push( @columns, $self->Header_Position($colName) );
 			$self->{'last_warning'} =
@@ -2756,7 +2756,7 @@ sub Add_unique_key {
 	}
 	my @return = $self->define_subset( $key_name, $columnName );
 	$self->UpdateUniqueKey($key_name);
-	return @return;
+	return $self->{'uniques'}->{$key_name};
 }
 
 sub UpdateUniqueKey {
