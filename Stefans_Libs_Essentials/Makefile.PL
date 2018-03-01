@@ -9,6 +9,7 @@ name "Stefans_Libs_Essentials";
 version_from "lib/Stefans_Libs_Essentials.pm";
 author 'Stefan Lang <Stefan.Lang@med.lu.se>';
 
+requires 'ExtUtils::MakeMaker' => '6.11';
 requires 'Module::Install::Share' => 0;
 requires 'HTML::TableExtract' => 0;
 requires 'File::ShareDir' => 0;
@@ -36,8 +37,9 @@ close ( DIR );
 
 requires_external_bin('sqlite3');
 
-install_share 'data';
 
+install_share 'share';
 auto_install();
 WriteAll();
+
 
