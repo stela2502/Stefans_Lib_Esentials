@@ -83,7 +83,7 @@ sub _lib_path {
 sub table_file {
 	my $self = shift;
 	$self->{fname} ||= $self->_lib_path()."Versions.xls";
-	warn "I am using the version file '$self->{fname}'\n";
+	#warn "I am using the version file '$self->{fname}'\n";
 	return $self->{fname};
 }
 
@@ -124,7 +124,7 @@ sub record{
 		return $self;
 	}
 	eval {
-		warn "cd $path && git remote get-url --push $package \n";
+		#warn "cd $path && git remote get-url --push $package \n";
 		open ( REF, "cd $path && git remote get-url --push $package |") or Carp::confess("I could not recieve the git origin\n$!\n");
 		$orig = join("", <REF>);
 		$orig =~ s/\n//g;
@@ -133,7 +133,7 @@ sub record{
 	};
 	unless (defined $table->get_rowNumbers_4_columnName_and_Entry( 'package', $package) ) {
 		eval {
-			warn "cd $path && git remote get-url origin\n"; 
+			#warn "cd $path && git remote get-url origin\n"; 
 			open ( REF, "cd $path && git remote get-url origin |") or Carp::confess("I could not recieve the git origin\n$!\n");
 			$orig = join("", <REF>);
 			$orig =~ s/\n//g;
