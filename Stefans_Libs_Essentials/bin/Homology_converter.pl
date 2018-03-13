@@ -245,7 +245,8 @@ if ( -f $names[0] ) {
   	while( <IN> ) {
 	    chomp();
 	    @line= split("\t", $_);
-	    print $fh join("\t", shift(@line), shift(@line) )."\t";
+	    shift(@line); shift(@line); 
+	    #print $fh join("\t", shift(@line), shift(@line) )."\t";
 	    print $fh join("\t", &translate( @line) )."\n";
   	}
   }
@@ -267,7 +268,7 @@ sub translate {
   foreach ( @_ ) {
   	next unless ( defined $_ );
      if ( defined $data->{$_}){
-    	push ( @ret, $data->{$_} );
+    	push ( @ret,"$_;$data->{$_}" );
   		#warn "$_ -> $data->{$_}\n";
     }
   }
