@@ -285,7 +285,7 @@ sub select_where {
 	for ( my $i = 0 ; $i < @{ $self->{'data'} } ; $i++ ) {
 
 #print "line $i would be selected if (".&$function_ref($self->get_value_4_line_and_column( $i, $col_name )).")\n";
-		@{ $return->{'data'} }[ scalar(@{ $return->{'data'} }) ] =
+		@{ $return->{'data'} }[ scalar( @{ $return->{'data'} } ) ] =
 		  [ @{ @{ $self->{'data'} }[$i] } ]
 		  if (
 			&$function_ref(
@@ -293,6 +293,7 @@ sub select_where {
 			)
 		  );
 	}
+
 	#print "Done\n";
 	return $return;
 }
@@ -917,17 +918,16 @@ sub _copy_without_data {
 	{
 		$return->{$_} = $self->{$_};
 	}
-	 foreach ( 'header_position') {
+	foreach ('header_position') {
 		$return->{$_} = {};
 	}
-	foreach (  'header' ) {
+	foreach ('header') {
 		$return->{$_} = [];
 	}
-	$return->Add_2_Header($self->{'header'});
+	$return->Add_2_Header( $self->{'header'} );
 
 	$return->{__max_header__} = $self->{'__max_header__'};
 
-		
 	foreach (
 		sort { $self->_subset_weight($a) <=> $self->_subset_weight($b) }
 		keys %{ $self->{'subsets'} }
@@ -938,9 +938,8 @@ sub _copy_without_data {
 		  @{ $self->{'subset_headers'}->{$_} };
 		$return->define_subset( $_, $self->{'subset_headers'}->{$_} ) if ($OK);
 	}
-	
-		
-	for ( my $i = 0 ; $i < @{  $self->{'header'} } ; $i++ ) {
+
+	for ( my $i = 0 ; $i < @{ $self->{'header'} } ; $i++ ) {
 		if ( defined @{ $self->{'default_value'} }[$i] ) {
 			$return->setDefaultValue(
 				@{ $self->{'header'} }[$i],
@@ -948,7 +947,7 @@ sub _copy_without_data {
 			);
 		}
 	}
-	
+
 	$return->line_separator( $self->line_separator() );
 	foreach my $index_name ( keys %{ $self->{'index'} } ) {
 		$return->{'index'}->{$index_name} = {};
@@ -956,7 +955,7 @@ sub _copy_without_data {
 	foreach my $index_name ( keys %{ $self->{'uniques'} } ) {
 		$return->{'uniques'}->{$index_name} = {};
 	}
-	
+
 	return $return;
 }
 
@@ -1335,9 +1334,7 @@ sub AsTestString {
 		return $self->GetAsObject($subset)->AsTestString();
 	}
 	if ( $self->Lines() < 11 ) {
-		return
-		   $self->AsString()
-		  . $self->__tail_as_string();
+		return $self->AsString() . $self->__tail_as_string();
 	}
 	foreach my $description_line ( @{ $self->{'description'} } ) {
 		$description_line =~ s/\n/\n#/g;
@@ -1461,11 +1458,12 @@ sub Add_2_Header {
 	  unless ( defined $value );
 	if ( ref($value) eq "ARRAY" ) {
 		return map { $self->Add_2_Header($_) } @$value;
-#		my @return;
-#		foreach (@$value) {
-#			push( @return, $self->Add_2_Header($_) );
-#		}
-#		return @return;
+
+		#		my @return;
+		#		foreach (@$value) {
+		#			push( @return, $self->Add_2_Header($_) );
+		#		}
+		#		return @return;
 	}
 	unless ( defined $self->{'header_position'}->{$value} ) {
 		$self->{'header_position'}->{$value} =
@@ -1495,7 +1493,8 @@ sub Max_Header {
 	else {
 		Carp::confess("Sorry you can not do that: '$what'\n");
 	}
-	$self->{'__max_header__'} = scalar( @{ $self->{'header'} } ) if ( $self->{'__max_header__'} > scalar( @{ $self->{'header'} } ) );
+	$self->{'__max_header__'} = scalar( @{ $self->{'header'} } )
+	  if ( $self->{'__max_header__'} > scalar( @{ $self->{'header'} } ) );
 
 	return $self->{'__max_header__'};
 }
@@ -1712,6 +1711,19 @@ sub __process_line_No_Header {
 
 This function will read a tab separated table file. The separator can be set usiong the line_separator function.
 
+If line is defined it can either be the number of lines to read or a more complex function.
+This function will get the data_table object, array ref of the split line and the numbers of lines read.
+
+$lines = sub {
+	my ( $self, $line, $i ) = @_;
+	if ( $i > $max_counter ) {
+		return 0;
+	}
+	return 1;
+};
+
+Only if the function is returning a true value the line will actually be stored.
+
 =cut
 
 sub read_file {
@@ -1720,12 +1732,12 @@ sub read_file {
 	if ( $self->Lines > 0 ) {
 		$self = ref($self)->new();
 	}
-	$self->{'read_filename'}   = $filename;
-	unless ( $noinit ) {
+	$self->{'read_filename'} = $filename;
+	unless ($noinit) {
 		$self->{'header_position'} = {} if ( ref($self) eq "data_table" );
 		$self->{'header'}          = [] if ( ref($self) eq "data_table" );
 	}
-	$self->{'data'}            = [];
+	$self->{'data'} = [];
 	$self->string_separator();    ##init
 	$self->line_separator();      ##init
 	my ( @line, $value, $temp );
@@ -1735,50 +1747,51 @@ sub read_file {
 	my (@description);
 
 	if ( defined $lines ) {
-		my $i = 0;
-		foreach (<IN>) {
-			if ( $self->{'no_doubble_cross'}
-				&& !defined @{ $self->{'header'} }[0] )
-			{
-				$self->Add_2_Header( $self->__split_line($_) );
-				next;
-			}
-			$i++;
-			chomp($_);
-			if ( substr( $_, 0, 1 ) eq "#" ) {
-				$value = $self->__process_comment_line($_);
-				push( @{ $self->{'description'} }, $value )
-				  if ( $value =~ m/\w/ );
-				next;
-			}
-			unless ( defined @{ $self->{'header'} }[0] ) {
-				next if ( $self->__process_line_No_Header($_) );
-			}
-			$temp = $self->__split_line($_);
-			push( @{ $self->{'data'} }, $temp ) if ( ref($temp) eq "ARRAY" );
-			last if ( $i >= $lines );
+		if ( ref($lines) eq "CODE" ) {
+			#print "I got a function for line selectiong!\n";
+			#the new way to go - no change needed
+		}
+		else {
+			## the old way using the counter..
+			$self->{'max_counter'} = $lines;
+			$lines = sub {
+				my ( $self, $line, $now ) = @_;
+				unless ( $now >= $self->{'max_counter'} ) {
+					return 1;
+				}
+				return 0;
+			};
 		}
 	}
 	else {
-		foreach (<IN>) {
-			chomp($_);
-			if ( $self->{'no_doubble_cross'}
-				&& !defined @{ $self->{'header'} }[0] )
-			{
-				$self->Add_2_Header( $self->__split_line($_) );
-				next;
-			}
-			if ( substr( $_, 0, 1 ) eq "#" ) {    #} $_ =~ m/^#/ ) {
-				$value = $self->__process_comment_line($_);
-				push( @{ $self->{'description'} }, $value )
-				  if ( $value =~ m/\w/ );
-				next;
-			}
-			unless ( defined @{ $self->{'header'} }[0] ) {
-				next if ( $self->__process_line_No_Header($_) );
-			}
-			$temp = $self->__split_line($_);
-			push( @{ $self->{'data'} }, $temp ) if ( ref($temp) eq "ARRAY" );
+		$lines = sub {
+			return 1;
+		};
+	}
+	my $i = 0;
+	foreach (<IN>) {
+		if ( $self->{'no_doubble_cross'}
+			&& !defined @{ $self->{'header'} }[0] )
+		{
+			$self->Add_2_Header( $self->__split_line($_) );
+			next;
+		}
+		chomp($_);
+		if ( substr( $_, 0, 1 ) eq "#" ) {
+			$value = $self->__process_comment_line($_);
+			push( @{ $self->{'description'} }, $value )
+			  if ( $value =~ m/\w/ );
+			next;
+		}
+		unless ( defined @{ $self->{'header'} }[0] ) {
+			next if ( $self->__process_line_No_Header($_) );
+		}
+		
+		$i++; ## count only data lines...
+		
+		$temp = $self->__split_line($_);
+		if ( ref($temp) eq "ARRAY" ) {
+			push( @{ $self->{'data'} }, $temp ) if ( &{$lines}( $self, $temp, $i ) );
 		}
 	}
 	foreach ( keys %{ $self->{'index'} } ) {
@@ -1914,7 +1927,7 @@ sub drop_column {
 	}
 	my @cols;
 	for ( my $i = 0 ; $i < $self->Columns() ; $i++ ) {
-		next unless (defined @{ $self->{'header'} }[$i]);
+		next unless ( defined @{ $self->{'header'} }[$i] );
 		$cols[@cols] = @{ $self->{'header'} }[$i] unless ( $col_pos->{$i} );
 	}
 	my @col_ids = sort { $b <=> $a } ( keys %$col_pos );
@@ -2066,12 +2079,7 @@ sub get_rowNumbers_4_columnName_and_Entry {
 	}
 	if ( ref($entry) eq " ARRAY " ) {
 		$entry = "@$entry ";
-
-		#warn " The library has changed - arrays are now processed differntly -
-		# check your outcome !\n ";
-	}    #else {
-	     #	$entry = [$entry];
-	     #}
+	}
 	unless ( defined $self->{'index'}->{$column} ) {
 		$self->createIndex($column);
 	}
@@ -2194,8 +2202,7 @@ sub merge_with_data_table {
 			  . " me : '"
 			  . join( "', '", @{ $self->{'header'} } )
 			  . "' \nthe other : '"
-			  . join( "', '", @{ $other_data_table->{'header'} } )
-			  . "' \n "
+			  . join( "', '", @{ $other_data_table->{'header'} } ) . "' \n "
 		) unless ( scalar( keys %$keys ) > 0 );
 	}
 	else {
@@ -2365,7 +2372,8 @@ sub define_subset {
 		else {
 			Carp::cluck( "I define the subset like: $subset_name, ["
 				  . join( ", ", @{$column_names} )
-				  . "], but I do not know the column @{$column_names} here!\n" );
+				  . "], but I do not know the column @{$column_names} here!\n"
+			);
 			$self->Add_2_Header($colName);
 			push( @columns, $self->Header_Position($colName) );
 			$self->{'last_warning'} =

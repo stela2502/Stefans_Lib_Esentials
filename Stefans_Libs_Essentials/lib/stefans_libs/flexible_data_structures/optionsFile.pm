@@ -97,7 +97,8 @@ sub drop{
 }
 
 sub value{
-	my ( $self, $key) = @_;
+	my ( $self, $key, $value) = @_;
+	$self->{data}->{$key} = $value if ( defined $value);
 	return $self->{data}->{$key};
 }
 
