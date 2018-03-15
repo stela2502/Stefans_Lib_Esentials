@@ -1741,13 +1741,22 @@ sub read_file {
 	$self->string_separator();    ##init
 	$self->line_separator();      ##init
 	my ( @line, $value, $temp );
-	open( IN, "<$filename" )
-	  or die ref($self)
-	  . "::read_file -> could not open file '$filename'\n$!\n";
+	if ( $filename .= /.gz$/ ) {
+		open( IN, "gunzip $filename |" )
+		  or die ref($self)
+		  . "I could not gunzip the zipped file on the fly\n";
+	}
+	else {
+		open( IN, "<$filename" )
+		  or die ref($self)
+		  . "::read_file -> could not open file '$filename'\n$!\n";
+	}
+
 	my (@description);
 
 	if ( defined $lines ) {
 		if ( ref($lines) eq "CODE" ) {
+
 			#print "I got a function for line selectiong!\n";
 			#the new way to go - no change needed
 		}
@@ -1786,12 +1795,13 @@ sub read_file {
 		unless ( defined @{ $self->{'header'} }[0] ) {
 			next if ( $self->__process_line_No_Header($_) );
 		}
-		
-		$i++; ## count only data lines...
-		
+
+		$i++;    ## count only data lines...
+
 		$temp = $self->__split_line($_);
 		if ( ref($temp) eq "ARRAY" ) {
-			push( @{ $self->{'data'} }, $temp ) if ( &{$lines}( $self, $temp, $i ) );
+			push( @{ $self->{'data'} }, $temp )
+			  if ( &{$lines}( $self, $temp, $i ) );
 		}
 	}
 	foreach ( keys %{ $self->{'index'} } ) {
