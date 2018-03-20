@@ -1741,8 +1741,8 @@ sub read_file {
 	$self->string_separator();    ##init
 	$self->line_separator();      ##init
 	my ( @line, $value, $temp );
-	if ( $filename .= /.gz$/ ) {
-		open( IN, "gunzip $filename |" )
+	if ( $filename =~ m/\.gz$/ ) {
+		open( IN, "zcat $filename |" )
 		  or die ref($self)
 		  . "I could not gunzip the zipped file on the fly\n";
 	}
