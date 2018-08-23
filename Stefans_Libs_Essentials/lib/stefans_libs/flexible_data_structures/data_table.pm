@@ -1946,7 +1946,7 @@ sub drop_column {
   #"I drop the column $column_name and am going through the data in the order: "
   #	  . join( ", ", @col_ids ) . "\n";
 	for ( my $i = 0 ; $i < $self->Rows() ; $i++ ) {
-		map { splice( @{ @{ $self->{'data'} }[$i] }, $_, 1 ) } @col_ids;
+		map { splice( @{ @{ $self->{'data'} }[$i] }, $_, 1 ) if (scalar(@{ @{ $self->{'data'} }[$i] }) > $_ ) } @col_ids;
 	}
 	$self->{'header'} = [];
 

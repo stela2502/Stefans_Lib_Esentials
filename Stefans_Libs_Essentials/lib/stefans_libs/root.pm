@@ -186,11 +186,13 @@ sub filemap{
 }
 sub parse_path{
 	my ( $self, $filename ) = @_;
-	if ( $filename =~m/^(\$\w*)\/(.*)$/ ) {
+	if ( $filename =~m/^(\$[\w_]*)\/(.*)$/ ) {
  	## oops the path is an environment variable!
+ 		#warn "root->filemap got a env var as path!\t$1\n";
  		my $tmp = $1;
  		my $fm = $self->filemap( $2 );
  		$fm->{'path'} = $tmp;
+ 		$fm->{'total'} = File::Spec->catfile($fm->{'path'}, $fm->{'filename'});
  		return $fm;
  	}
 	unless ( $filename =~ m!^/! ) {

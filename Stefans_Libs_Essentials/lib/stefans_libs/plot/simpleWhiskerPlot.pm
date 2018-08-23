@@ -15,11 +15,12 @@ package simpleWhiskerPlot;
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, see <http://www.gnu.org/licenses/>.
 
-use stefans_libs::plot::figure;
+#use stefans_libs::plot::figure;
 use base ('figure');
 use strict;
 
 sub new {
+	Carp::confess( "Libgb support removed from lib - lib not usable anymore!");
 
 	my ($class) = @_;
 
