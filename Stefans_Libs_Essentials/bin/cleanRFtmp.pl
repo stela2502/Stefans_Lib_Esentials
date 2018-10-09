@@ -55,11 +55,12 @@ my $plugin_path = "$FindBin::Bin";
 my $VERSION = 'v1.0';
 
 
-my ( $help, $debug, $database, $startFolder);
+my ( $help, $debug, $database, $fileMatch, @ext, $startFolder);
 
 Getopt::Long::GetOptions(
 	 "-startFolder=s"    => \$startFolder,
-
+	 "-fileMatch=s"      => \$fileMatch,
+	 "-ext=s{,}"         => \@ext,
 	 "-help"             => \$help,
 	 "-debug"            => \$debug
 );
@@ -70,7 +71,12 @@ my $error = '';
 unless ( defined $startFolder) {
 	$error .= "the cmd line switch -startFolder is undefined!\n";
 }
-
+unless( defined $ext[0] ) {
+	@ext = ('err', 'out', 'Rout', 'R', 'RData', 'sh', 'lock');
+}
+unless( defined $fileMatch ) {
+	$fileMatch = '^runRFclust_';
+}
 
 if ( $help ){
 	print helpString( ) ;
@@ -99,19 +105,22 @@ $task_description .= " -startFolder '$startFolder'" if (defined $startFolder);
 
 ## Do whatever you want!
 
-&checkPath( $startFolder );
+my $remove = { map {$_ => 1} @ext };
+print "Searching for files like /$fileMatch/ in path $startFolder:\n";
+print "In debug mode no file is deleted\n" if ( $debug );
+print "In total ".&checkPath( $startFolder, $fileMatch, $remove )." files were not deleted\n";
 
 
 
 sub checkPath {
-	my $path = shift;
+	my ($path, $fileMatch, $remove) = @_;
+	$fileMatch ||= 'runRFclust_';
 	my (@tmp, @files, $remaining, $subdir_rem, $file, $ext) ;
 	opendir ( my $p , "$path" ) or die $!;
 	@files = readdir( $p );
 	closedir($p);
 	$remaining = 0;
-	my $remove = { map {$_ => 1} 'err', 'out', 'Rout', 'R', 'RData', 'sh', 'lock'  };
-	
+
 	#print "\$exp = " . root->print_perl_var_def( $remove) . ";\n";
 	
 	foreach $file ( @files ){
@@ -122,7 +131,7 @@ sub checkPath {
 			unless ( $subdir_rem) {
 				rmdir( $file ) or warn "Could not rmdir $file: $!" unless $debug;
 			}
-		}elsif ($file=~m/^runRFclust_/) {
+		}elsif ($file=~m/^$fileMatch/) {
 			@tmp = split( /\./, $file);
 			$ext = pop(@tmp);
 			#print "$file has ext '$ext'\n";
