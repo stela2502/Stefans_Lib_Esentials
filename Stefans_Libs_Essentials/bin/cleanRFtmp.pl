@@ -126,8 +126,9 @@ sub checkPath {
 	foreach $file ( @files ){
 		next if ( $file=~m/^\./);
 		if ( -d File::Spec->catfile( $path, $file ) ) {
+			#warn "moving into subpath $file\n";
 			$file = File::Spec->catfile( $path, $file );
-			$remaining += $subdir_rem = &checkPath ( $file );
+			$remaining += $subdir_rem = &checkPath ( $file, $fileMatch, $remove );
 			unless ( $subdir_rem) {
 				rmdir( $file ) or warn "Could not rmdir $file: $!" unless $debug;
 			}
@@ -160,7 +161,7 @@ sub checkPath {
 			}
 		}
 	}
-	warn "path $path had $remaining remaining files\n";
+	#warn "path $path had $remaining remaining files\n";
 	return $remaining;
 }
 
