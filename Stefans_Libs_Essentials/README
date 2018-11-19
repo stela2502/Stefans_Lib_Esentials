@@ -2,3 +2,15 @@ This is the Stefans libs essentials package including
 (1) stefans_libs::database::variable_table variable_table DB interface,
 (2) stefans_libs::flexible_data_structures::data_table table interface and
 (3) stefans_libs::Latex_Document LaTeX reporting interface
+
+Instaĺl into path
+
+This is a pain in the a...
+I had to force this:
+
+
+ export PERL_LOCAL_LIB_ROOT="/projects/fs1/common/software/StefansPerl/1.2.0/"
+ export PERL_MB_OPT="--install_base "/projects/fs1/common/software/StefansPerl/1.2.0/""
+ export PERL_MM_OPT="INSTALL_BASE=/projects/fs1/common/software/StefansPerl/1.2.0/"
+
+But after that the installation went fine.
