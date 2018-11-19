@@ -2,11 +2,18 @@
 # IMPORTANT: if you delete this file your app will not work as
 # expected.  You have been warned.
 
+use strict;
+use warnings;
+
+use lib 'lib';
 use inc::Module::Install;
+
+#use inc::Module::Install;
 use Module::Install::Share;
 
 name "Stefans_Libs_Essentials";
 version_from "lib/Stefans_Libs_Essentials.pm";
+perl_version '5.006';
 author 'Stefan Lang <Stefan.Lang@med.lu.se>';
 
 requires 'ExtUtils::MakeMaker' => '6.11';
@@ -40,7 +47,8 @@ requires_external_bin('sqlite3');
 
 
 install_share 'share';
-auto_install();
+#auto_install();
+
 WriteAll();
 
 

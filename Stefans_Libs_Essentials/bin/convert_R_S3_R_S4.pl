@@ -27,6 +27,7 @@ use Getopt::Long;
 use strict;
 use warnings;
 
+use File::Spec;
 use stefans_libs::root;
 
 use FindBin;
@@ -119,13 +120,14 @@ for ( my $i = 0 ; $i < @file ; $i++ ) {
 			$man = undef;
 			print OUT $file[$i];
 		}
-		if ( $file[$i] =~ m/^#' / ) {
-			if ( $file[$i] =~ m/^#'\s+\@([\d\w]+)\s+(.*)/ ) {
+		if ( $file[$i] =~ m/^#' ?/ ) {
+			print "123: I have the old man string $file[$i]";
+			if ( $file[$i] =~ m/^#'\s*\@([\d\w]+)\s+(.*)/ ) {
 				$man->{$1} ||= [];
 				push( @{ $man->{$1} }, $2 );
 			}
 			else {
-				$file[$i] =~ m/^#'\s+(.*)/;
+				$file[$i] =~ m/^#'\s*(.*)/;
 				$man->{'description'} ||= [];
 				push( @{ $man->{'description'} }, $1 );
 
@@ -154,14 +156,16 @@ for ( my $i = 0 ; $i < @file ; $i++ ) {
 			# now I have function name and args in two variables.
 			$bracket =
 			  1;    ## I need to check whether the } does close the function!
+			print "# before populate_man\n\t\$man = " . root->print_perl_var_def( $man ) . ";\n";
+			
 			$man = &populate_man( $funN, $classN, $man, $funArgs);
 			print OUT man2str( $man );
 			$man = undef;
-			print OUT "setGeneric('$funN', ## Name
-	function $funArgs { ## Argumente der generischen Funktion
-		standardGeneric('$funN') ## der Aufruf von standardGeneric sorgt für das Dispatching
+			print OUT "if ( ! isGeneric('$funN') ){setGeneric('$funN', ## Name
+	function $funArgs { 
+		standardGeneric('$funN')
 	}
-)
+) }
 
 setMethod('$funN', signature = c ('$classN'),
 	definition = function $funArgs {\n";
@@ -274,8 +278,12 @@ sub populate_man {
 	$funArgs =~ s/^\s*\(//;
 	$funArgs =~ s/\s*\)\s*$//;
 	print $funArgs."\n";
-	my $d;
+	my ($d, @tmp);
+	
+	my $definedParam = { map { @tmp = split(/\s+/, $_); "$tmp[0]" => 1 } @{$man->{'param'}} };
+	
 	foreach (split( ",", $funArgs ) ) {
+		next if ( $definedParam->{$_} );
 		$_ =~ s/=(.*)$//;
 		$d = $1;
 		$_ =~ s/\s//g;

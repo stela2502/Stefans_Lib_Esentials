@@ -1,0 +1,2 @@
+#library version 
+perl /home/stefan/git/Stefans_Lib_Esentials/Stefans_Libs_Essentials/bin/Homology_converter.pl -names "RET" -hom_file '/usr/local/lib/x86_64-linux-gnu/perl/5.24.1/auto/Stefans_Libs_Essentials/HOM_MouseHumanSequence.rpt.gz' -name_type 'Symbol'
