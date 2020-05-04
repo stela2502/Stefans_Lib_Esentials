@@ -117,6 +117,9 @@ sub work_on_path_with_preselect {
         if ( -d "$path/$eintrag" ) {
             &work_on_path_with_preselect("$path/$eintrag");
         }
+        else if ( -B "$path/$eintrag" ) {
+        	## do nothing
+        }
         else {
             open( IN_FILE, "<$path/$eintrag" )
               or die "I could not open the file '$path/$eintrag'\n$!\n";
@@ -160,6 +163,9 @@ sub work_on_path {
         next if ( $eintrag =~ m/^\./ );
         if ( -d "$path/$eintrag" ) {
             &work_on_path("$path/$eintrag");
+        }
+        else if ( -B "$path/$eintrag" ) {
+        	## do nothing
         }
         else {
             open( IN_FILE, "<$path/$eintrag" )
