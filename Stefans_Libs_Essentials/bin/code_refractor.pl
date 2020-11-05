@@ -90,9 +90,9 @@ sub helpString {
 
 my ($task_description);
 
-$match =~ s/\$/./g;
-$match =~ s/"/./g;
-$match =~ s/'/./g;
+#$match =~ s/\$/./g;
+#$match =~ s/"/./g;
+#$match =~ s/'/./g;
 
 $task_description .=
   'perl ' . root->perl_include() . ' ' . $plugin_path . '/code_refractor.pl';
@@ -111,7 +111,7 @@ sub work_on_path_with_preselect {
       or die "I could not read from path '$path'\n$!\n";
     my @eintraege = readdir(Pair_PATH);
     closedir(Pair_PATH);
-    my ( $eintrag, @file, $line, $modified );
+    my ( $eintrag, @file, $line, $modified, $new );
     foreach my $eintrag (@eintraege) {
         next if ( $eintrag =~ m/^\./ );
         if ( -d "$path/$eintrag" ) {
@@ -127,8 +127,10 @@ sub work_on_path_with_preselect {
             foreach $line (@file) {
                 if ( $line =~ m/$line_select/ ) {
                     $modified = 1;
+                    $new = $line;
                     $line =~ s/$match/$replace/g;
-                    print "we have found a match!\n";
+            
+                    print "we have found a match!: \n\t$new /$match/$replace/\n\t$line\n";
                 }
                 if ( $line =~ m/"DBI::db"/ ) {
                     print "we goot the line $line\n";
@@ -155,7 +157,7 @@ sub work_on_path {
       or die "I could not read from path '$path'\n$!\n";
     my @eintraege = readdir(Pair_PATH);
     closedir(Pair_PATH);
-    my ( $eintrag, @file, $line, $modified );
+    my ( $eintrag, @file, $line, $modified, $new, @tmp );
     foreach my $eintrag (@eintraege) {
         next if ( $eintrag =~ m/^\./ );
         if ( -d "$path/$eintrag" ) {
@@ -170,15 +172,17 @@ sub work_on_path {
             foreach $line (@file) {
                 if ( $line =~ m/$match/ ) {
                     $modified = 1;
-                    $line =~ s/$match/$replace/g;
-                    print "we have found a match!\n";
+                    $new = $line;
+	                $line =~ s/$match/$replace/g;
+		    
+                    print "we have found a match!: \n\t$new /$match/$replace/\n\t$line\n";
                 }
                 if ( $line =~ m/"DBI::db"/ ) {
                     print "we goot the line $line\n";
                 }
             }
 
-            if ($modified) {
+            if ($modified and ! $debug) {
                 open( OUT, ">$path/$eintrag" )
                   or die "I could not write to the file '$path/$eintrag'\n$!\n";
                 print OUT join( '', @file );
