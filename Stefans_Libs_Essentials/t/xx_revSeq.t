@@ -8,11 +8,11 @@ use stefans_libs::flexible_data_structures::data_table;
 use FindBin;
 my $plugin_path = "$FindBin::Bin";
 
-my ( $value, @values, $exp, $email, $file, );
+my ( $value, @values, $exp, $seq, );
 
-my $exec = $plugin_path . "/../bin/print_to_mail.pl";
+my $exec = $plugin_path . "/../bin/revSeq.pl";
 ok( -f $exec, 'the script has been found' );
-my $outpath = "$plugin_path/data/output/print_to_mail";
+my $outpath = "$plugin_path/data/output/revSeq";
 if ( -d $outpath ) {
 	system("rm -Rf $outpath");
 }
@@ -20,9 +20,7 @@ if ( -d $outpath ) {
 
 my $cmd =
     "perl -I $plugin_path/../lib  $exec "
-. " -color " # or not?
-. " -email " . $email 
-. " -file " . $file 
+. " -seq " . $seq 
 . " -debug";
 my $start = time;
 system( $cmd );
